@@ -1,0 +1,13 @@
+record_id;G1;failures;studytime;schoolsup
+STU-001;6;2;1;yes
+STU-002;13;0;2;no
+STU-003;20;0;3;no
+STU-004;12;0;4;yes
+STU-005;19;0;1;no
+STU-006;11;2;2;no
+STU-007;18;0;3;yes
+STU-008;10;0;4;no
+STU-009;17;0;1;no
+STU-010;9;0;2;yes
+STU-011;16;2;3;no
+STU-012;8;0;4;no
