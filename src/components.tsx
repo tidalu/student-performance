@@ -169,7 +169,8 @@ export function Login({
             <ArrowRight size={17} />
           </button>
         </form>
-        <details open>
+        <AuthOptions onLogin={onLogin} email={email} />
+        <details>
           <summary>Explore with a demo account</summary>
           <div className="credential-grid">
             {D.db.accounts.map((a) => (
@@ -177,7 +178,7 @@ export function Login({
                 key={a.id}
                 onClick={() => {
                   setEmail(a.email);
-                  setPassword("DemoOnly!2026");
+                  setPassword(a.credential ? "" : "DemoOnly!2026");
                 }}
               >
                 <span className="mini-avatar">{a.name[0]}</span>
@@ -198,7 +199,7 @@ export function Login({
             onClick={async () => {
               try {
                 await navigator.clipboard.writeText(
-                  `${email || "maya@demo.example"}\nDemoOnly!2026`,
+                  `${email || "maya@demo.example"}\n${password || "DemoOnly!2026"}`,
                 );
                 notify("Demo credentials copied.");
               } catch {
@@ -211,12 +212,338 @@ export function Login({
             Copy filled credentials
           </button>
           <p className="fine">
-            All accounts use <code>DemoOnly!2026</code>. Fill credentials, then
-            sign in. Client-side simulation; do not use real credentials.
+            Seed accounts use <code>DemoOnly!2026</code> unless reset.
+            Registered accounts use their chosen demo password. Fill
+            credentials, then sign in. Client-side simulation; do not use real
+            credentials.
           </p>
         </details>
       </section>
     </div>
+  );
+}
+function DemoPassword({
+  label,
+  value,
+  onChange,
+}: {
+  label: string;
+  value: string;
+  onChange: (value: string) => void;
+}) {
+  const [visible, setVisible] = useState(false);
+  return (
+    <label>
+      {label}
+      <div className="password">
+        <input
+          type={visible ? "text" : "password"}
+          autoComplete="new-password"
+          minLength={8}
+          required
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+        />
+        <button
+          type="button"
+          aria-label={(visible ? "Hide " : "Show ") + label.toLowerCase()}
+          onClick={() => setVisible(!visible)}
+        >
+          {visible ? "Hide" : "Show"}
+        </button>
+      </div>
+    </label>
+  );
+}
+function AuthOptions({
+  onLogin,
+  email,
+}: {
+  onLogin: (a: D.Account) => void;
+  email: string;
+}) {
+  const [mode, setMode] = useState<
+    "register" | "forgot" | "sent" | "reset" | "success" | "google" | null
+  >(null);
+  const [name, setName] = useState("");
+  const [address, setAddress] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmation, setConfirmation] = useState("");
+  const [token, setToken] = useState("");
+  const [error, setError] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [success, setSuccess] = useState("");
+  const live = useOperation();
+  const open = (next: typeof mode) => {
+    setMode(next);
+    setAddress(email);
+    setName("");
+    setPassword("");
+    setConfirmation("");
+    setError("");
+    setToken("");
+  };
+  const run = async (action: () => Promise<void>) => {
+    if (busy) return;
+    setBusy(true);
+    setError("");
+    try {
+      await action();
+    } catch (e) {
+      if (live(true)) setError((e as Error).message);
+    } finally {
+      if (live(true)) setBusy(false);
+    }
+  };
+  const title =
+    mode === "register"
+      ? "Create your demo account"
+      : mode === "google"
+        ? "Continue with Google"
+        : mode === "sent"
+          ? "Check your demo inbox"
+          : mode === "reset"
+            ? "Choose a new password"
+            : mode === "success"
+              ? "You’re all set"
+              : "Reset your password";
+  return (
+    <>
+      <div className="auth-divider">
+        <span>or</span>
+      </div>
+      <button className="wide google-signin" onClick={() => open("google")}>
+        <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true">
+          <path
+            fill="#4285F4"
+            d="M21.8 12.2c0-.7-.1-1.4-.2-2.1H12v4h5.5a4.7 4.7 0 0 1-2 3.1v2.6h3.3c1.9-1.8 3-4.4 3-7.6Z"
+          />
+          <path
+            fill="#34A853"
+            d="M12 22c2.7 0 5-.9 6.8-2.4l-3.3-2.6c-.9.6-2.1 1-3.5 1-2.6 0-4.8-1.7-5.6-4H3v2.7A10.2 10.2 0 0 0 12 22Z"
+          />
+          <path
+            fill="#FBBC05"
+            d="M6.4 14a6 6 0 0 1 0-4V7.3H3a10 10 0 0 0 0 9.4L6.4 14Z"
+          />
+          <path
+            fill="#EA4335"
+            d="M12 6c1.5 0 2.8.5 3.9 1.5l2.9-2.9A9.7 9.7 0 0 0 12 2a10.2 10.2 0 0 0-9 5.3L6.4 10c.8-2.3 3-4 5.6-4Z"
+          />
+        </svg>
+        Continue with Google<span className="mode-tag">Demo</span>
+      </button>
+      <div className="auth-links">
+        <button onClick={() => open("forgot")}>Forgot password?</button>
+        <span>
+          New here?{" "}
+          <button onClick={() => open("register")}>Create an account</button>
+        </span>
+      </div>
+      {mode && (
+        <Dialog title={title} busy={busy} close={() => setMode(null)}>
+          <p className="fine">
+            Frontend demo only. Use synthetic details and a demo password. No
+            email is sent and Google is not contacted.
+          </p>
+          {mode === "google" ? (
+            <>
+              <p>
+                Choose a synthetic account to preview the Google sign-in flow.
+              </p>
+              <div className="google-accounts">
+                {D.db.accounts
+                  .filter((a) => a.enabled && a.role === "teacher")
+                  .map((a) => (
+                    <button
+                      key={a.id}
+                      disabled={busy}
+                      onClick={() =>
+                        run(async () => {
+                          const account = await D.googleDemo(a.id);
+                          if (live(true)) onLogin(account);
+                        })
+                      }
+                    >
+                      <span className="mini-avatar">{a.name[0]}</span>
+                      <span>
+                        <strong>{a.name}</strong>
+                        <small>{a.email}</small>
+                      </span>
+                      <ArrowRight size={16} />
+                    </button>
+                  ))}
+              </div>
+              <FormMessage error={error} />
+              <button
+                data-dialog-cancel
+                disabled={busy}
+                onClick={() => setMode(null)}
+              >
+                Cancel Google sign-in
+              </button>
+            </>
+          ) : mode === "sent" ? (
+            <>
+              <p>
+                If an enabled demo account matches <strong>{address}</strong>, a
+                reset is ready. The reset expires in 15 minutes.
+              </p>
+              {token ? (
+                <div className="auth-inbox">
+                  <span className="eyebrow">LOCAL DEMO INBOX</span>
+                  <h3>Password reset requested</h3>
+                  <p>Open the reset below to choose a new demo password.</p>
+                  <button
+                    className="primary"
+                    onClick={() => {
+                      setMode("reset");
+                      setError("");
+                    }}
+                  >
+                    Open demo reset
+                  </button>
+                </div>
+              ) : (
+                <p className="notice">
+                  No reset message is available here. Check the address or
+                  create a demo account.
+                </p>
+              )}
+              <button onClick={() => open("forgot")}>Use another email</button>
+            </>
+          ) : mode === "success" ? (
+            <>
+              <div className="auth-inbox" role="status">
+                <Check size={24} />
+                <h3>{success}</h3>
+                <p>Sign in with {address} and your demo password.</p>
+              </div>
+              <button className="primary wide" onClick={() => setMode(null)}>
+                Back to sign in
+              </button>
+            </>
+          ) : (
+            <form
+              noValidate
+              onSubmit={(e) => {
+                e.preventDefault();
+                run(async () => {
+                  if (
+                    mode === "register" &&
+                    (!name.trim() || name.trim().length > 80)
+                  )
+                    throw Error("Enter a name between 1 and 80 characters.");
+                  if (
+                    mode !== "reset" &&
+                    !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(address)
+                  )
+                    throw Error("Enter a valid demo email address.");
+                  if (mode !== "forgot" && password.length < 8)
+                    throw Error(
+                      "Use at least 8 characters for your demo password.",
+                    );
+                  if (mode !== "forgot" && password !== confirmation)
+                    throw Error(
+                      "The passwords do not match. Enter the same password in both fields.",
+                    );
+                  if (mode === "forgot") {
+                    const ticket = await D.requestPasswordReset(address);
+                    if (live(true)) {
+                      setToken(ticket);
+                      setMode("sent");
+                    }
+                  } else {
+                    if (mode === "register")
+                      await D.register(name, address, password);
+                    else await D.resetPassword(token, password);
+                    if (live(true)) {
+                      setPassword("");
+                      setConfirmation("");
+                      setSuccess(
+                        mode === "register"
+                          ? "Your account is ready"
+                          : "Your password has been reset",
+                      );
+                      setMode("success");
+                    }
+                  }
+                });
+              }}
+            >
+              {mode === "register" && (
+                <label>
+                  Full name
+                  <input
+                    autoComplete="name"
+                    required
+                    maxLength={80}
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                  />
+                </label>
+              )}
+              {mode !== "reset" && (
+                <label>
+                  Email address
+                  <input
+                    type="email"
+                    autoComplete="email"
+                    required
+                    value={address}
+                    onChange={(e) => setAddress(e.target.value)}
+                  />
+                </label>
+              )}
+              {mode === "register" && (
+                <p className="fine">
+                  New accounts receive a private teacher workspace.
+                  Administrator access is managed separately.
+                </p>
+              )}
+              {mode !== "forgot" && (
+                <>
+                  <p className="fine">
+                    Use at least 8 characters. Choose a password you do not use
+                    elsewhere.
+                  </p>
+                  <DemoPassword
+                    label="New demo password"
+                    value={password}
+                    onChange={setPassword}
+                  />
+                  <DemoPassword
+                    label="Confirm demo password"
+                    value={confirmation}
+                    onChange={setConfirmation}
+                  />
+                </>
+              )}
+              <FormMessage error={error} />
+              <div className="form-actions">
+                <button
+                  type="button"
+                  data-dialog-cancel
+                  disabled={busy}
+                  onClick={() => setMode(null)}
+                >
+                  Cancel
+                </button>
+                <button className="primary" disabled={busy} aria-busy={busy}>
+                  {busy
+                    ? "Please wait…"
+                    : mode === "register"
+                      ? "Create account"
+                      : mode === "forgot"
+                        ? "Send reset instructions"
+                        : "Reset password"}
+                </button>
+              </div>
+            </form>
+          )}
+        </Dialog>
+      )}
+    </>
   );
 }
 export function Title({

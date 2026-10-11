@@ -28,7 +28,7 @@ export const helpTopics = [
   ],
   [
     "Demo accounts",
-    "maya@demo.example and noah@demo.example are separate teachers. analyst@demo.example sees aggregate evaluation; admin@demo.example manages accounts without student-row access. disabled@demo.example demonstrates denied login. All use DemoOnly!2026, including new accounts. Never use real credentials.",
+    "maya@demo.example and noah@demo.example are separate teachers. analyst@demo.example sees aggregate evaluation; admin@demo.example manages accounts without student-row access. disabled@demo.example demonstrates denied login. Seed and administrator-created accounts use DemoOnly!2026 unless reset. Self-registered accounts use their chosen demo password. Registration creates teachers only. Forgot password opens a local demo inbox; Continue with Google previews a synthetic chooser without contacting Google. Never use real credentials.",
   ],
   [
     "Core and Full modes",

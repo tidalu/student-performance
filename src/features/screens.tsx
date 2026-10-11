@@ -1678,8 +1678,14 @@ function Accounts(ctx: Context) {
       body: (
         <>
           <p>
-            Shared demo credential: <code>DemoOnly!2026</code>. No email will be
-            sent.
+            {a?.credential ? (
+              "This account uses a chosen demo password. Editing access preserves it."
+            ) : (
+              <>
+                Shared demo credential: <code>DemoOnly!2026</code>.
+              </>
+            )}{" "}
+            No email will be sent.
           </p>
           <label>
             Full name

@@ -2213,3 +2213,66 @@ table {
     order: 3;
   }
 }
+.auth-divider {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin: 20px 0;
+  color: var(--secondary);
+  font-size: 12px;
+}
+.auth-divider::before,
+.auth-divider::after {
+  content: "";
+  height: 1px;
+  background: var(--border);
+  flex: 1;
+}
+.google-signin {
+  gap: 12px;
+  justify-content: center;
+  background: white;
+}
+.auth-links {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 12px;
+  margin: 18px 0 26px;
+  font-size: 13px;
+}
+.auth-links button {
+  padding: 0;
+  background: transparent;
+  border: 0;
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+.auth-inbox {
+  padding: 24px;
+  border-radius: 20px;
+  background: var(--mint);
+  margin: 20px 0;
+  overflow-wrap: anywhere;
+}
+.google-accounts {
+  display: grid;
+  gap: 10px;
+  margin: 20px 0;
+}
+.google-accounts button {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  text-align: left;
+  width: 100%;
+}
+.google-accounts button > span:nth-child(2) {
+  flex: 1;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.google-accounts small {
+  display: block;
+  color: var(--secondary);
+}

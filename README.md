@@ -13,7 +13,7 @@ Open the local URL printed by Vite. `npm run build` creates `dist`; deploy that 
 
 ## Demo accounts
 
-All accounts use **DemoOnly!2026**, including newly created accounts.
+Seed and administrator-created accounts use **DemoOnly!2026** unless reset. Self-registration uses the chosen demo password. Registration, password recovery and Google sign-in are frontend simulations; Google is not contacted and reset emails are not sent.
 
 | Name             | Email                 | Role                            |
 | ---------------- | --------------------- | ------------------------------- |

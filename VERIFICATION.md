@@ -89,3 +89,7 @@ New browser checks used isolated localhost:5175; original localhost:5174 data wa
 Automated coverage now includes failed-save rollback, seven rejected response variants, saved thresholds/chart bins, actual quality calculation, review association/current status, administrator history authorization, safe return URLs, stale upload cancellation, named scenario consumption and valid/invalid backup replacement.
 
 Verification limits remain explicit: native print/PDF preview, actual browser 200% zoom, exhaustive assistive-technology/contrast measurement and every possible action combination have not been inspected. No guarantee of every runtime state is inferred from a zero-finding static audit.
+
+## Authentication extension checks
+
+34 automated tests pass, including unique-email registration, duplicate-name acceptance, credential digest storage, custom-password login, reset token single-use and old-password rejection, and Google demo disabled/role guards. Browser checks cover registration mismatch correction, account creation, actual new-account sign-in into an empty private workspace, reset request/local inbox/new-password form and Google chooser/cancellation. Password replacement is exercised by automated domain tests; no real user or provider credentials are changed. Existing native Dialog and FormMessage own all new form/overlay states.

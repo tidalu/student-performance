@@ -23,6 +23,7 @@ export type Account = {
   role: string;
   enabled: boolean;
   created?: string;
+  credential?: { salt: string; digest: string };
 };
 export type Dataset = {
   id: string;
@@ -321,6 +322,119 @@ export async function delay(operation: string) {
   if (!current() && operation !== "login")
     throw Error("Session expired. Sign in to continue.");
 }
+const resetRequests = new Map<string, { account: string; expires: number }>();
+async function credentialFor(
+  password: string,
+  salt: string = crypto.randomUUID(),
+) {
+  const encoder = new TextEncoder();
+  const key = await crypto.subtle.importKey(
+    "raw",
+    encoder.encode(password),
+    "PBKDF2",
+    false,
+    ["deriveBits"],
+  );
+  const bits = await crypto.subtle.deriveBits(
+    {
+      name: "PBKDF2",
+      salt: encoder.encode(salt),
+      iterations: 100000,
+      hash: "SHA-256",
+    },
+    key,
+    256,
+  );
+  return {
+    salt,
+    digest: Array.from(new Uint8Array(bits), (b) =>
+      b.toString(16).padStart(2, "0"),
+    ).join(""),
+  };
+}
+async function passwordMatches(account: Account, password: string) {
+  return account.credential
+    ? (await credentialFor(password, account.credential.salt)).digest ===
+        account.credential.digest
+    : password === "DemoOnly!2026";
+}
+export async function register(name: string, email: string, password: string) {
+  const revision = sessionRevision;
+  await delay("login");
+  const normalized = email.trim().toLowerCase();
+  if (!name.trim() || name.trim().length > 80)
+    throw Error("Enter a name between 1 and 80 characters.");
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(normalized))
+    throw Error("Enter a valid demo email.");
+  if (password.length < 8)
+    throw Error("Use at least 8 characters for your demo password.");
+  const credential = await credentialFor(password);
+  if (revision !== sessionRevision)
+    throw Error("Session changed. Please try again.");
+  if (db.accounts.some((a) => a.email.toLowerCase() === normalized))
+    throw Error(
+      "This email already has a demo account. Sign in or reset its password.",
+    );
+  const account: Account = {
+    id: uid(),
+    name: name.trim(),
+    email: normalized,
+    role: "teacher",
+    enabled: true,
+    created: new Date().toISOString(),
+    credential,
+  };
+  db.accounts.push(account);
+  await persist();
+  return account;
+}
+export async function requestPasswordReset(email: string) {
+  await delay("login");
+  const account = db.accounts.find(
+    (a) => a.enabled && a.email === email.trim().toLowerCase(),
+  );
+  if (!account) return "";
+  for (const [key, request] of resetRequests)
+    if (request.account === account.id || request.expires < Date.now())
+      resetRequests.delete(key);
+  const token = uid();
+  resetRequests.set(token, {
+    account: account.id,
+    expires: Date.now() + 15 * 60000,
+  });
+  return token;
+}
+export async function resetPassword(token: string, password: string) {
+  await delay("login");
+  const request = resetRequests.get(token);
+  if (!request || request.expires < Date.now())
+    throw Error("This demo reset has expired. Request a new one.");
+  if (password.length < 8)
+    throw Error("Use at least 8 characters for your demo password.");
+  const credential = await credentialFor(password);
+  const account = db.accounts.find(
+    (a) => a.id === request.account && a.enabled,
+  );
+  if (!account || resetRequests.get(token) !== request)
+    throw Error("This reset is no longer available. Request a new one.");
+  account.credential = credential;
+  await persist();
+  resetRequests.delete(token);
+}
+export async function googleDemo(accountId: string) {
+  const revision = sessionRevision;
+  await delay("login");
+  const account = db.accounts.find(
+    (a) => a.id === accountId && a.enabled && a.role === "teacher",
+  );
+  if (!account || revision !== sessionRevision)
+    throw Error("This demo account is unavailable. Choose another account.");
+  sessionStorage.clear();
+  sessionStorage.setItem("persona", account.id);
+  sessionRevision++;
+  update();
+  return account;
+}
 export async function login(email: string, password: string) {
   const revision = sessionRevision;
   await delay("login");
@@ -332,10 +446,12 @@ export async function login(email: string, password: string) {
     throw Error("Email or password is incorrect.");
   }
   const a = db.accounts.find((a) => a.email === email.trim().toLowerCase());
-  if (!a || password !== "DemoOnly!2026")
+  if (!a || !(await passwordMatches(a, password)))
     throw Error(
       "Email or password is incorrect. Use a documented demo account.",
     );
+  if (revision !== sessionRevision)
+    throw Error("Session changed. Please try signing in again.");
   if (!a.enabled)
     throw Error("This demo account is disabled. Choose an active account.");
   const drafts = Object.keys(sessionStorage)
@@ -831,6 +947,13 @@ export function validateBackup(value: unknown): Store {
       typeof a.enabled !== "boolean"
     )
       throw Error("Invalid account in backup.");
+    if (
+      a.credential &&
+      (typeof a.credential.salt !== "string" ||
+        !a.credential.salt ||
+        !/^[a-f0-9]{64}$/.test(a.credential.digest))
+    )
+      throw Error("Invalid demo credential in backup.");
     ids.add(a.id);
   }
   if (!s.accounts.some((a) => a.role === "administrator" && a.enabled))
@@ -962,6 +1085,7 @@ export async function saveAccount(account: Account) {
       .length === 1
   )
     throw Error("The last active administrator cannot be disabled or demoted.");
+  account.credential = a?.credential;
   account.created = a?.created || new Date().toISOString();
   await delay("accounts");
   if (current()?.role !== "administrator")

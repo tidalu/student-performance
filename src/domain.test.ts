@@ -315,3 +315,44 @@ describe("frontend completion contracts", () => {
     expect(D.db.datasets).toHaveLength(4);
   });
 });
+
+describe("demo authentication extensions", () => {
+  it("registers by unique email, permits duplicate names and stores no plaintext password", async () => {
+    D.config("normal", 1);
+    await D.restore(D.seed());
+    const account = await D.register(
+      "Maya Reed",
+      "new@demo.example",
+      "Example!123",
+    );
+    expect(account.role).toBe("teacher");
+    expect(JSON.stringify(account)).not.toContain("Example!123");
+    await expect(
+      D.register("Someone else", " NEW@demo.example ", "Example!123"),
+    ).rejects.toThrow("already");
+    await expect(D.login("new@demo.example", "wrong")).rejects.toThrow();
+    expect((await D.login("new@demo.example", "Example!123")).id).toBe(
+      account.id,
+    );
+  });
+  it("resets a password once, rejects old credentials and invalid tokens", async () => {
+    const ticket = await D.requestPasswordReset("new@demo.example");
+    await D.resetPassword(ticket, "Replacement!123");
+    await expect(D.resetPassword(ticket, "Another!123")).rejects.toThrow(
+      "expired",
+    );
+    await expect(D.login("new@demo.example", "Example!123")).rejects.toThrow();
+    expect((await D.login("new@demo.example", "Replacement!123")).email).toBe(
+      "new@demo.example",
+    );
+    expect(await D.requestPasswordReset("missing@demo.example")).toBe("");
+  });
+  it("keeps Google demo selection scoped to enabled teachers", async () => {
+    const teacher = D.db.accounts.find((a) => a.email === "new@demo.example")!;
+    expect((await D.googleDemo(teacher.id)).id).toBe(teacher.id);
+    await expect(D.googleDemo("admin")).rejects.toThrow("unavailable");
+    await expect(
+      D.googleDemo(D.db.accounts.find((a) => !a.enabled)!.id),
+    ).rejects.toThrow("unavailable");
+  });
+});
