@@ -97,3 +97,9 @@ Verification limits remain explicit: native print/PDF preview, actual browser 20
 ## Authentication design refinement
 
 Registration and recovery now use shared split-canvas inline views instead of modal forms. Browser checks passed: empty registration error, Back/Cancel restoration, account creation success, reset request -> local inbox -> new password, and 390px registration/reset views without document overflow. Desktop registration/recovery screenshots are saved in screenshots/registration-redesign.png and screenshots/recovery-redesign.png. Google retains the existing chooser.
+
+## Shared plan verification
+
+40 automated tests pass. The plan tests deep-compare every supplied DATA and PANELS field against the preserved original HTML, assert all 122 IDs and dependency/unlock targets, and exercise prerequisite/checklist completion gates, optional scope, cascading reopen and invalid-backup rejection. Production build and strict UI audit pass.
+
+Browser checks on the isolated local preview: protected `/plan` return after demo sign-in; all nine reference tabs plus full team guidance; ready filtering; blocked Done; checklist persistence across reload; capacity upper estimate against 80% availability; progress export and actual restore with preceding-state safety download; desktop and 390px layout without document horizontal overflow. Planning progress remains separate from the application's IndexedDB backup. Evidence: screenshots/project-plan.png. These checks do not claim external board synchronization.

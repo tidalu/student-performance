@@ -26,6 +26,7 @@ import { Outbox, guideDownloads, helpTopics } from "./support";
 import { notify } from "../notifications";
 import type { Context } from "../types";
 import { Title, Steps, ErrorPanel, Table, Schema } from "../components";
+const Plan = React.lazy(() => import("./plan/Plan"));
 export function Workspace(ctx: Context) {
   const { user, full } = ctx;
   const { pathname } = useLocation();
@@ -43,6 +44,12 @@ export function Workspace(ctx: Context) {
   }, [pathname, user.role, full]);
   try {
     if (pathname === "/") return null;
+    if (pathname === "/plan")
+      return (
+        <React.Suspense fallback={<p role="status">Loading project plan…</p>}>
+          <Plan />
+        </React.Suspense>
+      );
     if (pathname.startsWith("/evaluations/")) return <Evaluation full={full} />;
     if (pathname === "/help") return <Help {...ctx} />;
     if (pathname === "/settings" && full) return <Preferences {...ctx} />;

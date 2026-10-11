@@ -27,6 +27,8 @@ Use Fill credentials then Sign in. Do not enter real credentials. Teacher and ad
 
 ## Main walkthrough
 
+The shared team roadmap is available at `/plan` after sign-in, in Core and Full modes for every demo role. It retains all 122 task briefs, five sprints and ten reference sections. Use Roadmap / Three-list board for task progress, Team & capacity for names, observed skills and availability, and Export / Restore progress for portable planning backups. This browser-local planning state is separate from the workspace database backup; it is not synchronized with GitHub or Trello. Original plan downloads the unmodified supplied HTML.
+
 1. Sign in as Maya. Download a sample in Upload or Help, or select a file from `public/fixtures`.
 2. Upload `demo-valid-12.csv`, Validate file, review the rows, Confirm import.
 3. Run prediction. Results persist after refresh. The invented `demo-rule-v1` is documented in Help and `src/domain.ts`.

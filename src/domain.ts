@@ -1286,6 +1286,7 @@ export function safeReturn(
   if (
     path === "/" ||
     path === "/help" ||
+    path === "/plan" ||
     path.startsWith("/evaluations/") ||
     (path === "/settings" && full)
   )

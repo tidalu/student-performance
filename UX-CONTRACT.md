@@ -12,6 +12,8 @@
 
 ## Canonical UI Map
 
+Plan is shared across all demo roles in both modes. Version-2 planning progress lives under the original browser-local roadmap key, independently of workspace backups. Optional scope starts unselected; dependencies and all step/acceptance checks gate completion. Withdrawn prerequisite evidence reopens downstream completions. Restore validates before replacement and downloads the preceding plan state first. Planning data does not claim actual project completion or synchronize external boards.
+
 | Capability      | Canonical owner                  | Source of truth | Allowed variants                            | Verification                        |
 | --------------- | -------------------------------- | --------------- | ------------------------------------------- | ----------------------------------- |
 | Select/Listbox  | Native select                    | DESIGN.md       | Platform popup                              | Browser keyboard check              |
