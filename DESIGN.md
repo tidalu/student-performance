@@ -22,6 +22,8 @@ Document scroll owns page height. Desktop overview uses varied three-column card
 
 Title owns headings/breadcrumbs; Steps owns workflow; Table owns semantic sortable tables, local private search and URL paging/sort; Dialog uses native showModal focus containment and restoration; App owns toast, shell, account and Demo Controls. Native selects intentionally retain platform popup behavior.
 
+Plan task details use the shared Dialog's `plan` variant: a large white-rimmed lavender frame with a sticky close bar and a scrollable grid of white, mint and lavender tiles. Effort bars, prerequisite links, people, ordered steps, worked pattern, acceptance, resources and scope use the attached card-detail reference as their visual source. Phones stack all tiles. Compact roadmap cards never expand inline; modal navigation keeps the roadmap filters intact. The route remains absent from main navigation.
+
 ## States and accessibility
 
 Semantic controls, text status, focus rings, reduced motion, global scrollbar baseline, accessible native dialogs, persistent inline form errors. Charts retain numeric labels and tables or textual equivalents.

@@ -25,7 +25,7 @@ export function Dialog({
   busy = false,
 }: {
   title: string;
-  variant?: "dialog" | "drawer";
+  variant?: "dialog" | "drawer" | "plan";
   busy?: boolean;
   close: () => void;
   children: React.ReactNode;
@@ -36,16 +36,27 @@ export function Dialog({
     const el = ref.current!,
       old = document.activeElement as HTMLElement;
     el.showModal();
-    el.querySelector<HTMLButtonElement>("[data-dialog-cancel]")?.focus();
+    (
+      el.querySelector<HTMLElement>("[data-dialog-cancel]") ||
+      (variant === "plan"
+        ? el.querySelector<HTMLElement>("[data-plan-title]")
+        : null)
+    )?.focus({ preventScroll: true });
     return () => {
       el.close();
       old?.focus();
     };
-  }, [title]);
+  }, []);
   return (
     <dialog
       ref={ref}
-      className={variant === "drawer" ? "drawer" : ""}
+      className={
+        variant === "drawer"
+          ? "drawer"
+          : variant === "plan"
+            ? "plan-dialog"
+            : ""
+      }
       aria-labelledby={id + "-title"}
       aria-describedby={id + "-description"}
       aria-busy={busy}

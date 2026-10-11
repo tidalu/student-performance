@@ -16,4 +16,6 @@ The sign-in screen includes Create an account, Forgot password and Continue with
 
 ## Shared project plan
 
+Every task opens a large card-detail modal using the supplied tile design. Effort, dependencies, people, steps, worked example, acceptance, learning resources, pitfalls and scope stay readable in separate cards. Related-task navigation includes Back; close preserves the roadmap context. Optional artifact and reviewer notes persist with planning progress and exports. The Plan link remains hidden from project navigation.
+
 `/plan` adds all 122 supplied task briefs, five sprints, MoSCoW decisions, three-list board, editable team/skills/capacity and every reference section. Filters, dependency navigation, checklists, guarded status changes, optional prerequisite selection, full-card copy/download and version-2 progress export/restore remain interactive. The original supplied HTML is preserved as a download. Planning progress is browser-local, separate from workspace backups and external project boards.

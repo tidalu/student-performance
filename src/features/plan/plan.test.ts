@@ -11,6 +11,7 @@ const fresh = () => ({
   selected: {} as Record<string, boolean>,
   skills: {},
   capacity: {},
+  evidence: {} as Record<string, { artifact: string; reviewed: boolean }>,
 });
 
 describe("shared plan conservation", () => {
@@ -51,6 +52,28 @@ describe("shared plan conservation", () => {
 });
 
 describe("planning workflow", () => {
+  it("keeps older v2 backups compatible with optional review notes", () => {
+    const { evidence, ...legacy } = fresh();
+    expect(validateState(legacy).evidence).toEqual({});
+    const state = fresh();
+    state.evidence["S2-W1-01"] = {
+      artifact: "PR #12 / fixtures/rollback.json",
+      reviewed: true,
+    };
+    expect(validateState(state).evidence).toEqual(state.evidence);
+    expect(() =>
+      validateState({
+        ...state,
+        evidence: { unknown: { artifact: "x", reviewed: true } },
+      }),
+    ).toThrow(/evidence/);
+    expect(() =>
+      validateState({
+        ...state,
+        evidence: { "S2-W1-01": { artifact: "x", reviewed: "yes" } },
+      }),
+    ).toThrow(/evidence/);
+  });
   it("requires prerequisites and both checklists before completion", () => {
     const task = DATA.tasks.find(
       (t) => t.priority === "Must" && t.depends.length,

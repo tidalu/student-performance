@@ -102,9 +102,24 @@ export function validateState(o) {
       r.capacity[s][id] = h;
     }
   }
+  r.evidence = {};
+  if (o.evidence !== undefined) {
+    if (!record(o.evidence)) throw Error("Invalid evidence section.");
+    for (const [id, entry] of Object.entries(o.evidence)) {
+      if (
+        !Object.hasOwn(byId, id) ||
+        !record(entry) ||
+        typeof entry.artifact !== "string" ||
+        entry.artifact.length > 2000 ||
+        typeof entry.reviewed !== "boolean"
+      )
+        throw Error("Invalid evidence record.");
+      r.evidence[id] = { artifact: entry.artifact, reviewed: entry.reviewed };
+    }
+  }
   return r;
 }
-export function mountPlan(root, downloadArtifact) {
+export function mountPlan(root, downloadArtifact, onOpen, onChange) {
   root.innerHTML = SHELL;
   let active = true;
   const events = [];
@@ -123,6 +138,7 @@ export function mountPlan(root, downloadArtifact) {
     selected: {},
     skills: {},
     capacity: {},
+    evidence: {},
   };
   let tab = "roadmap",
     readyOnly = false,
@@ -161,6 +177,7 @@ export function mountPlan(root, downloadArtifact) {
       $("storage-notice").textContent =
         "Browser storage is unavailable or full. Changes remain in this session only; export progress to keep them.";
     }
+    onChange();
   }
 
   try {
@@ -286,36 +303,11 @@ export function mountPlan(root, downloadArtifact) {
             .includes(q)),
     );
   }
-  function checkHTML(t, items, type) {
-    return items
-      .map(
-        (s, i) =>
-          `<label class="checkrow"><input type="checkbox" data-check="${t.id}:${type}:${i}" ${checked(`${t.id}:${type}:${i}`) ? "checked" : ""}><span>${type === "step" ? `${i + 1}. ` : ""}${esc(s)}</span></label>`,
-      )
-      .join("");
-  }
-  function depHTML(ids) {
-    return ids.length
-      ? ids
-          .map(
-            (id) =>
-              `<button class="dep ${cardState(byId[id]) === "Done" ? "complete" : ""}" data-dep="${id}" title="${esc(byId[id].title)}">${id}${cardState(byId[id]) === "Done" ? " ✓" : ""}</button>`,
-          )
-          .join("")
-      : '<span class="muted">None.</span>';
-  }
-  function list(items) {
-    return (
-      "<ul>" + items.map((s) => "<li>" + esc(s) + "</li>").join("") + "</ul>"
-    );
-  }
   function card(t) {
     const m = member(t.owner),
       status = cardState(t),
-      blocked = unmet(t),
-      count = t.steps.filter((_, i) => checked(`${t.id}:step:${i}`)).length,
-      p = t.pair;
-    return `<details class="card plan-task" id="card-${t.id}" data-card="${t.id}" style="--lane:${m.color}"><summary><div class="card-id"><span>${t.id}</span><span>${esc(status)}</span></div><h3>${esc(t.title)}</h3><div class="tags"><span class="tag ${t.priority === "Won’t" ? "wont" : t.priority.toLowerCase()}">${esc(t.priority)}</span><span class="tag sp">SP:${t.sp}</span></div><p class="card-preview">${esc(t.objective)}</p><div class="effort-preview">${t.hours.low}–${t.hours.high}h owner ${p.member ? `· pair ${p.member}` : ""}</div><div class="card-hint">${t.kind} · ${count}/${t.steps.length} steps · ${!t.sprint ? "Outside sprint scope" : t.priority === "Must" ? "Core forecast" : included(t) ? "Selected stretch" : "Unselected stretch"}<br>Open guided brief ↓</div></summary><div class="card-body"><p><b>Current owner:</b> ${esc(name(t.owner))} (${t.owner})<br><b>Reviewer:</b> ${esc(name(t.reviewer))} (${t.reviewer})</p><p class="muted">Card IDs remain stable from v1; the owner above is authoritative.</p><p><b>Board labels:</b> ${esc(t.labels.join(" · "))}<br><b>Initial readiness:</b> ${esc(t.readiness)}<br><b>Initial selection:</b> ${esc(t.selection)}</p><div class="detail-label">Why this priority</div><p>${esc(t.priorityReason)}</p>${t.sprint && ["Should", "Could"].includes(t.priority) ? `<label class="checkrow selection-box"><input type="checkbox" data-select="${t.id}" ${included(t) ? "checked" : ""}><span>Select this stretch card for its forecast sprint. Include its helper/reviewer load.</span></label>` : ""}<div class="detail-label">Effort & guided support</div><p><b>${t.hours.low}–${t.hours.high} focused owner hours.</b> ${esc(t.hours.basis)}</p><p>${p.member ? `<b>Pair with ${p.member}:</b> ${range(p.hours)} additional helper hours. ` : ""}${esc(p.plan)}</p><p>Review: ${range(t.reviewHours)}h additional reviewer effort. Verify technical competence; a proposed slot is not proof of expertise.</p><div class="detail-label">Start after</div>${depHTML(t.depends)}<div class="detail-label">Learn from</div><ul class="resources">${t.resources.map((r) => `<li><a href="${esc(r.url)}" target="_blank" rel="noopener noreferrer">${esc(r.label)}</a><br><span>${esc(r.focus)}</span></li>`).join("")}</ul><div class="detail-label">Tools</div><p>${esc(t.tools.join(" · "))}</p><div class="detail-label">Start small</div><p>${esc(t.starterExercise)}</p><div class="detail-label">Ordered steps</div><div class="checks">${checkHTML(t, t.steps, "step")}</div><div class="detail-label">Worked starting pattern</div><p class="muted">${esc(t.snippet.note)}</p><pre class="snippet"><code>${esc(t.snippet.code)}</code></pre><div class="detail-label">Concrete output</div><p>${esc(t.outcome)}</p><div class="detail-label">Done when</div><div class="checks accept">${checkHTML(t, t.accept, "accept")}</div><div class="detail-label">Pitfall & troubleshooting</div><p class="pitfall">${esc(t.avoid)}</p><p>${esc(t.troubleshooting)}</p><div class="detail-label">Drawbacks / limits</div>${list(t.drawbacks)}<div class="detail-label">Best practices</div>${list(t.bestPractices)}<div class="detail-label">Explain back</div><p>${esc(t.learn)}</p><div class="detail-label">Unblocks next</div>${depHTML(t.unlocks)}<div class="card-footer"><label class="visually-hidden" for="status-${t.id}">Status of ${t.id}</label><select id="status-${t.id}" data-status="${t.id}" ${!included(t) ? "disabled" : ""}>${["Backlog", "In Progress", "Done"].map((s) => `<option ${s === status ? "selected" : ""}>${s}</option>`).join("")}</select><button data-copy="${t.id}">Copy full card</button></div><p class="readiness">${!t.sprint ? "Out of sprint scope. Won’t means deliberately excluded, not completed implementation." : !included(t) ? "Select stretch work first, only if the capacity check supports it." : "Keep real artifacts and review evidence in the live board. Checklist ticks alone do not prove completion."}</p><p class="card-error" id="error-${t.id}" role="status"></p></div></details>`;
+      count = t.steps.filter((_, i) => checked(`${t.id}:step:${i}`)).length;
+    return `<article class="card plan-task" id="card-${t.id}" data-card="${t.id}" style="--lane:${m.color}"><button class="plan-card-open" data-open-task="${t.id}" aria-haspopup="dialog" aria-label="Open ${t.id}: ${esc(t.title)}"><div class="card-id"><span>${t.id}</span><span>${esc(status)}</span></div><h3>${esc(t.title)}</h3><div class="tags"><span class="tag ${t.priority === "Won’t" ? "wont" : t.priority.toLowerCase()}">${esc(t.priority)}</span><span class="tag sp">SP:${t.sp}</span></div><p class="card-preview">${esc(t.objective)}</p><div class="effort-preview">${t.hours.low}–${t.hours.high}h owner${t.pair.member ? ` · pair ${t.pair.member}` : ""}</div><div class="card-hint">${t.kind} · ${count}/${t.steps.length} steps · ${!t.sprint ? "Outside sprint scope" : t.priority === "Must" ? "Core forecast" : included(t) ? "Selected stretch" : "Unselected stretch"}<br><span>Open card detail ↗</span></div></button></article>`;
   }
   function laneHTML(cards, m) {
     const core = cards
@@ -468,27 +460,10 @@ export function mountPlan(root, downloadArtifact) {
     $("readyFilter").setAttribute("aria-pressed", "false");
   }
   function goTo(id) {
-    tab = "roadmap";
-    resetFilters();
-    $("sprintFilter").value = String(byId[id].sprint);
-    render();
-    const el = $("card-" + id);
-    el.open = true;
-    el.classList.add("highlight");
-    el.scrollIntoView({ block: "center", behavior: "auto" });
-    el.querySelector("summary").focus();
-    announce(`Opened ${id}; current owner ${byId[id].owner}.`);
-  }
-  function refreshOpen(focusSelector) {
-    const open = [...root.querySelectorAll(".card[open]")].map(
-      (c) => c.dataset.card,
-    );
-    render();
-    for (const id of open) if ($("card-" + id)) $("card-" + id).open = true;
-    if (focusSelector) root.querySelector(focusSelector)?.focus();
+    onOpen(id);
   }
   function cardText(t) {
-    return `${t.id} — ${t.title}\n\nCURRENT OWNER: ${name(t.owner)} (${t.owner})\nReviewer: ${name(t.reviewer)} (${t.reviewer})\nStable ID; current owner overrides ID letters.\nSprint: ${t.sprint || "Unscheduled"}\nList: ${cardState(t)}\nLabels (exactly two): ${t.labels.join(", ")}\nSelection: ${included(t) ? "Core / selected stretch" : "Not selected / excluded"}\nPriority rationale: ${t.priorityReason}\nDepends on: ${t.depends.join(", ") || "None"}\nUnlocks: ${t.unlocks.join(", ") || "None"}\n\nOBJECTIVE\n${t.objective}\n\nEFFORT\n${t.hours.low}–${t.hours.high} owner hours. ${t.hours.basis}\nPair: ${t.pair.member || "none prescribed"}; ${range(t.pair.hours)} helper hours. ${t.pair.plan}\nReview: ${range(t.reviewHours)}h.\n\nLEARN FROM\n${t.resources.map((r) => `${r.label}: ${r.url}\n${r.focus}`).join("\n\n")}\n\nTOOLS\n${t.tools.join(", ")}\n\nSTART SMALL\n${t.starterExercise}\n\nORDERED CHECKLIST\n${t.steps.map((s, i) => `${checked(`${t.id}:step:${i}`) ? "[x]" : "[ ]"} ${i + 1}. ${s}`).join("\n")}\n\nWORKED PATTERN\n${t.snippet.note}\n${t.snippet.code}\n\nOUTPUT\n${t.outcome}\n\nACCEPTANCE\n${t.accept.map((a, i) => `${checked(`${t.id}:accept:${i}`) ? "[x]" : "[ ]"} ${a}`).join("\n")}\n\nPITFALL / TROUBLESHOOTING\n${t.avoid}\n${t.troubleshooting}\n\nDRAWBACKS\n${t.drawbacks.join("\n")}\n\nBEST PRACTICES\n${t.bestPractices.join("\n")}\n\nEXPLAIN BACK\n${t.learn}\n\nEVIDENCE\n[Attach actual artifact and review; record actual hours.]`;
+    return `${t.id} — ${t.title}\n\nCURRENT OWNER: ${name(t.owner)} (${t.owner})\nReviewer: ${name(t.reviewer)} (${t.reviewer})\nStable ID; current owner overrides ID letters.\nSprint: ${t.sprint || "Unscheduled"}\nList: ${cardState(t)}\nLabels (exactly two): ${t.labels.join(", ")}\nSelection: ${included(t) ? "Core / selected stretch" : "Not selected / excluded"}\nPriority rationale: ${t.priorityReason}\nDepends on: ${t.depends.join(", ") || "None"}\nUnlocks: ${t.unlocks.join(", ") || "None"}\n\nOBJECTIVE\n${t.objective}\n\nEFFORT\n${t.hours.low}–${t.hours.high} owner hours. ${t.hours.basis}\nPair: ${t.pair.member || "none prescribed"}; ${range(t.pair.hours)} helper hours. ${t.pair.plan}\nReview: ${range(t.reviewHours)}h.\n\nLEARN FROM\n${t.resources.map((r) => `${r.label}: ${r.url}\n${r.focus}`).join("\n\n")}\n\nTOOLS\n${t.tools.join(", ")}\n\nSTART SMALL\n${t.starterExercise}\n\nORDERED CHECKLIST\n${t.steps.map((s, i) => `${checked(`${t.id}:step:${i}`) ? "[x]" : "[ ]"} ${i + 1}. ${s}`).join("\n")}\n\nWORKED PATTERN\n${t.snippet.note}\n${t.snippet.code}\n\nOUTPUT\n${t.outcome}\n\nACCEPTANCE\n${t.accept.map((a, i) => `${checked(`${t.id}:accept:${i}`) ? "[x]" : "[ ]"} ${a}`).join("\n")}\n\nPITFALL / TROUBLESHOOTING\n${t.avoid}\n${t.troubleshooting}\n\nDRAWBACKS\n${t.drawbacks.join("\n")}\n\nBEST PRACTICES\n${t.bestPractices.join("\n")}\n\nEXPLAIN BACK\n${t.learn}\n\nEVIDENCE\n[Attach actual artifact and review; record actual hours.]\n\nREVIEW NOTES\n${state.evidence[t.id]?.artifact || "No artifact recorded"}\nReviewer replay: ${state.evidence[t.id]?.reviewed ? "Recorded" : "Not recorded"}`;
   }
   function download(filename, text, type = "text/plain") {
     downloadArtifact(filename, text, type);
@@ -518,8 +493,6 @@ export function mountPlan(root, downloadArtifact) {
         "importProgress",
         "clearSearch",
         "readyFilter",
-        "expandAll",
-        "collapseAll",
       ].includes(b.id)
     ) {
       try {
@@ -529,6 +502,10 @@ export function mountPlan(root, downloadArtifact) {
           "Download failed: " + err.message + " Retry using the same action.",
         );
       }
+      return;
+    }
+    if (b.dataset.openTask) {
+      goTo(b.dataset.openTask);
       return;
     }
     if (b.dataset.tab) {
@@ -560,63 +537,6 @@ export function mountPlan(root, downloadArtifact) {
   });
   listen(root, "change", (e) => {
     const el = e.target;
-    if (el.dataset.check) {
-      state.checks[el.dataset.check] = el.checked;
-      reconcile();
-      save();
-      refreshOpen(`[data-check="${el.dataset.check}"]`);
-      announce("Checklist saved locally; retain actual evidence and review.");
-      return;
-    }
-    if (el.dataset.select) {
-      const t = byId[el.dataset.select];
-      if (!el.checked) {
-        const users = tasks.filter(
-          (x) => state.selected[x.id] && x.depends.includes(t.id),
-        );
-        if (cardState(t) !== "Backlog" || users.length) {
-          el.checked = true;
-          announce(
-            "Return this card to Backlog and deselect dependent stretch cards first: " +
-              users.map((x) => x.id).join(", "),
-          );
-          return;
-        }
-        state.selected[t.id] = false;
-        announce(t.id + " deselected; core scope is unaffected.");
-      } else {
-        const added = selectWithPrerequisites(t.id);
-        announce(
-          "Selected stretch and its optional prerequisites: " +
-            added.join(", ") +
-            ". Check capacity for every affected sprint.",
-        );
-      }
-      save();
-      refreshOpen(`[data-select="${t.id}"]`);
-      return;
-    }
-    if (el.dataset.status) {
-      const t = byId[el.dataset.status],
-        next = el.value;
-      const error = completionProblem(t, next, state);
-      if (error) {
-        el.value = cardState(t);
-        $("error-" + t.id).textContent = error;
-        announce(error);
-        return;
-      }
-      state.cards[t.id] = next;
-      reconcile();
-      save();
-      render();
-      if ($("card-" + t.id)) {
-        $("card-" + t.id).open = true;
-        $("status-" + t.id).focus();
-      }
-      announce(t.id + " moved to " + next + ".");
-      return;
-    }
     if (el.dataset.name) {
       state.names[el.dataset.name] = el.value.trim();
       save();
@@ -702,10 +622,6 @@ export function mountPlan(root, downloadArtifact) {
       $("readyFilter").setAttribute("aria-pressed", String(readyOnly));
       render();
     }
-    if (id === "expandAll")
-      root.querySelectorAll(".card").forEach((c) => (c.open = true));
-    if (id === "collapseAll")
-      root.querySelectorAll(".card").forEach((c) => (c.open = false));
     if (id === "exportText") {
       download(
         "team-project-cards-v2.md",
@@ -770,9 +686,70 @@ export function mountPlan(root, downloadArtifact) {
   legend();
   render();
 
-  return () => {
-    active = false;
-    events.forEach((remove) => remove());
-    root.replaceChildren();
+  const changed = () => {
+    reconcile();
+    save();
+    render();
+  };
+  return {
+    destroy() {
+      active = false;
+      events.forEach((remove) => remove());
+      root.replaceChildren();
+    },
+    getProgress() {
+      return state;
+    },
+    getName: name,
+    getNotice() {
+      return $("storage-notice").textContent || "";
+    },
+    focusCard(id) {
+      ($("card-" + id)?.querySelector("button") || $("search")).focus();
+    },
+    check(key, value) {
+      state.checks[key] = value;
+      changed();
+    },
+    status(id, next) {
+      const error = completionProblem(byId[id], next, state);
+      if (error) return error;
+      state.cards[id] = next;
+      changed();
+      return "";
+    },
+    select(id, value) {
+      const task = byId[id];
+      if (!value) {
+        const users = tasks.filter(
+          (x) => state.selected[x.id] && x.depends.includes(id),
+        );
+        if (cardState(task) !== "Backlog" || users.length)
+          return (
+            "Return this card to Backlog and deselect dependent stretch cards first: " +
+            users.map((x) => x.id).join(", ")
+          );
+        state.selected[id] = false;
+      } else selectWithPrerequisites(id);
+      changed();
+      return "";
+    },
+    evidence(id, patch) {
+      state.evidence[id] = {
+        ...(state.evidence[id] || { artifact: "", reviewed: false }),
+        ...patch,
+      };
+      save();
+    },
+    async copy(id) {
+      const text = cardText(byId[id]);
+      try {
+        await navigator.clipboard.writeText(text);
+        return "Full card copied.";
+      } catch {
+        download(id + ".txt", text);
+        return "Clipboard unavailable; full card downloaded.";
+      }
+    },
   };
 }

@@ -1,0 +1,745 @@
+/* A business variant of the shared Dialog, using workspace tokens. */
+dialog.plan-dialog {
+  width: min(1320px, calc(100vw - 40px));
+  max-width: none;
+  max-height: calc(100dvh - 32px);
+  padding: 0;
+  background: var(--surface);
+  border: 6px solid white;
+  border-radius: 32px;
+  scrollbar-gutter: stable;
+  overscroll-behavior: contain;
+}
+.plan-dialog .dialog-heading {
+  background: var(--surface);
+  padding: 15px 25px;
+  border-color: var(--border);
+}
+.plan-dialog .dialog-heading h2 {
+  font-size: 15px;
+  font-weight: 500;
+  letter-spacing: 0;
+}
+.plan-dialog .dialog-body {
+  padding: 24px 28px 30px;
+}
+.plan-detail {
+  line-height: 1.65;
+  min-width: 0;
+}
+.plan-detail h2,
+.plan-detail h3,
+.plan-detail-big {
+  font-family: "Manrope Variable", Arial, sans-serif;
+}
+.plan-detail .plan-tile > p.plan-detail-big {
+  font-size: 48px;
+  line-height: 1.05;
+}
+.plan-detail h4 {
+  font-size: 11px;
+  letter-spacing: 0.4px;
+  text-transform: uppercase;
+  color: var(--secondary);
+  margin: 24px 0 8px;
+  font-weight: 500;
+}
+.plan-detail p {
+  margin: 0 0 12px;
+}
+.plan-detail-utilities {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 15px;
+  margin-bottom: 22px;
+}
+.plan-detail-utilities button {
+  font-size: 12px;
+}
+.plan-detail-muted {
+  color: var(--secondary);
+  font-size: 12px;
+  line-height: 1.65;
+}
+.plan-detail-hero {
+  margin: 0 0 26px;
+  padding: 0 4px;
+}
+.plan-detail-crumb {
+  font-size: 11px;
+  color: var(--secondary);
+  display: flex;
+  gap: 9px;
+  margin-bottom: 14px;
+}
+.plan-detail-hero h2 {
+  font-size: clamp(28px, 3.7vw, 48px);
+  font-weight: 400;
+  letter-spacing: -1.8px;
+  line-height: 1.15;
+  max-width: 940px;
+  margin: 0 0 16px;
+  outline-offset: 6px;
+}
+.plan-detail-objective {
+  max-width: 72ch;
+  color: var(--secondary);
+  font-size: 14px;
+}
+.plan-detail-head-bottom {
+  display: flex;
+  gap: 18px;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  margin-top: 22px;
+}
+.plan-detail-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+  align-items: center;
+}
+.plan-detail-chips > span {
+  background: #efeff4;
+  border-radius: 999px;
+  font-size: 11px;
+  padding: 6px 13px;
+  line-height: 1.5;
+}
+.plan-detail-chips > span.dark {
+  background: var(--ink);
+  color: white;
+}
+.plan-detail-chips > span.lime {
+  background: var(--lime);
+  color: var(--ink);
+}
+.plan-status-group {
+  display: flex;
+  gap: 7px;
+  flex-wrap: wrap;
+}
+.plan-status-group button {
+  padding: 10px 16px;
+  font-size: 12px;
+  min-height: 40px;
+}
+.plan-status-group button[aria-pressed="true"] {
+  background: var(--ink);
+  color: white;
+}
+.plan-gate-note {
+  margin-top: 13px !important;
+}
+.plan-detail-error {
+  padding: 12px 16px;
+  background: #fae9e9;
+  color: #a52d35;
+  border-radius: 12px;
+  font-size: 12px;
+}
+.plan-detail-message {
+  font-size: 12px;
+  color: #294f46;
+  min-height: 20px;
+  margin-bottom: 0 !important;
+}
+.plan-stretch-choice {
+  flex-direction: row;
+  font-weight: 400;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 14px 0;
+  font-size: 13px;
+}
+.plan-detail-layout {
+  display: grid;
+  grid-template-columns: 44px minmax(0, 1fr);
+  gap: 20px;
+  align-items: start;
+}
+.plan-detail-rail {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  position: sticky;
+  top: 88px;
+}
+.plan-detail-rail a {
+  display: grid;
+  place-items: center;
+  height: 42px;
+  width: 42px;
+  border-radius: 50%;
+  background: #eaeaf1;
+}
+.plan-detail-rail a:first-child {
+  background: var(--ink);
+  color: white;
+}
+.plan-detail-rail a:hover {
+  background: #dedee8;
+  color: var(--ink);
+}
+.plan-detail-grid {
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  gap: 16px;
+  align-items: start;
+}
+.plan-detail .plan-tile {
+  grid-column: span 4;
+  padding: 24px;
+  margin: 0;
+  border: 0;
+  min-width: 0;
+  scroll-margin-top: 90px;
+  border-radius: 25px;
+}
+.plan-detail .plan-tile.mint {
+  background: var(--mint);
+}
+.plan-detail .plan-tile.lavender {
+  background: var(--lavender);
+}
+.plan-tile-heading {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: center;
+  margin-bottom: 20px;
+}
+.plan-tile-heading h3 {
+  font-size: 20px;
+  letter-spacing: -0.5px;
+  font-weight: 500;
+  margin: 0;
+}
+.plan-tile-icon {
+  width: 36px;
+  height: 36px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: #f0f0f5;
+  flex-shrink: 0;
+}
+.mint .plan-tile-icon,
+.lavender .plan-tile-icon {
+  background: #ffffff77;
+}
+.plan-detail-big {
+  font-size: 48px;
+  letter-spacing: -2px;
+  line-height: 1.05;
+  font-weight: 400;
+  margin: 10px 0 0 !important;
+}
+.plan-detail-big small {
+  font-size: 22px;
+  color: var(--secondary);
+  letter-spacing: -0.5px;
+}
+.plan-effort-bars {
+  display: flex;
+  align-items: end;
+  gap: 12px;
+  height: 154px;
+  margin: 22px 0 18px;
+}
+.plan-effort-bar {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  justify-content: end;
+}
+.plan-effort-bar > span {
+  font:
+    10px Consolas,
+    monospace;
+  white-space: nowrap;
+}
+.plan-effort-bar.owner > span {
+  background: var(--lime);
+  padding: 4px 8px;
+  border-radius: 999px;
+}
+.plan-effort-track {
+  width: 100%;
+  display: flex;
+  align-items: end;
+  background: #f0f0f5;
+  border-radius: 12px;
+  overflow: hidden;
+  min-height: 6px;
+}
+.plan-effort-track i {
+  width: 100%;
+  background: #dedfe8;
+  border-radius: 12px;
+}
+.plan-effort-bar.owner .plan-effort-track {
+  background: #f1f7c8;
+}
+.plan-effort-bar.owner .plan-effort-track i {
+  background: var(--lime);
+}
+.plan-effort-bar > small {
+  font-size: 11px;
+  color: var(--secondary);
+}
+.plan-effort-basis {
+  border-top: 1px solid var(--border);
+  padding-top: 15px;
+  margin-bottom: 0 !important;
+}
+.plan-related {
+  display: grid;
+  gap: 8px;
+  margin-top: 18px;
+}
+.plan-related-row {
+  width: 100%;
+  white-space: normal;
+  display: flex;
+  gap: 9px;
+  justify-content: start;
+  text-align: left;
+  border-radius: 18px;
+  padding: 11px 12px;
+  background: #f6f5fa;
+  font-size: 11px;
+}
+.plan-related-row > span:nth-child(2) {
+  min-width: 0;
+  flex: 1;
+}
+.plan-related-row b {
+  font-weight: 500;
+  display: block;
+  font-size: 12px;
+}
+.plan-related-row small {
+  color: var(--secondary);
+  display: block;
+  line-height: 1.5;
+  font-size: 10px;
+}
+.plan-related-status {
+  font-size: 9px;
+  color: var(--secondary);
+  flex-shrink: 0;
+}
+.plan-dep-marker {
+  height: 22px;
+  width: 22px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  border: 1px solid #c8cad7;
+  flex-shrink: 0;
+}
+.plan-dep-marker.complete {
+  background: var(--lime);
+  border-color: var(--lime);
+}
+.plan-readiness {
+  display: inline-block;
+  font-size: 10px;
+  border-radius: 999px;
+  background: #f0f0f5;
+  color: var(--secondary);
+  padding: 5px 11px;
+  margin-top: 14px;
+}
+.plan-readiness.ready {
+  background: var(--lime);
+  color: var(--ink);
+}
+.plan-unlocks {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.plan-unlocks button {
+  font:
+    10px Consolas,
+    monospace;
+  padding: 7px 10px;
+  min-height: 32px;
+}
+.plan-person {
+  display: flex;
+  gap: 11px;
+  align-items: center;
+  padding: 15px 0;
+}
+.plan-person + .plan-person {
+  border-top: 1px solid #aac9ba;
+}
+.plan-person-avatar {
+  height: 42px;
+  width: 42px;
+  border-radius: 50%;
+  background: #ffffff88;
+  display: grid;
+  place-items: center;
+  font-size: 11px;
+  flex-shrink: 0;
+}
+.plan-person b {
+  display: block;
+  font-size: 13px;
+  line-height: 1.5;
+  font-weight: 500;
+}
+.plan-person small {
+  font-size: 10px;
+  color: #49675a;
+  display: block;
+  margin-top: 4px;
+}
+.plan-detail .steps-tile {
+  grid-column: span 7;
+  grid-row: span 2;
+}
+.plan-detail .start-tile,
+.plan-detail .evidence-tile {
+  grid-column: span 5;
+}
+.plan-step-progress {
+  height: 25px;
+  border-radius: 10px;
+  overflow: hidden;
+  margin: 18px 0 24px;
+  background:
+    repeating-linear-gradient(115deg, #e0e2e9 0 3px, transparent 3px 8px),
+    #f3f3f7;
+}
+.plan-step-progress i {
+  display: block;
+  height: 100%;
+  background:
+    repeating-linear-gradient(115deg, #86cfc7 0 3px, transparent 3px 8px),
+    #d7eeea;
+  border-radius: 10px;
+  transition: width 0.2s ease;
+}
+.plan-detail-checks {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  gap: 4px;
+}
+.plan-detail-checks label {
+  flex-direction: row;
+  margin: 0;
+  font-weight: 400;
+  display: flex;
+  gap: 12px;
+  align-items: start;
+  padding: 12px 8px;
+  cursor: pointer;
+  border-radius: 12px;
+  font-size: 13px;
+  line-height: 1.8;
+}
+.plan-detail-checks label:hover {
+  background: #f6f5fa;
+}
+.plan-detail input[type="checkbox"] {
+  appearance: auto;
+  width: 19px;
+  height: 19px;
+  min-height: 0;
+  padding: 0;
+  margin: 3px 0 0;
+  flex-shrink: 0;
+  accent-color: #294f46;
+  cursor: pointer;
+}
+.plan-detail-checks input:checked + span {
+  color: var(--secondary);
+  text-decoration: line-through;
+}
+.plan-step-number {
+  display: inline-block;
+  font:
+    11px Consolas,
+    monospace;
+  color: var(--secondary);
+  margin-right: 8px;
+}
+.plan-start-callout {
+  font-size: 17px;
+  line-height: 1.55;
+  letter-spacing: -0.2px;
+}
+.plan-pattern {
+  background: var(--ink);
+  color: white;
+  padding: 20px;
+  border-radius: 18px;
+  font:
+    12px/1.8 Consolas,
+    monospace;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  overflow: auto;
+  margin: 20px 0 16px;
+}
+.plan-evidence-top {
+  display: flex;
+  gap: 14px;
+  align-items: start;
+  flex-wrap: wrap;
+}
+.plan-acceptance {
+  flex: 1;
+  min-width: 180px;
+  display: grid;
+  gap: 16px;
+}
+.plan-acceptance label,
+.plan-review-check {
+  flex-direction: row;
+  margin: 0;
+  font-weight: 400;
+  display: flex;
+  gap: 10px;
+  align-items: start;
+  font-size: 12px;
+  cursor: pointer;
+  line-height: 1.7;
+}
+.plan-evidence-bubble {
+  position: relative;
+  width: 100px;
+  height: 110px;
+  flex-shrink: 0;
+  margin-left: auto;
+}
+.plan-evidence-bubble > span {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 90px;
+  height: 90px;
+  border-radius: 50%;
+  background: #86cfc7;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font:
+    32px "Manrope Variable",
+    sans-serif;
+  letter-spacing: -1px;
+  color: #153f3a;
+}
+.plan-evidence-bubble small {
+  font-size: 14px;
+}
+.plan-evidence-bubble > b {
+  position: absolute;
+  right: 0;
+  top: 0;
+  width: 43px;
+  height: 43px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: #ffffffbb;
+  border: 1px solid #e5eeee;
+  font-size: 11px;
+  font-weight: 400;
+}
+.plan-artifact-field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 20px 0;
+  font-size: 11px;
+  color: var(--secondary);
+}
+.plan-artifact-field input {
+  width: 100%;
+  min-width: 0;
+  min-height: 43px;
+  background: #f6f5fa;
+  border-color: transparent;
+  font-size: 12px;
+}
+.plan-review-check {
+  margin-bottom: 12px;
+}
+.plan-resource {
+  padding: 14px 0;
+}
+.plan-resource + .plan-resource {
+  border-top: 1px solid var(--border);
+}
+.plan-resource a {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 14px;
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+.plan-resource p {
+  font-size: 12px;
+  color: var(--secondary);
+  margin: 8px 0 0;
+  line-height: 1.7;
+}
+.plan-tile .plan-detail-chips {
+  margin-top: 14px;
+}
+.plan-detail-list {
+  padding-left: 18px;
+  font-size: 12px;
+  display: grid;
+  gap: 10px;
+  line-height: 1.75;
+}
+.plan-tile > p {
+  font-size: 12px;
+  line-height: 1.75;
+}
+.plan-tile > p.plan-start-callout,
+.plan-tile > p.plan-explain {
+  font-size: 17px;
+  line-height: 1.55;
+}
+.plan-detail .plan-scope-tile {
+  grid-column: span 12;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 24px;
+}
+.plan-scope-tile .plan-tile-heading {
+  grid-column: 1/-1;
+  margin-bottom: 0;
+}
+.plan-scope-tile h4 {
+  margin-top: 0;
+}
+.plan-scope-tile p {
+  font-size: 12px;
+}
+.plan-page button.plan-card-open {
+  display: block;
+  text-align: left;
+  width: 100%;
+  white-space: normal;
+  border: 0;
+  border-radius: 0;
+  padding: 18px;
+  background: white;
+  color: var(--ink);
+}
+.plan-page button.plan-card-open:hover {
+  background: #f6f5fa;
+}
+.plan-page button.plan-card-open:focus-visible {
+  outline-offset: -4px;
+}
+.plan-page .plan-card-open .card-hint > span {
+  font-weight: 500;
+  color: var(--ink);
+}
+.plan-page .plan-task {
+  border-radius: 25px;
+}
+@media (max-width: 1000px) {
+  .plan-detail-layout {
+    grid-template-columns: 1fr;
+  }
+  .plan-detail-rail {
+    display: none;
+  }
+  .plan-detail .plan-tile {
+    grid-column: span 6;
+    grid-row: auto;
+  }
+  .plan-detail .steps-tile {
+    grid-column: span 12;
+  }
+  .plan-detail .plan-scope-tile {
+    grid-column: span 12;
+    grid-template-columns: 1fr;
+  }
+}
+@media (max-width: 600px) {
+  dialog.plan-dialog {
+    width: calc(100vw - 12px);
+    max-height: calc(100dvh - 12px);
+    border-width: 3px;
+    border-radius: 24px;
+  }
+  .plan-dialog .dialog-heading {
+    padding: 12px 15px;
+  }
+  .plan-dialog .dialog-body {
+    padding: 18px 12px;
+  }
+  .plan-detail .plan-tile {
+    grid-column: span 12;
+    padding: 22px;
+  }
+  .plan-detail .plan-scope-tile {
+    gap: 18px;
+  }
+  .plan-detail-utilities {
+    align-items: start;
+    flex-wrap: wrap;
+    margin-bottom: 18px;
+  }
+  .plan-detail-utilities > span {
+    max-width: 140px;
+    font-size: 10px;
+  }
+  .plan-detail-utilities button {
+    font-size: 11px;
+    padding: 10px 13px;
+  }
+  .plan-detail-hero h2 {
+    font-size: 29px;
+    letter-spacing: -1px;
+  }
+  .plan-detail-chips > span {
+    font-size: 10px;
+    padding: 5px 10px;
+  }
+  .plan-status-group {
+    width: 100%;
+  }
+  .plan-status-group button {
+    flex: 1;
+    padding: 10px 12px;
+  }
+  .plan-detail-layout {
+    gap: 0;
+  }
+  .plan-detail-grid {
+    gap: 12px;
+  }
+  .plan-detail-hero {
+    padding: 0 6px;
+  }
+  .plan-acceptance {
+    min-width: 160px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .plan-step-progress i {
+    transition: none;
+  }
+}
