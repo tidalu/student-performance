@@ -25,7 +25,6 @@ import {
   CheckCheck,
   Layers,
   Users,
-  CalendarDays,
 } from "lucide-react";
 import * as D from "./domain";
 import "@fontsource-variable/manrope";
@@ -37,7 +36,6 @@ const icons = {
   analytics: Grid2X2,
   activity: History,
   accounts: Users,
-  plan: CalendarDays,
 };
 
 import type { Modal, Context } from "./types";
@@ -136,7 +134,6 @@ function App() {
   const links = teacher
     ? [
         ["datasets", "Datasets", "/datasets"],
-        ["plan", "Plan", "/plan"],
         ["evaluation", "Model evaluation", "/evaluations/demo-eval-v1"],
         ...(full
           ? [
@@ -146,7 +143,6 @@ function App() {
           : []),
       ]
     : [
-        ["plan", "Plan", "/plan"],
         ["evaluation", "Model evaluation", "/evaluations/demo-eval-v1"],
         ...(user?.role === "administrator" && full
           ? [
