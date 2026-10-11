@@ -2276,3 +2276,136 @@ table {
   display: block;
   color: var(--secondary);
 }
+/* Auth journeys share the sign-in canvas and document scroll owner. */
+.auth-journey .login-intro {
+  display: flex;
+  flex-direction: column;
+}
+.auth-journey .login-intro > .fine {
+  margin-top: auto;
+  padding-top: 24px;
+}
+.auth-story {
+  margin: 30px 0 12px;
+}
+.auth-story-card {
+  background: var(--mint);
+  border-radius: 23px;
+  padding: 28px;
+  box-shadow: 9px 9px 0 #ffffff50;
+}
+.auth-story-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 50px;
+  height: 50px;
+  background: #ffffff80;
+  border-radius: 16px;
+  margin-bottom: 24px;
+}
+.auth-story-card h3 {
+  font-size: 27px;
+  font-weight: 450;
+  letter-spacing: -0.8px;
+  margin: 12px 0;
+}
+.auth-story-card p {
+  font-size: 12px;
+  line-height: 1.8;
+}
+.auth-story-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 24px;
+}
+.auth-story-tags span {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  border: 1px solid #ffffff70;
+  border-radius: 30px;
+  padding: 7px 10px;
+  font-size: 10px;
+}
+.auth-story-foot {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 22px;
+  padding: 16px 0;
+}
+.auth-story-foot > div {
+  flex: 1;
+}
+.auth-story-foot strong,
+.auth-story-foot small {
+  display: block;
+  font-size: 11px;
+}
+.auth-story-foot small {
+  color: var(--secondary);
+  margin-top: 5px;
+  font-size: 10px;
+}
+.auth-step-dot {
+  background: var(--lime);
+  border-radius: 50%;
+  width: 32px;
+  height: 32px;
+  display: grid;
+  place-items: center;
+  font-size: 10px;
+}
+.auth-back {
+  display: flex;
+  gap: 5px;
+  align-items: center;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  font-size: 11px;
+  color: var(--secondary);
+  margin-bottom: 32px;
+}
+.auth-view > .eyebrow {
+  display: block;
+}
+.auth-view h2 {
+  outline: none;
+}
+.auth-view-sub {
+  font-size: 12px;
+  line-height: 1.8;
+  color: var(--secondary);
+  margin-bottom: 28px;
+}
+.auth-view .form-actions {
+  flex-direction: column-reverse;
+  align-items: stretch;
+  gap: 10px;
+}
+.auth-view .form-actions > button {
+  width: 100%;
+}
+.auth-view .form-actions > button:first-child {
+  background: transparent;
+  border-color: transparent;
+  color: var(--secondary);
+}
+.auth-demo-note {
+  border-top: 1px solid var(--border);
+  padding-top: 18px;
+  margin-top: 24px;
+  font-size: 10px;
+  line-height: 1.8;
+}
+@media (max-width: 680px) {
+  .auth-journey .login-intro {
+    display: none;
+  }
+  .auth-back {
+    margin-bottom: 25px;
+  }
+}

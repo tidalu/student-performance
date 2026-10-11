@@ -73,6 +73,8 @@ export function Dialog({
     </dialog>
   );
 }
+type AuthMode =
+  "register" | "forgot" | "sent" | "reset" | "success" | "google" | null;
 export function Login({
   onLogin,
   returnTo,
@@ -86,91 +88,185 @@ export function Login({
     [error, setError] = useState(""),
     [busy, setBusy] = useState(false);
   const live = useOperation();
+  const [authView, setAuthView] = useState<AuthMode>(null);
+  const alternate = authView !== null && authView !== "google";
+  const joining = authView === "register";
   return (
-    <div className="login-grid">
+    <div className={"login-grid" + (alternate ? " auth-journey" : "")}>
       <section className="login-intro">
         <span className="eyebrow">
-          A CLEARER PICTURE. A THOUGHTFUL NEXT STEP.
+          {alternate
+            ? joining
+              ? "A PLACE FOR YOUR NEXT CHAPTER"
+              : "YOUR WORKSPACE, WITHIN REACH"
+            : "A CLEARER PICTURE. A THOUGHTFUL NEXT STEP."}
         </span>
         <h1>
-          Understanding progress.
-          <br />
-          Supporting possibility.
+          {alternate ? (
+            joining ? (
+              <>
+                A space to understand.
+                <br />A place to begin.
+              </>
+            ) : (
+              <>
+                A small reset.
+                <br />A fresh perspective.
+              </>
+            )
+          ) : (
+            <>
+              Understanding progress.
+              <br />
+              Supporting possibility.
+            </>
+          )}
         </h1>
         <p>
-          A focused workspace to bring student data together, explore simulated
-          academic risk and inform your review.
+          {alternate
+            ? joining
+              ? "Bring your teaching collection together, explore a different perspective and make room for thoughtful review."
+              : "Pick up where you left off. Your teaching collection and saved insights will be waiting for you."
+            : "A focused workspace to bring student data together, explore simulated academic risk and inform your review."}
         </p>
-        <div className="login-orbit">
-          <BookOpen size={74} strokeWidth={1} />
-          <span>Data → Insight → Review</span>
-        </div>
-        <Steps active={0} />
+        {alternate ? (
+          <div
+            className="auth-story"
+            aria-label={
+              joining ? "Your teaching workspace" : "Account recovery steps"
+            }
+          >
+            <div className="auth-story-card">
+              <span className="auth-story-icon">
+                {joining ? (
+                  <BookOpen size={27} strokeWidth={1.3} />
+                ) : (
+                  <ShieldCheck size={27} strokeWidth={1.3} />
+                )}
+              </span>
+              <span className="eyebrow">
+                {joining
+                  ? "YOUR TEACHING COLLECTION"
+                  : "BACK TO YOUR WORKSPACE"}
+              </span>
+              <h3>
+                {joining ? "Start with possibility." : "A clear way back."}
+              </h3>
+              <p>
+                {joining
+                  ? "Your datasets. Your insights. Your next step."
+                  : "Request instructions. Choose a password. Continue your work."}
+              </p>
+              <div className="auth-story-tags">
+                <span>
+                  <Check size={12} />
+                  {joining ? "Private workspace" : "One-use reset"}
+                </span>
+                <span>
+                  <Check size={12} />
+                  {joining ? "Human-led review" : "Your data stays"}
+                </span>
+              </div>
+            </div>
+            <div className="auth-story-foot">
+              <span className="auth-step-dot">{joining ? "01" : "↗"}</span>
+              <div>
+                <strong>
+                  {joining
+                    ? "Made for a considered review"
+                    : "Nothing to start over"}
+                </strong>
+                <small>
+                  {joining
+                    ? "Import → Preview → Predict → Review"
+                    : "Return to the same collection and saved results"}
+                </small>
+              </div>
+              <ArrowUpRight size={18} />
+            </div>
+          </div>
+        ) : (
+          <>
+            <div className="login-orbit">
+              <BookOpen size={74} strokeWidth={1} />
+              <span>Data → Insight → Review</span>
+            </div>
+            <Steps active={0} />
+          </>
+        )}
         <p className="fine">
           Interactive university prototype. All examples are synthetic.
-          Predictions are simulated, never a judgement of a student.
+          Predictions support human review.
         </p>
       </section>
       <section className="login-form">
-        <span className="eyebrow">YOUR TEACHING WORKSPACE</span>
-        <h2>Welcome back.</h2>
-        <p>Sign in with a synthetic demo account to explore.</p>
-        <form
-          noValidate
-          onSubmit={async (e) => {
-            e.preventDefault();
-            if (busy) return;
-            setError("");
-            if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) || !password) {
-              setError("Enter a valid demo email and password.");
-              return;
-            }
-            setBusy(true);
-            try {
-              const a = await D.login(email, password);
-              if (!live(true)) return;
-              onLogin(a);
-            } catch (e) {
-              setError((e as Error).message);
-            } finally {
-              setBusy(false);
-            }
-          }}
-        >
-          <label>
-            Email address
-            <input
-              type="email"
-              autoComplete="username"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="maya@demo.example"
-              required
-            />
-          </label>
-          <label>
-            Password
-            <div className="password">
+        <div hidden={alternate}>
+          <span className="eyebrow">YOUR TEACHING WORKSPACE</span>
+          <h2 id="signin-view-title" tabIndex={-1}>
+            Welcome back.
+          </h2>
+          <p>Sign in with a synthetic demo account to explore.</p>
+          <form
+            noValidate
+            onSubmit={async (e) => {
+              e.preventDefault();
+              if (busy) return;
+              setError("");
+              if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) || !password) {
+                setError("Enter a valid demo email and password.");
+                return;
+              }
+              setBusy(true);
+              try {
+                const a = await D.login(email, password);
+                if (!live(true)) return;
+                onLogin(a);
+              } catch (e) {
+                setError((e as Error).message);
+              } finally {
+                setBusy(false);
+              }
+            }}
+          >
+            <label>
+              Email address
               <input
-                type={show ? "text" : "password"}
-                autoComplete="current-password"
+                type="email"
+                autoComplete="username"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="maya@demo.example"
                 required
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
               />
-              <button type="button" onClick={() => setShow(!show)}>
-                {show ? "Hide" : "Show"}
-              </button>
-            </div>
-          </label>
-          <FormMessage error={error} />
-          <button disabled={busy} aria-busy={busy} className="primary wide">
-            {busy ? "Signing in…" : "Sign in to workspace"}{" "}
-            <ArrowRight size={17} />
-          </button>
-        </form>
-        <AuthOptions onLogin={onLogin} email={email} />
-        <details>
+            </label>
+            <label>
+              Password
+              <div className="password">
+                <input
+                  type={show ? "text" : "password"}
+                  autoComplete="current-password"
+                  required
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                />
+                <button type="button" onClick={() => setShow(!show)}>
+                  {show ? "Hide" : "Show"}
+                </button>
+              </div>
+            </label>
+            <FormMessage error={error} />
+            <button disabled={busy} aria-busy={busy} className="primary wide">
+              {busy ? "Signing in…" : "Sign in to workspace"}{" "}
+              <ArrowRight size={17} />
+            </button>
+          </form>
+        </div>
+        <AuthOptions
+          onLogin={onLogin}
+          email={email}
+          onModeChange={setAuthView}
+        />
+        <details hidden={alternate}>
           <summary>Explore with a demo account</summary>
           <div className="credential-grid">
             {D.db.accounts.map((a) => (
@@ -258,13 +354,13 @@ function DemoPassword({
 function AuthOptions({
   onLogin,
   email,
+  onModeChange,
 }: {
   onLogin: (a: D.Account) => void;
   email: string;
+  onModeChange: (mode: AuthMode) => void;
 }) {
-  const [mode, setMode] = useState<
-    "register" | "forgot" | "sent" | "reset" | "success" | "google" | null
-  >(null);
+  const [mode, setMode] = useState<AuthMode>(null);
   const [name, setName] = useState("");
   const [address, setAddress] = useState("");
   const [password, setPassword] = useState("");
@@ -274,6 +370,19 @@ function AuthOptions({
   const [busy, setBusy] = useState(false);
   const [success, setSuccess] = useState("");
   const live = useOperation();
+  useEffect(() => {
+    onModeChange(
+      mode === "success" && success === "Your account is ready"
+        ? "register"
+        : mode,
+    );
+    if (mode !== "google")
+      requestAnimationFrame(() =>
+        document
+          .getElementById(mode ? "auth-view-title" : "signin-view-title")
+          ?.focus(),
+      );
+  }, [mode, onModeChange, success]);
   const open = (next: typeof mode) => {
     setMode(next);
     setAddress(email);
@@ -309,43 +418,57 @@ function AuthOptions({
               : "Reset your password";
   return (
     <>
-      <div className="auth-divider">
-        <span>or</span>
-      </div>
-      <button className="wide google-signin" onClick={() => open("google")}>
-        <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true">
-          <path
-            fill="#4285F4"
-            d="M21.8 12.2c0-.7-.1-1.4-.2-2.1H12v4h5.5a4.7 4.7 0 0 1-2 3.1v2.6h3.3c1.9-1.8 3-4.4 3-7.6Z"
-          />
-          <path
-            fill="#34A853"
-            d="M12 22c2.7 0 5-.9 6.8-2.4l-3.3-2.6c-.9.6-2.1 1-3.5 1-2.6 0-4.8-1.7-5.6-4H3v2.7A10.2 10.2 0 0 0 12 22Z"
-          />
-          <path
-            fill="#FBBC05"
-            d="M6.4 14a6 6 0 0 1 0-4V7.3H3a10 10 0 0 0 0 9.4L6.4 14Z"
-          />
-          <path
-            fill="#EA4335"
-            d="M12 6c1.5 0 2.8.5 3.9 1.5l2.9-2.9A9.7 9.7 0 0 0 12 2a10.2 10.2 0 0 0-9 5.3L6.4 10c.8-2.3 3-4 5.6-4Z"
-          />
-        </svg>
-        Continue with Google<span className="mode-tag">Demo</span>
-      </button>
-      <div className="auth-links">
-        <button onClick={() => open("forgot")}>Forgot password?</button>
-        <span>
-          New here?{" "}
-          <button onClick={() => open("register")}>Create an account</button>
-        </span>
+      <div hidden={mode !== null && mode !== "google"}>
+        <div className="auth-divider">
+          <span>or</span>
+        </div>
+        <button className="wide google-signin" onClick={() => open("google")}>
+          <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true">
+            <path
+              fill="#4285F4"
+              d="M21.8 12.2c0-.7-.1-1.4-.2-2.1H12v4h5.5a4.7 4.7 0 0 1-2 3.1v2.6h3.3c1.9-1.8 3-4.4 3-7.6Z"
+            />
+            <path
+              fill="#34A853"
+              d="M12 22c2.7 0 5-.9 6.8-2.4l-3.3-2.6c-.9.6-2.1 1-3.5 1-2.6 0-4.8-1.7-5.6-4H3v2.7A10.2 10.2 0 0 0 12 22Z"
+            />
+            <path
+              fill="#FBBC05"
+              d="M6.4 14a6 6 0 0 1 0-4V7.3H3a10 10 0 0 0 0 9.4L6.4 14Z"
+            />
+            <path
+              fill="#EA4335"
+              d="M12 6c1.5 0 2.8.5 3.9 1.5l2.9-2.9A9.7 9.7 0 0 0 12 2a10.2 10.2 0 0 0-9 5.3L6.4 10c.8-2.3 3-4 5.6-4Z"
+            />
+          </svg>
+          Continue with Google<span className="mode-tag">Demo</span>
+        </button>
+        <div className="auth-links">
+          <button onClick={() => open("forgot")}>Forgot password?</button>
+          <span>
+            New here?{" "}
+            <button onClick={() => open("register")}>Create an account</button>
+          </span>
+        </div>
       </div>
       {mode && (
-        <Dialog title={title} busy={busy} close={() => setMode(null)}>
-          <p className="fine">
-            Frontend demo only. Use synthetic details and a demo password. No
-            email is sent and Google is not contacted.
-          </p>
+        <AuthSurface
+          title={title}
+          google={mode === "google"}
+          busy={busy}
+          close={() => setMode(null)}
+          subtitle={
+            mode === "register"
+              ? "A few details, then a workspace of your own."
+              : mode === "forgot"
+                ? "Enter your demo email. We’ll help you find your way back."
+                : mode === "reset"
+                  ? "Choose a new demo password to return to your workspace."
+                  : mode === "sent"
+                    ? "Your next step is ready in the local demo inbox."
+                    : "Ready for your next step."
+          }
+        >
           {mode === "google" ? (
             <>
               <p>
@@ -541,9 +664,56 @@ function AuthOptions({
               </div>
             </form>
           )}
-        </Dialog>
+          <p className="fine auth-demo-note">
+            Synthetic details only ·{" "}
+            {mode === "google"
+              ? "Google sign-in preview"
+              : "Local demo account"}
+            . No email is sent.
+          </p>
+        </AuthSurface>
       )}
     </>
+  );
+}
+function AuthSurface({
+  title,
+  subtitle,
+  google,
+  busy,
+  close,
+  children,
+}: {
+  title: string;
+  subtitle: string;
+  google: boolean;
+  busy: boolean;
+  close: () => void;
+  children: React.ReactNode;
+}) {
+  if (google)
+    return (
+      <Dialog title={title} busy={busy} close={close}>
+        {children}
+      </Dialog>
+    );
+  return (
+    <div className="auth-view">
+      <button className="auth-back" disabled={busy} onClick={close}>
+        <ChevronLeft size={15} />
+        Back to sign in
+      </button>
+      <span className="eyebrow">YOUR TEACHING WORKSPACE</span>
+      <h2 id="auth-view-title" tabIndex={-1}>
+        {title === "Create your demo account"
+          ? "Begin your workspace."
+          : title === "Reset your password"
+            ? "Let’s get you back."
+            : title}
+      </h2>
+      <p className="auth-view-sub">{subtitle}</p>
+      {children}
+    </div>
   );
 }
 export function Title({

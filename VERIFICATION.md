@@ -93,3 +93,7 @@ Verification limits remain explicit: native print/PDF preview, actual browser 20
 ## Authentication extension checks
 
 34 automated tests pass, including unique-email registration, duplicate-name acceptance, credential digest storage, custom-password login, reset token single-use and old-password rejection, and Google demo disabled/role guards. Browser checks cover registration mismatch correction, account creation, actual new-account sign-in into an empty private workspace, reset request/local inbox/new-password form and Google chooser/cancellation. Password replacement is exercised by automated domain tests; no real user or provider credentials are changed. Existing native Dialog and FormMessage own all new form/overlay states.
+
+## Authentication design refinement
+
+Registration and recovery now use shared split-canvas inline views instead of modal forms. Browser checks passed: empty registration error, Back/Cancel restoration, account creation success, reset request -> local inbox -> new password, and 390px registration/reset views without document overflow. Desktop registration/recovery screenshots are saved in screenshots/registration-redesign.png and screenshots/recovery-redesign.png. Google retains the existing chooser.

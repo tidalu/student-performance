@@ -27,3 +27,5 @@
 Activity date inputs intentionally use the native Date control for keyboard entry and platform calendar behavior; boundaries are labelled UTC. Shared filters use validated URL values. Table searches and review drafts remain persona-local. Persistence failures restore the last committed snapshot. Preview Cancel discards unconsumed staged work.
 
 Authentication extensions: AuthOptions and DemoPassword in components.tsx reuse Dialog/FormMessage and domain mock operations. Registration creates teachers only, checks duplicate email rather than name, then returns to explicit sign-in. Reset uses a one-use, 15-minute in-memory demo inbox ticket; no mail is sent. Google uses an explicitly labelled local account chooser; no Google OAuth request is made. Seeds retain the shared credential unless reset.
+
+Auth layout refinement: registration, forgot password, local inbox, new password and success are inline AuthSurface views in Login. Google alone retains Dialog. Back/Cancel return to sign-in, pending submissions block Back, error text/values stay in the form, and transitions focus the visible heading.
