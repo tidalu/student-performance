@@ -30,6 +30,7 @@ import * as D from "./domain";
 import "@fontsource-variable/manrope";
 import "@fontsource-variable/dm-sans";
 import "./style.css";
+import { ThemeToggle } from "./theme";
 const icons = {
   datasets: Layers,
   evaluation: ChartNoAxesCombined,
@@ -217,6 +218,7 @@ function App() {
           </details>
         )}
         <div className="header-end">
+          <ThemeToggle />
           <span className="synthetic">
             <i /> Synthetic data
           </span>

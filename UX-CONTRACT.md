@@ -1,5 +1,7 @@
 # Behavior contract
 
+- One accessible header theme button is available before and after sign-in, in both modes and every route. Its label names the next theme and its pressed state identifies dark mode. Appearance persists independently of persona, workspace backups and logout. System appearance applies until a choice is saved; preference changes synchronize across tabs. Unavailable storage falls back to the current visit. Changing theme preserves forms, filters, planning progress and open-dialog state.
+
 - Teachers access only their own datasets, runs and reviews. Analysts see aggregate evaluations. Administrators manage accounts without student-record access. Service ownership guards supplement routing.
 - Core mode hides optional modules; Full includes review, quality, analytics, activity, accounts, preferences and exports. Help and Demo Controls are shared.
 - Confirm import creates one dataset and consumes its preview. Consumed markers survive dataset deletion. Preview lifetime is 30 minutes. Invalid CSVs cannot commit.

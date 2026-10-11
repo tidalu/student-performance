@@ -148,12 +148,12 @@
 }
 .plan-page .primary {
   background: var(--green);
-  color: white;
+  color: var(--on-solid);
   border-color: var(--green);
 }
 .plan-page .primary:hover {
   background: #20523b;
-  color: white;
+  color: var(--on-solid);
 }
 .plan-page .legend {
   display: flex;
@@ -249,8 +249,8 @@
   margin: 16px 32px 0;
   padding: 11px 15px;
   border-left: 3px solid var(--amber);
-  background: #fff5e4;
-  color: #754107;
+  background: light-dark(#fff5e4, var(--dark-warning-surface));
+  color: light-dark(#754107, var(--dark-warning-text));
   font-size: 12px;
 }
 .plan-page .statusline {
@@ -299,10 +299,10 @@
 }
 .plan-page .gate {
   padding: 12px 21px;
-  background: #eff7ef;
-  border-bottom: 1px solid #d3e4d4;
+  background: light-dark(#eff7ef, var(--dark-surface));
+  border-bottom: 1px solid light-dark(#d3e4d4, var(--dark-border));
   font-size: 12px;
-  color: #254e31;
+  color: light-dark(#254e31, var(--dark-success-text));
 }
 .plan-page .lane-scroll {
   overflow-x: auto;
@@ -354,10 +354,10 @@
   display: none;
 }
 .plan-page .card summary:hover {
-  background: #fafaf7;
+  background: light-dark(#fafaf7, var(--dark-surface));
 }
 .plan-page .card[open] summary {
-  background: #f8f8f3;
+  background: light-dark(#f8f8f3, var(--dark-surface));
   border-bottom: 1px solid var(--border);
 }
 .plan-page .card-id {
@@ -392,24 +392,24 @@
   white-space: nowrap;
 }
 .plan-page .tag.must {
-  background: #e7eee9;
-  color: #244e35;
+  background: light-dark(#e7eee9, var(--dark-control));
+  color: light-dark(#244e35, var(--dark-success-text));
 }
 .plan-page .tag.should {
-  background: #e9eff9;
-  color: #244d77;
+  background: light-dark(#e9eff9, var(--dark-surface));
+  color: light-dark(#244d77, var(--dark-info-text));
 }
 .plan-page .tag.could {
-  background: #efe9f9;
-  color: #65379c;
+  background: light-dark(#efe9f9, var(--dark-surface));
+  color: light-dark(#65379c, var(--dark-purple-text));
 }
 .plan-page .tag.wont {
-  background: #efefec;
-  color: #59574f;
+  background: light-dark(#efefec, var(--dark-control));
+  color: light-dark(#59574f, var(--dark-secondary));
 }
 .plan-page .tag.sp {
-  background: #edf0fc;
-  color: #36457b;
+  background: light-dark(#edf0fc, var(--dark-surface));
+  color: light-dark(#36457b, var(--dark-info-text));
 }
 .plan-page .card-preview {
   font-size: 11.5px;
@@ -454,14 +454,14 @@
 }
 .plan-page .accept {
   padding: 9px;
-  background: #f0f8f0;
+  background: light-dark(#f0f8f0, var(--dark-surface));
   border-radius: 6px;
 }
 .plan-page .pitfall {
   padding: 9px;
-  background: #fff6e6;
+  background: light-dark(#fff6e6, var(--dark-surface));
   border-radius: 6px;
-  color: #794600;
+  color: light-dark(#794600, var(--dark-warning-text));
 }
 .plan-page .dep {
   padding: 3px 6px;
@@ -472,13 +472,13 @@
   margin: 2px;
   border-radius: 4px;
   color: var(--amber);
-  background: #fff7e9;
-  border-color: #edd7b4;
+  background: light-dark(#fff7e9, var(--dark-surface));
+  border-color: light-dark(#edd7b4, var(--dark-border));
 }
 .plan-page .dep.complete {
-  background: #edf7ee;
+  background: light-dark(#edf7ee, var(--dark-surface));
   color: var(--green);
-  border-color: #c7dccb;
+  border-color: light-dark(#c7dccb, var(--dark-border));
 }
 .plan-page .card-footer {
   display: flex;
@@ -501,7 +501,7 @@
   margin: 6px 0;
 }
 .plan-page .card-error {
-  color: #a12621;
+  color: light-dark(#a12621, var(--dark-danger-text));
   line-height: 1.4;
 }
 .plan-page .labrow {
@@ -529,7 +529,7 @@
   min-width: 920px;
 }
 .plan-page .kanban-lane {
-  background: #eeede8;
+  background: light-dark(#eeede8, var(--dark-control));
   border: 1px solid var(--border);
   border-radius: 10px;
   padding: 14px;
@@ -797,8 +797,8 @@
 }
 .plan-page .selection-box {
   padding: 10px;
-  background: #edf2fc;
-  border: 1px solid #cbd8ed;
+  background: light-dark(#edf2fc, var(--dark-surface));
+  border: 1px solid light-dark(#cbd8ed, var(--dark-border));
   border-radius: 6px;
 }
 .plan-page .card-body .resources {
@@ -852,7 +852,7 @@
   width: 90px;
 }
 .plan-page .notice-inset {
-  background: #fff5e4;
+  background: light-dark(#fff5e4, var(--dark-warning-surface));
   border-left: 3px solid var(--amber);
   padding: 13px;
 }
@@ -871,14 +871,14 @@
 .plan-page {
   --text: var(--ink);
   --muted: var(--secondary);
-  --surface: #fff;
-  --surface2: #f6f5fa;
-  --green: #294f46;
-  --blue: #38577d;
-  --amber: #775324;
-  --focus: #699c9f;
-  --thumb: #bfc1cd;
-  --track: #f0f0f5;
+  --surface: var(--card);
+  --surface2: light-dark(#f6f5fa, var(--dark-surface));
+  --green: light-dark(#294f46, var(--dark-success-text));
+  --blue: light-dark(#38577d, var(--dark-info-text));
+  --amber: light-dark(#775324, var(--dark-warning-text));
+  --focus: light-dark(#699c9f, var(--dark-focus));
+  --thumb: light-dark(#bfc1cd, var(--dark-control-hover));
+  --track: light-dark(#f0f0f5, var(--dark-control));
   color: var(--ink);
   background: transparent;
   font: inherit;
@@ -889,7 +889,7 @@
 .plan-page .button {
   border: 1px solid transparent;
   border-radius: 999px;
-  background: #efeff4;
+  background: light-dark(#efeff4, var(--dark-control));
   color: var(--ink);
   padding: 11px 17px;
   min-height: 43px;
@@ -899,27 +899,27 @@
 }
 .plan-page button:hover,
 .plan-page .button:hover {
-  background: #e3e3ec;
+  background: light-dark(#e3e3ec, var(--dark-control));
   border-color: transparent;
 }
 .plan-page button.primary {
-  background: #19191d;
-  color: #fff;
+  background: var(--solid);
+  color: var(--on-solid);
 }
 .plan-page button.primary:hover {
-  background: #36363e;
+  background: var(--solid-hover);
 }
 .plan-page input,
 .plan-page select {
   border-radius: 12px;
-  background: #fff;
+  background: light-dark(#fff, var(--dark-card));
   min-height: 43px;
   padding: 10px 12px;
 }
 .plan-page input[type="checkbox"] {
   min-height: 0;
   padding: 0;
-  accent-color: #294f46;
+  accent-color: light-dark(#294f46, var(--dark-focus));
 }
 .plan-page h1,
 .plan-page h2,
@@ -970,7 +970,7 @@
   flex-shrink: 0;
 }
 .plan-page .legend {
-  border-color: #ccd1df;
+  border-color: light-dark(#ccd1df, var(--dark-border));
   gap: 12px 20px;
 }
 .plan-page .legend > span {
@@ -985,7 +985,7 @@
 }
 .plan-page .navigation {
   padding: 6px;
-  background: white;
+  background: light-dark(white, var(--dark-card));
   border: 0;
   border-radius: 25px;
   gap: 4px;
@@ -1001,15 +1001,15 @@
   color: var(--secondary);
 }
 .plan-page .navigation button[aria-current="true"] {
-  background: #19191d;
-  color: #fff;
+  background: var(--solid);
+  color: var(--on-solid);
   font-weight: 500;
 }
 .plan-page .notice {
   margin: 0 0 20px;
   padding: 15px 19px;
   background: var(--mint);
-  color: #27483f;
+  color: light-dark(#27483f, var(--dark-success-text));
   border: 0;
   border-radius: 16px;
   font-size: 12px;
@@ -1024,13 +1024,15 @@
   margin: 0 0 20px;
 }
 .plan-page .stat {
-  background: white;
+  background: light-dark(white, var(--dark-card));
   padding: 20px;
   border-radius: 20px;
   min-width: 0;
 }
 .plan-page .stat:first-child {
   background: var(--lime);
+
+  color: var(--accent-ink);
 }
 .plan-page .stat strong {
   font-family: "Manrope Variable", sans-serif;
@@ -1042,7 +1044,7 @@
   font-size: 11px;
 }
 .plan-page .toolbar {
-  background: white;
+  background: light-dark(white, var(--dark-card));
   padding: 20px;
   border: 0;
   border-radius: 25px;
@@ -1056,7 +1058,7 @@
 .plan-page .statusline {
   padding: 6px 4px;
   min-height: 32px;
-  color: #294f46;
+  color: light-dark(#294f46, var(--dark-success-text));
 }
 .plan-page #content {
   padding: 0 0 24px;
@@ -1094,16 +1096,16 @@
   margin: 0;
 }
 .plan-page .gate {
-  background: #e9f3ee;
+  background: light-dark(#e9f3ee, var(--dark-control));
   border-color: var(--border);
-  color: #294f46;
+  color: light-dark(#294f46, var(--dark-success-text));
   padding: 16px 24px;
   line-height: 1.7;
 }
 .plan-page .lanes {
   grid-template-columns: repeat(5, minmax(270px, 1fr));
   min-width: 1350px;
-  background: #fbfbfd;
+  background: light-dark(#fbfbfd, var(--dark-card));
 }
 .plan-page .lane {
   padding: 16px;
@@ -1122,7 +1124,7 @@
   border-top: 3px solid var(--lane);
   border-radius: 20px;
   margin-bottom: 14px;
-  background: #fff;
+  background: light-dark(#fff, var(--dark-card));
   box-shadow: none;
 }
 .plan-page .plan-task summary {
@@ -1131,7 +1133,7 @@
 }
 .plan-page .plan-task summary:hover,
 .plan-page .plan-task[open] summary {
-  background: #f6f5fa;
+  background: light-dark(#f6f5fa, var(--dark-surface));
 }
 .plan-page .plan-task h3 {
   font-size: 14px;
@@ -1154,7 +1156,7 @@
     600 11px "DM Sans Variable",
     sans-serif;
   letter-spacing: 0.5px;
-  color: #535564;
+  color: light-dark(#535564, var(--dark-secondary));
 }
 .plan-page .card-hint {
   border-top: 1px solid var(--border);
@@ -1168,7 +1170,7 @@
     11px Consolas,
     monospace;
   margin: 3px;
-  background: #f7efdf;
+  background: light-dark(#f7efdf, var(--dark-control));
   border-radius: 999px;
 }
 .plan-page .tag {
@@ -1177,7 +1179,7 @@
   font-size: 10px;
 }
 .plan-page .accept {
-  background: #e9f3ee;
+  background: light-dark(#e9f3ee, var(--dark-control));
   border-radius: 12px;
   padding: 12px;
 }
@@ -1187,7 +1189,7 @@
 }
 .plan-page .labrow {
   padding: 18px 24px;
-  background: #f6f5fa;
+  background: light-dark(#f6f5fa, var(--dark-surface));
   line-height: 1.7;
 }
 .plan-page .kanban {
@@ -1221,7 +1223,7 @@
   min-width: 680px;
 }
 .plan-page .prose th {
-  background: #f6f5fa;
+  background: light-dark(#f6f5fa, var(--dark-surface));
 }
 .plan-page .prose th,
 .plan-page .prose td {
@@ -1236,7 +1238,7 @@
 }
 .plan-page .member {
   border-radius: 20px;
-  background: #f6f5fa;
+  background: light-dark(#f6f5fa, var(--dark-surface));
   padding: 22px;
 }
 .plan-page .member h3 {

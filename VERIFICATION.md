@@ -1,5 +1,9 @@
 # Verification and scenario checklist
 
+## Reference dark mode
+
+45 automated tests pass, including saved-choice precedence, system defaults and invalid theme preference recovery. Production build and strict UI audit pass. Browser checks cover dark sign-in/registration, Google chooser, datasets, evaluation and the S2-W1-01 task modal; both toggle directions, keyboard activation, reload persistence and cross-tab updates without closing an open task modal. At 390px the header toggle remains visible and document scroll width is 380px. Dark colors were checked against the attached card reference; screenshots/dark-plan-modal.png records the large modal. The original downloadable source HTML remains unchanged. Theme storage is separate from all demo/workspace data.
+
 Updated on 11 October 2026. This records actual checks; implementation is not evidence that a browser workflow passed.
 
 ## Automated evidence

@@ -4,6 +4,25 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="theme-color" content="#F6F5FA" />
+    <script>
+      // Apply the saved appearance before CSS/React load to avoid a light flash.
+      (() => {
+        let saved;
+        try {
+          saved = localStorage.getItem("student-performance-theme");
+        } catch {}
+        const theme =
+          saved === "light" || saved === "dark"
+            ? saved
+            : matchMedia("(prefers-color-scheme: dark)").matches
+              ? "dark"
+              : "light";
+        document.documentElement.dataset.theme = theme;
+        document.documentElement.style.colorScheme = theme;
+        document.querySelector('meta[name="theme-color"]').content =
+          theme === "dark" ? "#15171C" : "#F6F5FA";
+      })();
+    </script>
     <title>Student Performance · Teaching workspace</title>
   </head>
   <body>

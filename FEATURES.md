@@ -1,5 +1,7 @@
 # Feature manifest
 
+Appearance: one header button switches the entire app between light and the supplied card reference's dark palette. The choice persists across visits and synchronizes between tabs; system appearance is the initial default. Authentication, workspace routes, tables, charts, popovers, dialogs and the hidden planner share the same theme.
+
 Core: simulated sign-in, teacher-owned datasets, real CSV upload, strict preview, atomic single confirmation, deterministic saved predictions, aggregate evaluation, help, forbidden/missing states.
 
 Optional course enhancements (Full mode): record review, quality, analytics, activity, account management, local preferences, record/result exports and report downloads. These are prototype explorations, not mandatory course commitments.
