@@ -12,10 +12,16 @@
 
 ## Canonical UI Map
 
-| Capability     | Canonical owner          | Source of truth | Allowed variants          | Verification             |
-| -------------- | ------------------------ | --------------- | ------------------------- | ------------------------ |
-| Select/Listbox | Native select            | DESIGN.md       | Platform popup            | Browser keyboard check   |
-| Form           | Labelled native controls | UX-CONTRACT.md  | Create and edit           | Domain tests and browser |
-| Scrollbar      | src/style.css            | DESIGN.md       | Global inherited baseline | Narrow viewport          |
-| Toast          | App status system        | UX-CONTRACT.md  | Success and error         | Browser                  |
-| CRUD           | domain.ts + Dialog       | UX-CONTRACT.md  | Create, rename, delete    | Domain tests             |
+| Capability      | Canonical owner                  | Source of truth | Allowed variants                            | Verification                        |
+| --------------- | -------------------------------- | --------------- | ------------------------------------------- | ----------------------------------- |
+| Select/Listbox  | Native select                    | DESIGN.md       | Platform popup                              | Browser keyboard check              |
+| Form            | Labelled native controls         | UX-CONTRACT.md  | Create and edit                             | Domain tests and browser            |
+| Scrollbar       | src/style.css                    | DESIGN.md       | Global inherited baseline                   | Narrow viewport                     |
+| Toast           | App status system                | UX-CONTRACT.md  | Success and error                           | Browser                             |
+| CRUD            | domain.ts + Dialog               | UX-CONTRACT.md  | Create, rename, delete                      | Domain tests                        |
+| Date            | Native input type=date           | UX-CONTRACT.md  | Activity UTC calendar boundaries            | URL range and domain filtering      |
+| Drawer/Dialog   | components.tsx Dialog            | DESIGN.md       | Centered or side drawer; busy closure guard | Browser focus and responsive checks |
+| Popover/Tooltip | ui.tsx                           | DESIGN.md       | Account, notifications, icon descriptions   | Escape, outside dismissal and focus |
+| Read recovery   | ui.tsx ReadGate and PageBoundary | UX-CONTRACT.md  | Loading, retry, safe route failure          | Named failure scenarios             |
+
+Activity date inputs intentionally use the native Date control for keyboard entry and platform calendar behavior; boundaries are labelled UTC. Shared filters use validated URL values. Table searches and review drafts remain persona-local. Persistence failures restore the last committed snapshot. Preview Cancel discards unconsumed staged work.

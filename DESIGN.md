@@ -23,3 +23,7 @@ Title owns headings/breadcrumbs; Steps owns workflow; Table owns semantic sortab
 ## States and accessibility
 
 Semantic controls, text status, focus rings, reduced motion, global scrollbar baseline, accessible native dialogs, persistent inline form errors. Charts retain numeric labels and tables or textual equivalents.
+
+## Completion ownership
+
+`ui.tsx` owns navigation context, query state, persistent form feedback, read recovery, popovers and focus tooltips. `components.tsx` owns dialogs/drawers, tables and export scope selection. `features/insights.tsx` owns evaluation, quality, analytics and activity; `features/support.tsx` owns help content and persona-scoped feedback outbox. Download notices participate in document flow so they never cover mobile utilities. Native date controls intentionally own activity date entry.

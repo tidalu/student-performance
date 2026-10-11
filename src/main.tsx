@@ -3,7 +3,6 @@ import { createRoot } from "react-dom/client";
 import {
   createBrowserRouter,
   RouterProvider,
-  Link,
   useLocation,
   useNavigate,
 } from "react-router-dom";
@@ -40,16 +39,31 @@ const icons = {
 };
 
 import type { Modal, Context } from "./types";
-import { bindNotify, notify } from "./notifications";
+import {
+  Link,
+  Popover,
+  TooltipLayer,
+  PageBoundary,
+  ReadGate,
+  FormMessage,
+} from "./ui";
+import { type Notice, bindNotify, notify } from "./notifications";
 import { Dialog, Login, ErrorPanel } from "./components";
 import { Workspace } from "./features/screens";
 function App() {
   const [, render] = useState(0);
   const [ready, setReady] = useState(false);
-  const [toast, setToast] = useState("");
+  const [toast, setToast] = useState<Notice | null>(null);
+  const [pageError, setPageError] = useState("");
+  const [modalError, setModalError] = useState("");
   const [modal, setModal] = useState<Modal | null>(null);
+  const modalRef = useRef(modal);
+  modalRef.current = modal;
   const [modalBusy, setModalBusy] = useState(false);
-  useEffect(() => setModalBusy(false), [modal]);
+  useEffect(() => {
+    setModalBusy(false);
+    setModalError("");
+  }, [modal]);
   const [demo, setDemo] = useState(false);
   const [menu, setMenu] = useState(false);
   const [notifications, setNotifications] = useState(false);
@@ -60,22 +74,36 @@ function App() {
     nav = useNavigate();
   bindNotify(setToast);
   useEffect(() => {
+    const a = D.current();
+    if (a)
+      sessionStorage.setItem(
+        "view:" + a.id + ":" + location.pathname,
+        location.pathname + location.search + location.hash,
+      );
+    setMenu(false);
+    setNotifications(false);
+    setPageError("");
+  }, [location.pathname, location.search, location.hash]);
+  useEffect(() => {
     D.init().then(() => setReady(true));
     return D.subscribe(() => render((x) => x + 1));
   }, []);
   useEffect(() => {
-    const t = setInterval(() => D.resolveRuns(), 700);
+    const t = setInterval(() => {
+      void D.resolveRuns().catch((e) => setPageError(e.message));
+    }, 700);
     return () => clearInterval(t);
   }, []);
   useEffect(() => {
     if (toast) {
-      const t = setTimeout(() => setToast(""), 5500);
+      const t = setTimeout(() => setToast(null), 5500);
       return () => clearTimeout(t);
     }
   }, [toast]);
   if (!ready)
     return <div className="boot">Opening your teaching workspace…</div>;
   const user = D.current();
+  const resume = sessionStorage.getItem("session-return");
   const home =
     user?.role === "teacher"
       ? "/datasets"
@@ -86,11 +114,16 @@ function App() {
     try {
       await fn();
     } catch (e) {
-      setToast((e as Error).message);
+      const message = (e as Error).message;
+      if (modalRef.current) setModalError(message);
+      else setPageError(message);
+      notify(message, "error");
     }
   };
   const logout = () => {
     sessionStorage.clear();
+    D.invalidateSession();
+    setNotifications(false);
     setMenu(false);
     nav("/login");
     render((x) => x + 1);
@@ -112,7 +145,10 @@ function App() {
     : [
         ["evaluation", "Model evaluation", "/evaluations/demo-eval-v1"],
         ...(user?.role === "administrator" && full
-          ? [["accounts", "Accounts", "/admin/accounts"]]
+          ? [
+              ["accounts", "Accounts", "/admin/accounts"],
+              ["activity", "Activity", "/activity"],
+            ]
           : []),
       ];
   return (
@@ -189,17 +225,23 @@ function App() {
               <button
                 className="icon"
                 title="Notifications"
-                aria-label="Notifications"
+                aria-label={`Notifications, ${D.authorizedEvents().filter((e) => !e.read).length} unread`}
+                aria-expanded={notifications}
+                aria-controls="notification"
                 onClick={() => setNotifications(!notifications)}
               >
                 <Bell size={19} />
-                {D.db.events.some((e) => e.owner === user.id && !e.read) && (
-                  <b className="dot" />
+                {D.authorizedEvents().some((e) => !e.read) && (
+                  <b className="notification-count">
+                    {D.authorizedEvents().filter((e) => !e.read).length}
+                  </b>
                 )}
               </button>
               <button
                 className="avatar"
                 aria-label="Account menu"
+                aria-expanded={menu}
+                aria-controls="account"
                 title="Account menu"
                 onClick={() => setMenu(!menu)}
               >
@@ -212,7 +254,7 @@ function App() {
           )}
         </div>
         {menu && (
-          <div className="popover account">
+          <Popover id="account" close={() => setMenu(false)}>
             <strong>{user?.name}</strong>
             <small>{user?.role} · Demo account</small>
             {full && (
@@ -223,10 +265,10 @@ function App() {
             <button onClick={logout}>
               <LogOut size={15} /> Sign out
             </button>
-          </div>
+          </Popover>
         )}
         {notifications && user && (
-          <div className="popover notification">
+          <Popover id="notification" close={() => setNotifications(false)}>
             <strong>Workspace activity</strong>
             <button
               onClick={() =>
@@ -246,13 +288,27 @@ function App() {
               .map((e) => (
                 <p key={e.id}>
                   {e.text}
+                  {D.eventDestination(e) && (
+                    <Link
+                      to={D.eventDestination(e)!}
+                      onClick={() =>
+                        void act(async () => {
+                          e.read = true;
+                          await D.persist();
+                          setNotifications(false);
+                        })
+                      }
+                    >
+                      Open activity object
+                    </Link>
+                  )}
                   <small>{D.formatDate(e.date)}</small>
                 </p>
               ))}
             {!D.db.events.some((e) => e.owner === user.id) && (
               <p>You’re all caught up. New activity appears here.</p>
             )}
-          </div>
+          </Popover>
         )}
       </header>
       <div className="shell">
@@ -260,14 +316,7 @@ function App() {
           <aside className="rail">
             <div>
               <Link
-                title="Workspace"
-                aria-label="Workspace"
-                to={home}
-                className="selected"
-              >
-                <FolderOpen size={19} />
-              </Link>
-              <Link
+                className={location.pathname === "/help" ? "selected" : ""}
                 title="Help and guides"
                 aria-label="Help and guides"
                 to="/help"
@@ -276,6 +325,9 @@ function App() {
               </Link>
               {full && (
                 <Link
+                  className={
+                    location.pathname === "/settings" ? "selected" : ""
+                  }
                   title="Preferences"
                   aria-label="Preferences"
                   to="/settings"
@@ -294,6 +346,18 @@ function App() {
           </aside>
         )}
         <main key={user?.id || "guest"}>
+          {pageError && (
+            <div className="notice error" role="alert">
+              <span>{pageError}</span>
+              <button onClick={() => setPageError("")}>Dismiss error</button>
+            </div>
+          )}
+          <details className="tablet-utilities">
+            <summary>Workspace utilities</summary>
+            <Link to="/help">Help & guides</Link>
+            {full && <Link to="/settings">Preferences</Link>}
+            <button onClick={() => setDemo(true)}>Demo Controls</button>
+          </details>
           {D.storageError ? (
             <ErrorPanel
               title="Storage needs attention"
@@ -305,32 +369,56 @@ function App() {
               }
             />
           ) : !user && location.pathname !== "/login" ? (
-            <Login
-              onLogin={(a) =>
-                nav(
-                  a.role === "teacher"
-                    ? location.pathname
-                    : a.role === "administrator" && full
-                      ? "/admin/accounts"
-                      : "/evaluations/demo-eval-v1",
-                )
-              }
-              returnTo={location.pathname}
-            />
+            <>
+              {sessionStorage.getItem("session-reason") && (
+                <p className="notice" role="status">
+                  {sessionStorage.getItem("session-reason")}
+                </p>
+              )}
+              <Login
+                onLogin={(a) =>
+                  nav(
+                    D.safeReturn(
+                      location.pathname + location.search + location.hash,
+                      a,
+                      full,
+                    ) ||
+                      (a.role === "teacher"
+                        ? "/datasets"
+                        : a.role === "administrator" && full
+                          ? "/admin/accounts"
+                          : "/evaluations/demo-eval-v1"),
+                  )
+                }
+                returnTo={location.pathname + location.search + location.hash}
+              />
+            </>
           ) : location.pathname === "/login" || !user ? (
-            <Login
-              onLogin={(a) =>
-                nav(
-                  a.role === "teacher"
-                    ? "/datasets"
-                    : a.role === "administrator" && full
-                      ? "/admin/accounts"
-                      : "/evaluations/demo-eval-v1",
-                )
-              }
-            />
+            <>
+              {sessionStorage.getItem("session-reason") && (
+                <p className="notice" role="status">
+                  {sessionStorage.getItem("session-reason")}
+                </p>
+              )}
+              <Login
+                onLogin={(a) =>
+                  nav(
+                    D.safeReturn(resume, a, full) ||
+                      (a.role === "teacher"
+                        ? "/datasets"
+                        : a.role === "administrator" && full
+                          ? "/admin/accounts"
+                          : "/evaluations/demo-eval-v1"),
+                  )
+                }
+              />
+            </>
           ) : (
-            <Workspace user={user} full={full} modal={setModal} act={act} />
+            <PageBoundary key={location.pathname + user.id + String(full)}>
+              <ReadGate>
+                <Workspace user={user} full={full} modal={setModal} act={act} />
+              </ReadGate>
+            </PageBoundary>
           )}
         </main>
       </div>
@@ -347,13 +435,41 @@ function App() {
           Help & user guide <ArrowUpRight size={12} />
         </Link>
       </footer>
+      {D.preparedDownloads.find((d) => d.owner === user?.id) &&
+        (() => {
+          const file = D.preparedDownloads.find((d) => d.owner === user?.id)!;
+          return (
+            <div className="file-ready" role="status">
+              <span>File ready</span>
+              <a href={file.url} download={file.name}>
+                {file.name}
+              </a>
+              <button
+                aria-label="Dismiss prepared file"
+                title="Dismiss prepared file"
+                onClick={() => D.dismissDownload(file.url)}
+              >
+                <X size={15} />
+              </button>
+            </div>
+          );
+        })()}
       {toast && (
-        <div className="toast" role="status">
-          <CheckCheck size={18} />
-          <span>{toast}</span>
+        <div
+          className={"toast " + toast.tone}
+          role={toast.tone === "error" ? "alert" : "status"}
+        >
+          {toast.tone === "error" ? (
+            <X size={18} />
+          ) : toast.tone === "info" ? (
+            <HelpCircle size={18} />
+          ) : (
+            <CheckCheck size={18} />
+          )}
+          <span>{toast.message}</span>
           <button
             aria-label="Dismiss notification"
-            onClick={() => setToast("")}
+            onClick={() => setToast(null)}
           >
             <X size={16} />
           </button>
@@ -362,12 +478,15 @@ function App() {
       {modal && (
         <Dialog
           title={modal.title}
+          variant={modal.variant}
+          busy={modalBusy}
           close={() => {
             modal.cancel?.();
             setModal(null);
           }}
         >
           <div>{modal.body}</div>
+          <FormMessage error={modalError} />
           <div className="dialog-actions">
             <button
               autoFocus
@@ -385,9 +504,12 @@ function App() {
                 className={modal.danger ? "danger" : "primary"}
                 disabled={modalBusy}
                 onClick={async () => {
+                  if (modalBusy) return;
                   setModalBusy(true);
                   try {
                     await modal.action?.();
+                  } catch (e) {
+                    setModalError((e as Error).message);
                   } finally {
                     setModalBusy(false);
                   }
@@ -400,7 +522,11 @@ function App() {
         </Dialog>
       )}
       {demo && (
-        <Dialog title="Demo Controls" close={() => setDemo(false)}>
+        <Dialog
+          variant="drawer"
+          title="Demo Controls"
+          close={() => setDemo(false)}
+        >
           <p>
             Prototype tools for exploring the workflow. Persona switching
             simulates sign-in; it is not a production permission feature.
@@ -479,16 +605,42 @@ function App() {
                 "start prediction",
                 "ML unavailable",
                 "malformed predictions",
+                "schema mismatch",
+                "model mismatch",
+                "duplicate IDs",
+                "missing IDs",
+                "out of range",
+                "storage failure",
+                "read workspace",
+                "evaluation unavailable",
                 "slow prediction",
                 "connection loss",
                 "review",
                 "feedback",
                 "download",
               ].map((s) => (
-                <option key={s}>{s}</option>
+                <option key={s} value={s}>
+                  {(
+                    {
+                      normal: "No failure",
+                      login: "Sign-in service unavailable",
+                      validate: "File validation unavailable",
+                      review: "Review save failure",
+                      feedback: "Feedback save failure",
+                      download: "File preparation failure",
+                      "read workspace": "Workspace read failure",
+                    } as Record<string, string>
+                  )[s] ?? s.charAt(0).toUpperCase() + s.slice(1)}
+                </option>
               ))}
             </select>
           </label>
+          <p className="notice" role="status">
+            {D.scenarioState}
+          </p>
+          <button onClick={() => D.config("normal", D.latency)}>
+            Clear scenario
+          </button>
           <small>
             Failures affect only the named operation and reset after
             consumption. Upload invalid samples from Help for concrete
@@ -497,7 +649,16 @@ function App() {
           <div className="button-row">
             <button
               onClick={() => {
+                sessionStorage.setItem(
+                  "session-return",
+                  location.pathname + location.search + location.hash,
+                );
                 sessionStorage.removeItem("persona");
+                D.invalidateSession();
+                sessionStorage.setItem(
+                  "session-reason",
+                  "Your demo session expired. Sign in again to return to your work. A private review draft is restored only for its original author.",
+                );
                 setDemo(false);
                 nav("/login");
                 notify("Session expired. Sign in again.");
@@ -602,6 +763,7 @@ function App() {
           </button>
         </Dialog>
       )}
+      <TooltipLayer />
     </div>
   );
 }
@@ -614,6 +776,54 @@ function DemoScenarios({
 }) {
   const nav = useNavigate();
   const items = [
+    [
+      "Schema mismatch",
+      "schema mismatch",
+      "/datasets/dataset-1",
+      "Start a prediction; response schema is rejected.",
+    ],
+    [
+      "Model mismatch",
+      "model mismatch",
+      "/datasets/dataset-1",
+      "Start a prediction; response model is rejected.",
+    ],
+    [
+      "Duplicate prediction IDs",
+      "duplicate IDs",
+      "/datasets/dataset-1",
+      "Start a prediction; duplicate IDs fail atomically.",
+    ],
+    [
+      "Missing prediction ID",
+      "missing IDs",
+      "/datasets/dataset-1",
+      "Start a prediction; missing results fail atomically.",
+    ],
+    [
+      "Out-of-range prediction",
+      "out of range",
+      "/datasets/dataset-1",
+      "Start a prediction; risk outside [0,1] is rejected.",
+    ],
+    [
+      "Browser save failure",
+      "storage failure",
+      "/datasets/new?fixture=valid-12",
+      "The next browser save fails. Previous saved data is retained.",
+    ],
+    [
+      "Feedback save failure",
+      "feedback",
+      "/help",
+      "Enter feedback and save; the draft stays editable for retry.",
+    ],
+    [
+      "Workspace read unavailable",
+      "read workspace",
+      "/datasets",
+      "Open this page; retry the failed read deliberately.",
+    ],
     [
       "Invalid credentials",
       "invalid credentials",
@@ -630,7 +840,7 @@ function DemoScenarios({
       "Wrong-owner dataset",
       "normal",
       "/datasets/dataset-4",
-      "Maya is forbidden from reading Noah�s dataset.",
+      "Maya is forbidden from reading Noah’s dataset.",
     ],
     [
       "No search results",

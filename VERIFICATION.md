@@ -1,11 +1,11 @@
 # Verification and scenario checklist
 
-Verified on 10 October 2026. This records actual checks; implementation is not evidence that a browser workflow passed.
+Updated on 11 October 2026. This records actual checks; implementation is not evidence that a browser workflow passed.
 
 ## Automated evidence
 
 - `npm run build`: TypeScript and Vite production bundle passed.
-- `npm test`: 15 domain tests passed. Covers CSV quoted/BOM/CRLF/semicolon handling, schema/value errors, limits, numeric parsing, formula protection, ownership, analyst restrictions, concurrent duplicate confirmation, consumed preview after deletion, expiry, rollback, uncertain import reconciliation, malformed result rejection, running deletion guard, deterministic results, usable new account, disabled login, last administrator protection, private reviews, invalid backups and broken references.
+- `npm test`: 31 domain tests passed. Covers CSV quoted/BOM/CRLF/semicolon handling, schema/value errors, limits, numeric parsing, formula protection, ownership, analyst restrictions, concurrent duplicate confirmation, consumed preview after deletion, expiry, rollback, uncertain import reconciliation, malformed result rejection, running deletion guard, deterministic results, usable new account, disabled login, last administrator protection, private reviews, invalid backups and broken references.
 - Strict premium UI audit: zero findings (`audit-results.json`).
 - `npm audit`: installation after the test-runner update reported zero vulnerabilities.
 - Prettier applied to application code and documentation.
@@ -58,3 +58,34 @@ Demo Controls has scenario links with operation-specific triggers. Choose Maya f
 The in-app browser's download event/save-dialog automation timed out. CSV fixture files and CSV serialization were verified independently; a completed browser save-and-reupload round trip is not claimed. Actual upload from disk passed. Print/Save as PDF, full admin UI changes, feedback export, backup replacement, 200% zoom, tablet layouts and a full accessibility audit were not exhaustively exercised in the browser.
 
 The prototype has no real backend, authentication or educational ML. Persistence assumes one active editing tab; cross-tab concurrency/conflict reconciliation and IndexedDB quota-failure recovery are not implemented. Unsaved-change prompts use the router blocker for in-app and history navigation, plus beforeunload for closing the page. Reviews support an optional saved-run association. Activity uses shared table search and type/date filters rather than a full audit-query builder. No measured educational performance or causal prescriptions are claimed.
+
+## Frontend gap completion - 11 October 2026
+
+| Audit IDs     | Implementation owners and changes                                                                                                                                                                                                                |
+| ------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| A1-A14, B1-B3 | ui.tsx, components.tsx, main.tsx: breadcrumbs/return context, URL filters, unread links, popovers/tooltips, tablet utilities, drawers/busy guard, persistent accessible errors, keyboard tabs, timestamp sorting, credentials and session drafts |
+| C1-C6         | screens.tsx/domain.ts: recent events/latest run, cancelable upload stages/metadata, invalid fixture, row counts/issues/parsed rows, distinct preview states and discard, persistence rollback                                                    |
+| D1-D6         | screens.tsx/components.tsx/domain.ts: history IDs/times, saved model/schema/threshold, metadata drawer/explanation, timing stages, seven response failure variants, export scopes/metadata, owned route boundary                                 |
+| E1-E3         | insights.tsx/domain.ts: typed evaluation artifacts/read retry, full report metadata, comparison table/chart, Core numeric matrix and undefined explanations                                                                                      |
+| F1-F5         | screens.tsx/insights.tsx/domain.ts: selected record/run details, complete review baseline/reset/association/status, computed quality/distributions/summary export                                                                                |
+| G1-G6         | insights.tsx/domain.ts: selectable bins and exact result links, input statistics/summary export, structured activity/outcome/date/details and administrator account-only history                                                                 |
+| H1-H4         | screens.tsx/support.tsx: account dates/filters/actions, expanded help/downloadable guides, persona outbox view/download/delete, centralized dates/preferences/defaults                                                                           |
+| I1-I5         | main.tsx/domain.ts/ui.tsx: armed/consumed/clear scenarios, failure catalogue and failed seed run, storage rollback/corrupt recovery, shared contracts/selectors, distinct route states                                                           |
+
+New browser checks used isolated localhost:5175; original localhost:5174 data was preserved.
+
+- Actual saved CSV download -> file picker upload -> 12 valid records -> imported dataset -> 12 saved results after refresh.
+- Downloaded matching CSV inspected: exactly four above-threshold rows with correct run/schema/synthetic/scope metadata. Formula/Unicode/quote protection has automated coverage.
+- Analytics selected 0-25% bin opened seven matching results. Run metadata drawer showed saved versions and timestamps. Keyboard ArrowRight changed dataset tabs.
+- Review edit retained the run association; Cancel restored the full draft. Quality distribution showed schoolsup yes=8/no=16. Evaluation metrics matched the artifact; one-class displayed three undefined values with explanations.
+- Feedback saved and appeared in persona outbox. View and real JSON download passed; delete Cancel retained the item.
+- Account create -> actual new-account login -> empty owned workspace -> disable with second confirmation -> persistent denied-login error passed. Last-admin/ownership/history guards also pass domain tests.
+- Workspace read failure showed app-owned unavailable state; Retry read recovered; scenario showed consumed.
+- Core upload -> preview -> confirm -> predict -> refresh passed: 12 results, 4 above and 8 below. Optional result review/export controls were absent.
+- Saved prototype backup downloaded, re-uploaded through picker, validated and restored; UI returned to sign-in with restored accounts.
+- 33 render/overflow checks: datasets, upload, dataset detail, results, record, quality, analytics, activity, evaluation, help and preferences at widths 1440/820/390. Each rendered without document horizontal overflow. Table overflow remains local. This does not establish screenshot inspection of every dialog.
+- Desktop evidence: screenshots/completion-dashboard.png.
+
+Automated coverage now includes failed-save rollback, seven rejected response variants, saved thresholds/chart bins, actual quality calculation, review association/current status, administrator history authorization, safe return URLs, stale upload cancellation, named scenario consumption and valid/invalid backup replacement.
+
+Verification limits remain explicit: native print/PDF preview, actual browser 200% zoom, exhaustive assistive-technology/contrast measurement and every possible action combination have not been inspected. No guarantee of every runtime state is inferred from a zero-finding static audit.

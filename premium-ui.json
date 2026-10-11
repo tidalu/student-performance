@@ -8,8 +8,15 @@
     "Form",
     "Scrollbar",
     "Toast",
-    "CRUD"
+    "CRUD",
+    "Date"
   ],
-  "ownership": { "Select/Listbox": "native" },
-  "commands": { "unit": "npm test", "build": "npm run build" }
+  "ownership": {
+    "Select/Listbox": "native",
+    "Date": "native"
+  },
+  "commands": {
+    "unit": "npm test",
+    "build": "npm run build"
+  }
 }

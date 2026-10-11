@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
-import { Link, useLocation, useNavigate, useBlocker } from "react-router-dom";
+import { useLocation, useNavigate, useBlocker } from "react-router-dom";
 import {
   ArrowUpRight,
   ArrowRight,
@@ -20,6 +20,9 @@ import {
   Trash2,
 } from "lucide-react";
 import * as D from "../domain";
+import { Link, FormMessage, useQuery, useOperation } from "../ui";
+import { Evaluation, Quality, Analytics, Activity } from "./insights";
+import { Outbox, guideDownloads, helpTopics } from "./support";
 import { notify } from "../notifications";
 import type { Context } from "../types";
 import { Title, Steps, ErrorPanel, Table, Schema } from "../components";
@@ -47,6 +50,23 @@ export function Workspace(ctx: Context) {
       if (user.role !== "administrator")
         throw Error("Forbidden. Account management is administrator-only.");
       return <Accounts {...ctx} />;
+    }
+    if (pathname === "/activity" && full && user.role === "administrator")
+      return <Activity {...ctx} />;
+    if (
+      !/^\/(datasets|imports|prediction-runs|analytics|activity)(\/|$)/.test(
+        pathname,
+      )
+    )
+      return (
+        <ErrorPanel
+          title="Page not found"
+          text="This address does not match a page in the prototype."
+        />
+      );
+    if (pathname.startsWith("/prediction-runs/")) {
+      const run = D.db.runs.find((r) => r.id === pathname.split("/")[2]);
+      if (run) D.owned(run.dataset);
     }
     if (user.role !== "teacher")
       throw Error(
@@ -89,10 +109,11 @@ export function Workspace(ctx: Context) {
 }
 function Datasets(ctx: Context) {
   const { user, full, modal, act } = ctx;
-  const ds = D.db.datasets.filter((d) => d.owner === user.id);
+  const ds = D.ownedDatasets();
   const completed = D.db.runs.filter(
     (r) => r.status === "completed" && ds.some((d) => d.id === r.dataset),
   );
+  completed.sort((a, b) => b.started - a.started);
   const records = ds.reduce((n, d) => n + d.rows.length, 0);
   return (
     <>
@@ -189,6 +210,30 @@ function Datasets(ctx: Context) {
           </Link>
         </section>
       </div>
+      {full && (
+        <section className="card recent-activity">
+          <div className="section-heading">
+            <h2>Recent activity</h2>
+            <Link to="/activity">View all activity</Link>
+          </div>
+          {D.authorizedEvents().length ? (
+            D.authorizedEvents()
+              .slice(0, 3)
+              .map((e) => (
+                <p key={e.id}>
+                  {e.text} <small>{D.formatDate(e.date)}</small>{" "}
+                  {D.eventDestination(e) && (
+                    <Link to={D.eventDestination(e)!}>Open</Link>
+                  )}
+                </p>
+              ))
+          ) : (
+            <p>
+              No changes yet. Imports, predictions and reviews will appear here.
+            </p>
+          )}
+        </section>
+      )}
       <section className="card dataset-table">
         <div className="section-heading">
           <div>
@@ -221,17 +266,13 @@ function Datasets(ctx: Context) {
           <Table
             name="datasets"
             data={ds.map((d) => {
-              const run = D.db.runs.find((r) => r.dataset === d.id);
+              const run = D.datasetRuns(d.id)[0];
               return {
                 id: d.id,
                 name: d.name,
                 schema: "demo-input-v1",
                 count: d.rows.length,
-                date: new Date(d.created).toLocaleDateString("en-GB", {
-                  day: "numeric",
-                  month: "short",
-                  year: "numeric",
-                }),
+                date: Date.parse(d.created),
                 status: run?.status || "Not run",
                 run,
                 d,
@@ -259,7 +300,11 @@ function Datasets(ctx: Context) {
                 render: (r) => <code>{String(r.schema)}</code>,
               },
               { key: "count", label: "Records" },
-              { key: "date", label: "Imported" },
+              {
+                key: "date",
+                label: "Imported",
+                render: (r) => D.formatDate(Number(r.date)),
+              },
               {
                 key: "status",
                 label: "Latest prediction",
@@ -353,6 +398,7 @@ function rename(d: D.Dataset, { modal, act }: Context) {
       <label>
         Dataset name
         <input
+          required
           defaultValue={value}
           onChange={(e) => (value = e.target.value)}
         />
@@ -364,7 +410,11 @@ function rename(d: D.Dataset, { modal, act }: Context) {
         D.owned(d.id);
         await D.delay("rename");
         d.name = value.trim();
-        D.event("Renamed dataset");
+        D.event("Renamed dataset", {
+          object: d.name,
+          objectId: d.id,
+          destination: "/datasets/" + d.id,
+        });
         await D.persist();
         modal(null);
         notify("Dataset renamed.");
@@ -372,6 +422,10 @@ function rename(d: D.Dataset, { modal, act }: Context) {
   });
 }
 function UploadPage() {
+  const controller = useRef<AbortController | null>(null);
+  const live = useOperation();
+  const [stage, setStage] = useState("");
+  useEffect(() => () => controller.current?.abort(), []);
   const [file, setFile] = useState<File | null>(() => {
       const sample = new URLSearchParams(location.search).get("fixture");
       return sample
@@ -400,7 +454,8 @@ function UploadPage() {
             onDragOver={(e) => e.preventDefault()}
             onDrop={(e) => {
               e.preventDefault();
-              setFile(e.dataTransfer.files[0]);
+              if (busy) return;
+              setFile(e.dataTransfer.files[0] || null);
               setError("");
             }}
           >
@@ -410,7 +465,7 @@ function UploadPage() {
             <h3>{file ? file.name : "Drop a dataset here"}</h3>
             <p>
               {file
-                ? `${(file.size / 1024).toFixed(1)} KB · ready to validate`
+                ? `${(file.size / 1024).toFixed(1)} KB · ${file.type || "unknown MIME type"} · ready to validate`
                 : "Comma or semicolon-separated CSV files"}
             </p>
             <input
@@ -424,10 +479,20 @@ function UploadPage() {
                 setError("");
               }}
             />
-            <button onClick={() => input.current?.click()}>
+            <button disabled={busy} onClick={() => input.current?.click()}>
               {file ? "Replace file" : "Browse files"}
             </button>
-            {file && <button onClick={() => setFile(null)}>Remove</button>}
+            {file && (
+              <button
+                disabled={busy}
+                onClick={() => {
+                  setFile(null);
+                  if (input.current) input.current.value = "";
+                }}
+              >
+                Remove
+              </button>
+            )}
           </div>
           <button
             className="text-link"
@@ -442,10 +507,22 @@ function UploadPage() {
           >
             Or use the bundled 12-record demo fixture <ArrowUpRight size={15} />
           </button>
-          {error && (
-            <p className="error" role="alert">
-              {error}
-            </p>
+          <FormMessage error={error} />
+          <p className="upload-status" role="status">
+            {stage}
+          </p>
+          {busy && (
+            <button
+              onClick={() => {
+                controller.current?.abort();
+                setBusy(false);
+                setStage(
+                  "Validation cancelled. Your selected file is unchanged.",
+                );
+              }}
+            >
+              Cancel validation
+            </button>
           )}
           <div className="form-actions">
             <Link className="button" to="/datasets">
@@ -459,12 +536,19 @@ function UploadPage() {
                 setBusy(true);
                 setError("");
                 try {
-                  const p = await D.preview(file);
+                  controller.current = new AbortController();
+                  const p = await D.preview(
+                    file,
+                    controller.current.signal,
+                    setStage,
+                  );
+                  if (!live() || controller.current.signal.aborted) return;
                   nav("/imports/" + p.id);
                 } catch (e) {
-                  setError((e as Error).message);
+                  if ((e as Error).name !== "AbortError" && live())
+                    setError((e as Error).message);
                 } finally {
-                  setBusy(false);
+                  if (live()) setBusy(false);
                 }
               }}
             >
@@ -476,7 +560,7 @@ function UploadPage() {
         <section className="card lavender">
           <h2>A shared format, fewer surprises.</h2>
           <p>
-            Schema <code>demo-input-v1</code>. Include exactly these five
+            Schema <code>{D.contract.schema}</code>. Include exactly these five
             columns in any order.
           </p>
           <Schema />
@@ -491,6 +575,13 @@ function UploadPage() {
             <Link className="button" to="/help">
               All sample files
             </Link>
+            <button
+              onClick={() =>
+                D.download("demo-invalid-values.csv", D.fixture("invalid"))
+              }
+            >
+              Invalid sample
+            </button>
           </div>
           <p className="fine">
             Entire-file validation. A file with errors cannot be imported. Use
@@ -502,6 +593,7 @@ function UploadPage() {
   );
 }
 function PreviewPage({ id, user, act }: Context & { id: string }) {
+  const live = useOperation();
   const p = D.db.previews.find((p) => p.id === id);
   const [busy, setBusy] = useState(false),
     [error, setError] = useState("");
@@ -509,7 +601,12 @@ function PreviewPage({ id, user, act }: Context & { id: string }) {
   if (!p || p.owner !== user.id)
     return (
       <ErrorPanel
-        text="Preview unavailable or forbidden. Start a fresh upload."
+        title={!p ? "Preview not found" : "Access restricted"}
+        text={
+          !p
+            ? "The staged preview is missing or was cleaned up. Re-upload the file."
+            : "Forbidden. This preview belongs to another teacher."
+        }
         action={
           <Link className="button" to="/datasets/new">
             Re-upload
@@ -517,6 +614,14 @@ function PreviewPage({ id, user, act }: Context & { id: string }) {
         }
       />
     );
+  const invalidRows = new Set(
+    p.issues
+      .filter((i) => i.row > 1 && i.row <= p.rows.length + 1)
+      .map((i) => i.row),
+  ).size;
+  const validRows = p.issues.some((i) => i.row === 1)
+    ? 0
+    : Math.max(0, p.rows.length - invalidRows);
   const consumed = !!p.dataset,
     expired = p.expires < Date.now();
   return (
@@ -541,7 +646,7 @@ function PreviewPage({ id, user, act }: Context & { id: string }) {
                 new Set(p.issues.filter((i) => i.row > 1).map((i) => i.row))
                   .size
               }{" "}
-              invalid rows · demo-input-v1
+              invalid rows · {validRows} valid rows · {D.contract.schema}
             </p>
           </div>
           <span
@@ -558,7 +663,7 @@ function PreviewPage({ id, user, act }: Context & { id: string }) {
             : expired
               ? "The 30-minute preview window has ended. Upload the file again."
               : "Preview expires " +
-                new Date(p.expires).toLocaleTimeString() +
+                D.formatDate(p.expires) +
                 ". Confirming creates one dataset with these exact rows."}
         </p>
         {error && (
@@ -575,14 +680,38 @@ function PreviewPage({ id, user, act }: Context & { id: string }) {
           }
           columns={
             p.issues.length
-              ? ["row", "column", "value", "hint"].map((key) => ({
+              ? ["row", "record_id", "column", "value", "hint"].map((key) => ({
                   key,
                   label: key === "hint" ? "How to correct" : key,
                 }))
               : D.headers.map((key) => ({ key, label: key }))
           }
         />
+        <details>
+          <summary>Field explanations</summary>
+          <Schema />
+        </details>
+        {p.issues.length > 0 && p.rows.length > 0 && (
+          <details>
+            <summary>Inspect parsed rows ({p.rows.length})</summary>
+            <Table
+              name="parsed rows"
+              data={p.rows.map((r) => ({ ...r }))}
+              columns={D.headers.map((key) => ({ key, label: key }))}
+            />
+          </details>
+        )}
         <div className="form-actions">
+          <button
+            onClick={() =>
+              act(async () => {
+                await D.discardPreview(id);
+                nav("/datasets");
+              })
+            }
+          >
+            Cancel preview
+          </button>
           <Link className="button" to="/datasets/new">
             Replace file
           </Link>
@@ -616,7 +745,8 @@ function PreviewPage({ id, user, act }: Context & { id: string }) {
                 setBusy(true);
                 setError("");
                 try {
-                  nav("/datasets/" + (await D.confirmImport(id)));
+                  const dataset = await D.confirmImport(id);
+                  if (live()) nav("/datasets/" + dataset);
                   notify("Dataset imported.");
                 } catch (e) {
                   setError((e as Error).message);
@@ -645,11 +775,15 @@ function PreviewPage({ id, user, act }: Context & { id: string }) {
   );
 }
 function DatasetPage(ctx: Context & { d: D.Dataset }) {
+  const live = useOperation();
   const { d, full, act, modal } = ctx;
-  const [tab, setTab] = useState("records"),
-    [busy, setBusy] = useState(false);
+  const query = useQuery();
+  const tab = query.params.get("tab") === "runs" ? "runs" : "records";
+  const setTab = (tab: string) =>
+    query.set({ tab, page: "1", sort: "", dir: "" });
+  const [busy, setBusy] = useState(false);
   const nav = useNavigate(),
-    runs = D.db.runs.filter((r) => r.dataset === d.id);
+    runs = D.datasetRuns(d.id);
   return (
     <>
       <Title
@@ -668,7 +802,7 @@ function DatasetPage(ctx: Context & { d: D.Dataset }) {
                   setBusy(true);
                   try {
                     const r = await D.startRun(d.id);
-                    nav("/prediction-runs/" + r.id);
+                    if (live()) nav("/prediction-runs/" + r.id);
                   } finally {
                     setBusy(false);
                   }
@@ -701,7 +835,7 @@ function DatasetPage(ctx: Context & { d: D.Dataset }) {
         </div>
         <div>
           <small>Imported</small>
-          <strong>{new Date(d.created).toLocaleDateString()}</strong>
+          <strong>{D.formatDate(d.created)}</strong>
         </div>
         {full && (
           <div className="button-row">
@@ -713,8 +847,30 @@ function DatasetPage(ctx: Context & { d: D.Dataset }) {
         )}
       </section>
       <section className="card">
-        <div className="tabs" role="tablist">
+        <div
+          className="tabs"
+          role="tablist"
+          aria-label="Dataset views"
+          onKeyDown={(e) => {
+            if (["ArrowLeft", "ArrowRight", "Home", "End"].includes(e.key)) {
+              e.preventDefault();
+              const next =
+                e.key === "Home"
+                  ? "records"
+                  : e.key === "End"
+                    ? "runs"
+                    : tab === "records"
+                      ? "runs"
+                      : "records";
+              setTab(next);
+              document.getElementById("tab-" + next)?.focus();
+            }
+          }}
+        >
           <button
+            id="tab-records"
+            aria-controls="dataset-panel"
+            tabIndex={tab === "records" ? 0 : -1}
             role="tab"
             aria-selected={tab === "records"}
             className={tab === "records" ? "active" : ""}
@@ -723,6 +879,9 @@ function DatasetPage(ctx: Context & { d: D.Dataset }) {
             Records <span>{d.rows.length}</span>
           </button>
           <button
+            id="tab-runs"
+            aria-controls="dataset-panel"
+            tabIndex={tab === "runs" ? 0 : -1}
             role="tab"
             aria-selected={tab === "runs"}
             className={tab === "runs" ? "active" : ""}
@@ -731,63 +890,87 @@ function DatasetPage(ctx: Context & { d: D.Dataset }) {
             Prediction runs <span>{runs.length}</span>
           </button>
         </div>
-        {tab === "records" ? (
-          <Table
-            name="records"
-            exportable={full}
-            data={d.rows.map((r) => ({ ...r }))}
-            columns={[
-              ...D.headers.map((key) => ({ key, label: key })),
-              ...(full
-                ? [
-                    {
-                      key: "action",
-                      label: "Review",
-                      render: (r: Record<string, unknown>) => (
-                        <Link
-                          className="text-link"
-                          to={`/datasets/${d.id}/records/${encodeURIComponent(String(r.record_id))}`}
-                        >
-                          Open record <ArrowUpRight size={14} />
-                        </Link>
-                      ),
-                    },
-                  ]
-                : []),
-            ]}
-          />
-        ) : (
-          <Table
-            name="runs"
-            data={runs.map((r) => ({ ...r, date: D.formatDate(r.started) }))}
-            columns={[
-              { key: "date", label: "Started" },
-              {
-                key: "status",
-                label: "Status",
-                render: (r) => (
-                  <span className={"status " + r.status}>
-                    {String(r.status)}
-                  </span>
-                ),
-              },
-              {
-                key: "model",
-                label: "Simulator",
-                render: () => <code>demo-rule-v1</code>,
-              },
-              {
-                key: "action",
-                label: "Actions",
-                render: (r) => (
-                  <Link className="text-link" to={"/prediction-runs/" + r.id}>
-                    Open run <ArrowUpRight size={14} />
-                  </Link>
-                ),
-              },
-            ]}
-          />
-        )}
+        <div
+          id="dataset-panel"
+          role="tabpanel"
+          aria-labelledby={"tab-" + tab}
+          tabIndex={0}
+        >
+          {tab === "records" ? (
+            <Table
+              name="records"
+              exportable={full}
+              data={d.rows.map((r) => ({ ...r }))}
+              columns={[
+                ...D.headers.map((key) => ({ key, label: key })),
+                ...(full
+                  ? [
+                      {
+                        key: "action",
+                        label: "Review",
+                        render: (r: Record<string, unknown>) => (
+                          <Link
+                            className="text-link"
+                            to={`/datasets/${d.id}/records/${encodeURIComponent(String(r.record_id))}`}
+                          >
+                            Open record <ArrowUpRight size={14} />
+                          </Link>
+                        ),
+                      },
+                    ]
+                  : []),
+              ]}
+            />
+          ) : (
+            <Table
+              name="runs"
+              data={runs.map((r) => ({ ...r, date: r.started }))}
+              columns={[
+                { key: "id", label: "Run ID" },
+                {
+                  key: "date",
+                  label: "Requested / started",
+                  render: (r) => D.formatDate(Number(r.date)),
+                },
+                {
+                  key: "completed",
+                  label: "Completed",
+                  render: (r) =>
+                    r.completed ? D.formatDate(Number(r.completed)) : "—",
+                },
+                {
+                  key: "status",
+                  label: "Status",
+                  render: (r) => (
+                    <span className={"status " + r.status}>
+                      {String(r.status)}
+                    </span>
+                  ),
+                },
+                {
+                  key: "model",
+                  label: "Simulator",
+                  render: (r) => (
+                    <code>{String(r.model || D.contract.model)}</code>
+                  ),
+                },
+                {
+                  key: "action",
+                  label: "Actions",
+                  render: (r) => (
+                    <Link className="text-link" to={"/prediction-runs/" + r.id}>
+                      Open run <ArrowUpRight size={14} />
+                    </Link>
+                  ),
+                },
+              ]}
+            />
+          )}
+        </div>
+        <details>
+          <summary>Input field definitions</summary>
+          <Schema />
+        </details>
       </section>
       <div className="bottom-note">
         <span>Deletion removes records, results and reviews.</span>
@@ -820,9 +1003,22 @@ function DatasetPage(ctx: Context & { d: D.Dataset }) {
     </>
   );
 }
-function RunPage({ id, full, act }: Context & { id: string }) {
+function RunPage({ id, full, act, modal }: Context & { id: string }) {
+  const query = useQuery();
   const run = D.db.runs.find((r) => r.id === id);
-  const [filter, setFilter] = useState("all");
+  const [, tick] = useState(0);
+  useEffect(() => {
+    if (run?.status !== "running") return;
+    const timer = setInterval(() => tick((n) => n + 1), 250);
+    return () => clearInterval(timer);
+  }, [run?.status, id]);
+  const filter = ["above", "below"].includes(query.params.get("risk") || "")
+    ? query.params.get("risk")!
+    : "all";
+  const bin = /^[0-3]$/.test(query.params.get("bin") || "")
+    ? query.params.get("bin")!
+    : "";
+  const setFilter = (risk: string) => query.set({ risk, bin: "" });
   const [interrupted, setInterrupted] = useState(
     sessionStorage.getItem("interrupted-run") === id,
   );
@@ -831,18 +1027,39 @@ function RunPage({ id, full, act }: Context & { id: string }) {
       <ErrorPanel text="Prediction run not found. It may have been deleted." />
     );
   const d = D.owned(run.dataset),
-    above = run.results.filter((r) => r.risk >= 0.5).length;
-  const data = run.results
-    .filter(
-      (r) =>
-        filter === "all" || (filter === "above" ? r.risk >= 0.5 : r.risk < 0.5),
-    )
-    .map((r) => ({
-      ...d.rows.find((row) => row.record_id === r.id),
-      id: r.id,
-      risk: r.risk,
-      label: r.risk >= 0.5 ? "Above demo threshold" : "Below demo threshold",
-    }));
+    threshold = run.threshold ?? D.contract.threshold,
+    above = run.results.filter((r) => r.risk >= threshold).length;
+  const data = D.runResults(run, filter, bin);
+  const stage = Math.min(
+    3,
+    Math.floor(
+      (Math.max(0, Date.now() - run.started) /
+        Math.max(1, run.finish - run.started)) *
+        4,
+    ),
+  );
+  const metadata = (
+    <dl className="detail-list">
+      <dt>Run ID</dt>
+      <dd>
+        <code>{run.id}</code>
+      </dd>
+      <dt>Requested</dt>
+      <dd>{D.formatDate(run.requested || run.started)}</dd>
+      <dt>Started</dt>
+      <dd>{D.formatDate(run.started)}</dd>
+      <dt>Completed</dt>
+      <dd>{run.completed ? D.formatDate(run.completed) : "Not completed"}</dd>
+      <dt>Model</dt>
+      <dd>{run.model}</dd>
+      <dt>Schema</dt>
+      <dd>{run.schema}</dd>
+      <dt>Threshold</dt>
+      <dd>
+        {run.thresholdVersion} · {threshold}
+      </dd>
+    </dl>
+  );
   return (
     <>
       <Title
@@ -855,6 +1072,24 @@ function RunPage({ id, full, act }: Context & { id: string }) {
         }
       />
       <Steps active={run.status === "completed" ? 3 : 2} />
+      <div className="button-row contextual-tools">
+        <button
+          onClick={() =>
+            modal({ title: "Run metadata", variant: "drawer", body: metadata })
+          }
+        >
+          Run details
+        </button>
+        <details className="explanation-popover">
+          <summary>What does simulated risk mean?</summary>
+          <p>
+            The deterministic demo rule produces a value between 0 and 1. A
+            saved threshold of {threshold.toFixed(2)} separates the two labels.
+            It is not a diagnosis, confidence interval, causal explanation or
+            validated prediction.
+          </p>
+        </details>
+      </div>
       {interrupted && (
         <div className="notice">
           <span>
@@ -878,8 +1113,9 @@ function RunPage({ id, full, act }: Context & { id: string }) {
       <div className="notice">
         <FlaskConical size={18} />
         <span>
-          Simulated prediction · demo-rule-v1 · threshold 0.50. An invented rule
-          for demonstrating the interface, not a validated educational model.
+          Simulated prediction · {run.model} · threshold {threshold.toFixed(2)}.
+          An invented rule for demonstrating the interface, not a validated
+          educational model.
         </span>
       </div>
       <section className="card">
@@ -900,21 +1136,36 @@ function RunPage({ id, full, act }: Context & { id: string }) {
           </div>
           <div>
             <small>Model</small>
-            <code>demo-rule-v1</code>
+            <code>{run.model}</code>
           </div>
           <div>
             <small>Schema</small>
-            <code>demo-input-v1</code>
+            <code>{run.schema}</code>
           </div>
           <div>
             <small>Saved threshold</small>
-            <code>demo-threshold-v1 · 0.50</code>
+            <code>
+              {run.thresholdVersion} · {threshold.toFixed(2)}
+            </code>
           </div>
         </div>
         {run.status === "running" ? (
           <div className="empty">
             <div className="spinner" />
-            <h3>Preparing → Simulating → Validating → Saving</h3>
+            <h3 role="status">
+              {
+                [
+                  "Preparing records",
+                  "Simulating prediction",
+                  "Validating response",
+                  "Saving results",
+                ][stage]
+              }
+            </h3>
+            <p>
+              Demonstration stages derived from recorded timing, not measured
+              service progress.
+            </p>
             <p>This run is saved. You can return to it after refresh.</p>
             <button onClick={() => act(() => D.resolveRuns())}>
               Check run status
@@ -922,6 +1173,7 @@ function RunPage({ id, full, act }: Context & { id: string }) {
           </div>
         ) : run.status === "failed" ? (
           <div className="error-panel">
+            <code>{run.code || "PREDICTION_FAILED"}</code>
             <h3>{run.failure}</h3>
             <p>
               No results were published. A failed response never commits a
@@ -960,8 +1212,20 @@ function RunPage({ id, full, act }: Context & { id: string }) {
             </div>
             {full && (
               <div className="filter-pills" aria-label="Risk filter">
+                {bin !== "" && (
+                  <>
+                    <span>
+                      Range {Number(bin) * 25}–{(Number(bin) + 1) * 25}% ·{" "}
+                      {data.length} matching
+                    </span>
+                    <button onClick={() => query.set({ bin: "", risk: "" })}>
+                      Clear range
+                    </button>
+                  </>
+                )}
                 {["all", "above", "below"].map((s) => (
                   <button
+                    aria-pressed={filter === s && bin === ""}
                     className={filter === s ? "active" : ""}
                     key={s}
                     onClick={() => setFilter(s)}
@@ -1000,7 +1264,8 @@ function RunPage({ id, full, act }: Context & { id: string }) {
                   render: (r) => (
                     <span
                       className={
-                        "pill " + (Number(r.risk) >= 0.5 ? "warm" : "mint")
+                        "pill " +
+                        (Number(r.risk) >= threshold ? "warm" : "mint")
                       }
                     >
                       {String(r.label)}
@@ -1028,227 +1293,6 @@ function RunPage({ id, full, act }: Context & { id: string }) {
           </>
         )}
       </section>
-    </>
-  );
-}
-function Evaluation({ full }: { full: boolean }) {
-  const location = useLocation(),
-    nav = useNavigate();
-  const [, retry] = useState(0);
-  const version = location.pathname.split("/")[2];
-  if (D.scenario === "evaluation unavailable")
-    return (
-      <ErrorPanel
-        title="Evaluation artifact unavailable"
-        text="The simulated evaluation service is unavailable. No uploaded records are affected."
-        action={
-          <button
-            onClick={() => {
-              D.config("normal", D.latency);
-              retry((n) => n + 1);
-            }}
-          >
-            Retry evaluation
-          </button>
-        }
-      />
-    );
-  const undefinedMetric = version === "one-class";
-  if (!["demo-eval-v1", "one-class"].includes(version))
-    return (
-      <ErrorPanel
-        title="Evaluation not found"
-        text="Choose the available synthetic fixture."
-        action={
-          <Link className="button" to="/evaluations/demo-eval-v1">
-            Open evaluation
-          </Link>
-        }
-      />
-    );
-  const matrix = undefinedMetric ? [0, 0, 0, 100] : [32, 8, 12, 48];
-  const [tp, fn, fp, tn] = matrix;
-  const values = [
-    ["Accuracy", (tp + tn) / 100],
-    ["Precision", tp + fp ? tp / (tp + fp) : null],
-    ["Recall", tp + fn ? tp / (tp + fn) : null],
-    ["F1", 2 * tp + fp + fn ? (2 * tp) / (2 * tp + fp + fn) : null],
-    ["Specificity", tn / (tn + fp)],
-  ] as [string, number | null][];
-  return (
-    <>
-      <Title
-        title="Model evaluation"
-        sub="Understand the evidence. Know its limits."
-        action={
-          <>
-            {full && (
-              <button
-                onClick={() => {
-                  try {
-                    D.download(
-                      "synthetic-evaluation.json",
-                      JSON.stringify(
-                        {
-                          synthetic: true,
-                          version,
-                          matrix: { tp, fn, fp, tn },
-                          metrics: values,
-                        },
-                        null,
-                        2,
-                      ),
-                      "application/json",
-                    );
-                  } catch (e) {
-                    notify((e as Error).message);
-                  }
-                }}
-              >
-                <Download size={16} /> Download report
-              </button>
-            )}
-            <button onClick={() => window.print()}>Print / Save as PDF</button>
-          </>
-        }
-      />
-      <div className="notice">
-        <FlaskConical size={18} />
-        <span>
-          Illustrative synthetic evaluation. This fixture is separate from the
-          demo-rule-v1 prediction simulator and does not establish project
-          accuracy.
-        </span>
-      </div>
-      <div className="evaluation-top">
-        <label>
-          Evaluation fixture
-          <select
-            value={version}
-            onChange={(e) => nav("/evaluations/" + e.target.value)}
-          >
-            <option value="demo-eval-v1">
-              demo-eval-v1 · Binary test example
-            </option>
-            <option value="one-class">
-              one-class · Undefined metric example
-            </option>
-          </select>
-        </label>
-        <span className="pill mint">
-          Test population · 100 synthetic records
-        </span>
-        <span className="pill">Positive outcome: demo academic-risk flag</span>
-      </div>
-      <div className="metric-grid">
-        {values.map(([name, value]) => (
-          <section className="card metric" key={name}>
-            <span>{name}</span>
-            <strong>
-              {value === null ? "Not defined" : (value * 100).toFixed(1) + "%"}
-            </strong>
-            <details>
-              <summary>How it’s calculated</summary>
-              <p>
-                {name === "Accuracy"
-                  ? "(TP + TN) / N"
-                  : name === "Precision"
-                    ? "TP / (TP + FP)"
-                    : name === "Recall"
-                      ? "TP / (TP + FN)"
-                      : name === "F1"
-                        ? "2TP / (2TP + FP + FN)"
-                        : "TN / (TN + FP)"}
-                {value === null
-                  ? " · Denominator is zero; no positive examples or predictions."
-                  : ""}
-              </p>
-            </details>
-          </section>
-        ))}
-      </div>
-      <div className="two-columns">
-        <section className="card">
-          <h2>Confusion matrix</h2>
-          <p>Threshold 0.50 · all numbers from the same fixture.</p>
-          <table className="matrix">
-            <thead>
-              <tr>
-                <th>Actual / Predicted</th>
-                <th>Positive</th>
-                <th>Negative</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <th>Positive</th>
-                <td className="mint">
-                  {tp}
-                  <small>True positive</small>
-                </td>
-                <td>
-                  {fn}
-                  <small>False negative</small>
-                </td>
-              </tr>
-              <tr>
-                <th>Negative</th>
-                <td>
-                  {fp}
-                  <small>False positive</small>
-                </td>
-                <td className="lavender">
-                  {tn}
-                  <small>True negative</small>
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </section>
-        <section className="card">
-          <h2>Illustrative model comparison</h2>
-          <p>
-            Validation-based selection, followed by a separate test
-            illustration.
-          </p>
-          <table>
-            <thead>
-              <tr>
-                <th>Fixture model</th>
-                <th>Validation accuracy</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td>Dummy baseline</td>
-                <td>60%</td>
-              </tr>
-              <tr>
-                <td>Logistic regression</td>
-                <td>76%</td>
-              </tr>
-              <tr>
-                <td>
-                  Random forest <span className="pill mint">Selected</span>
-                </td>
-                <td>81%</td>
-              </tr>
-            </tbody>
-          </table>
-          <p className="fine">
-            Synthetic comparison values. These are not measured results. No
-            ROC-AUC is inferred from the confusion matrix.
-          </p>
-          <details open>
-            <summary>Interpretation & limitations</summary>
-            <p>
-              Small illustrative populations cannot establish generalization or
-              fairness. No causal explanations or automated interventions are
-              supported. Always verify source data and apply human judgement.
-            </p>
-          </details>
-        </section>
-      </div>
     </>
   );
 }
@@ -1296,19 +1340,67 @@ function RecordPage({
   const reviews = D.db.reviews.filter(
     (r) => r.dataset === d.id && r.record === row?.record_id,
   );
-  const [note, setNote] = useState(""),
-    [status, setStatus] = useState("Needs review"),
-    [association, setAssociation] = useState(""),
-    [edit, setEdit] = useState(""),
+  const query = useQuery();
+  const origin = useLocation().state?.from as string | undefined;
+  const draftKey = "draft:" + user.id + ":" + d.id + ":" + record;
+  const [initial] = useState<{
+    note: string;
+    status: string;
+    association: string;
+    edit: string;
+    baseline?: string;
+  }>(() => {
+    try {
+      return (
+        JSON.parse(sessionStorage.getItem(draftKey) || "null") || {
+          note: "",
+          status: "Needs review",
+          association: "",
+          edit: "",
+        }
+      );
+    } catch {
+      return { note: "", status: "Needs review", association: "", edit: "" };
+    }
+  });
+  const [note, setNote] = useState(initial.note),
+    [status, setStatus] = useState(initial.status),
+    [association, setAssociation] = useState(initial.association),
+    [edit, setEdit] = useState(initial.edit),
     [error, setError] = useState(""),
     [busy, setBusy] = useState(false);
-  useUnsaved(!!note, modal);
+  const blank = JSON.stringify({
+    note: "",
+    status: "Needs review",
+    association: "",
+    edit: "",
+  });
+  const [baseline, setBaseline] = useState(initial.baseline || blank);
+  const draft = JSON.stringify({ note, status, association, edit });
+  useUnsaved(draft !== baseline, modal);
+  useEffect(() => {
+    if (draft !== blank)
+      sessionStorage.setItem(
+        draftKey,
+        JSON.stringify({ note, status, association, edit, baseline }),
+      );
+    else sessionStorage.removeItem(draftKey);
+  }, [draft, baseline]);
+  const resetDraft = () => {
+    setNote("");
+    setStatus("Needs review");
+    setAssociation("");
+    setEdit("");
+    setError("");
+    setBaseline(blank);
+    sessionStorage.removeItem(draftKey);
+  };
   if (!row) return <ErrorPanel text="Record not found in this dataset." />;
   const history = D.db.runs
     .filter((r) => r.dataset === d.id && r.status === "completed")
     .map((r) => ({
       id: r.id,
-      date: D.formatDate(r.started),
+      date: r.started,
       risk: r.results.find((x) => x.id === row.record_id)!.risk,
     }));
   return (
@@ -1317,11 +1409,23 @@ function RecordPage({
         title={row.record_id}
         sub={d.name + " · record review"}
         action={
-          <Link className="button" to={"/datasets/" + d.id}>
-            Back to dataset
+          <Link
+            className="button"
+            to={
+              origin?.startsWith("/prediction-runs/")
+                ? origin
+                : "/datasets/" + d.id
+            }
+          >
+            {origin?.startsWith("/prediction-runs/")
+              ? "Back to results"
+              : "Back to dataset"}
           </Link>
         }
       />
+      <p className="notice">
+        Current review status: {D.reviewStatus(d.id, row.record_id)}
+      </p>
       <section className="card metadata">
         {D.headers.map((k) => (
           <div key={k}>
@@ -1360,9 +1464,7 @@ function RecordPage({
                   date: new Date().toISOString(),
                 };
                 await D.saveReview(item);
-                setNote("");
-                setEdit("");
-                setError("");
+                resetDraft();
                 notify("Review saved.");
               } catch (e) {
                 setError((e as Error).message);
@@ -1393,7 +1495,7 @@ function RecordPage({
                   .filter((r) => r.dataset === d.id)
                   .map((r) => (
                     <option key={r.id} value={r.id}>
-                      {D.formatDate(r.started)} � {r.status}
+                      {D.formatDate(r.started)} · {r.status}
                     </option>
                   ))}
               </select>
@@ -1405,12 +1507,14 @@ function RecordPage({
                 style={{ resize: "none" }}
                 value={note}
                 onChange={(e) => setNote(e.target.value)}
+                minLength={5}
+                required
                 maxLength={1000}
                 placeholder="What would you like to verify or discuss?"
               />
             </label>
             <small>{note.length}/1,000 characters</small>
-            {error && <p className="error">{error}</p>}
+            <FormMessage error={error} />
             <div className="button-row">
               <button className="primary" disabled={busy}>
                 {busy ? "Saving…" : edit ? "Save changes" : "Save review"}
@@ -1418,9 +1522,7 @@ function RecordPage({
               <button
                 type="button"
                 onClick={() => {
-                  setNote("");
-                  setEdit("");
-                  setError("");
+                  resetDraft();
                 }}
               >
                 Cancel changes
@@ -1440,6 +1542,15 @@ function RecordPage({
                     setNote(r.note);
                     setStatus(r.status);
                     setEdit(r.id);
+                    setAssociation(r.run || "");
+                    setBaseline(
+                      JSON.stringify({
+                        note: r.note,
+                        status: r.status,
+                        association: r.run || "",
+                        edit: r.id,
+                      }),
+                    );
                   }}
                 >
                   Edit
@@ -1463,7 +1574,15 @@ function RecordPage({
                           D.db.reviews = D.db.reviews.filter(
                             (x) => x.id !== r.id,
                           );
-                          D.event("Deleted review for " + row.record_id);
+                          D.event("Deleted review for " + row.record_id, {
+                            objectId: d.id,
+                            object: d.name + " / " + row.record_id,
+                            destination:
+                              "/datasets/" +
+                              d.id +
+                              "/records/" +
+                              encodeURIComponent(row.record_id),
+                          });
                           await D.persist();
                           modal(null);
                         }),
@@ -1478,11 +1597,51 @@ function RecordPage({
         </section>
         <section className="card">
           <h2>Saved prediction history</h2>
+          <label>
+            Selected prediction
+            <select
+              value={query.params.get("run") || history[0]?.id || ""}
+              onChange={(e) => query.set({ run: e.target.value })}
+            >
+              {history.map((h) => (
+                <option key={h.id} value={h.id}>
+                  {h.id.slice(0, 8)} · {D.formatDate(h.date)}
+                </option>
+              ))}
+            </select>
+          </label>
+          {(() => {
+            const selected = D.db.runs.find(
+              (r) =>
+                r.id === (query.params.get("run") || history[0]?.id) &&
+                r.dataset === d.id &&
+                r.status === "completed",
+            );
+            const result = selected?.results.find(
+              (x) => x.id === row.record_id,
+            );
+            return selected && result ? (
+              <p className="notice">
+                {(result.risk * 100).toFixed(1)}% simulated risk ·{" "}
+                {result.risk >= (selected.threshold ?? D.contract.threshold)
+                  ? "Above"
+                  : "Below"}{" "}
+                saved threshold {selected.threshold} · {selected.model} ·{" "}
+                {selected.schema} · {D.formatDate(selected.started)}
+              </p>
+            ) : (
+              <p>No completed prediction for this record.</p>
+            );
+          })()}
           <Table
             name="runs"
             data={history}
             columns={[
-              { key: "date", label: "Date" },
+              {
+                key: "date",
+                label: "Date",
+                render: (r) => D.formatDate(Number(r.date)),
+              },
               {
                 key: "risk",
                 label: "Simulated risk",
@@ -1504,321 +1663,11 @@ function RecordPage({
     </>
   );
 }
-function Quality({ d }: { d: D.Dataset }) {
-  return (
-    <>
-      <Title
-        title="Data quality"
-        sub={d.name + " · schema compliance, not a prediction of accuracy"}
-        action={
-          <Link className="button" to={"/datasets/" + d.id}>
-            Back to dataset
-          </Link>
-        }
-      />
-      <div className="metric-grid">
-        <section className="card metric">
-          <span>Validated rows</span>
-          <strong>{d.rows.length}</strong>
-        </section>
-        <section className="card metric">
-          <span>Duplicate IDs</span>
-          <strong>
-            {d.rows.length - new Set(d.rows.map((r) => r.record_id)).size}
-          </strong>
-        </section>
-        <section className="card metric">
-          <span>Required fields present</span>
-          <strong>100%</strong>
-        </section>
-      </div>
-      <section className="card">
-        <h2>Field observations</h2>
-        <Table
-          name="fields"
-          data={D.headers.map((k) => ({
-            field: k,
-            missing: d.rows.filter((r) => String(r[k as keyof D.Row]) === "")
-              .length,
-            observed:
-              k === "record_id"
-                ? d.rows.length + " unique IDs"
-                : k === "schoolsup"
-                  ? [...new Set(d.rows.map((r) => r.schoolsup))].join(", ")
-                  : Math.min(
-                      ...d.rows.map((r) => Number(r[k as keyof D.Row])),
-                    ) +
-                    "–" +
-                    Math.max(...d.rows.map((r) => Number(r[k as keyof D.Row]))),
-          }))}
-          columns={["field", "missing", "observed"].map((key) => ({
-            key,
-            label: key,
-          }))}
-          exportable
-        />
-        <details>
-          <summary>Field dictionary</summary>
-          <Schema />
-        </details>
-        <p className="notice">
-          Passing schema checks does not establish representative data, fairness
-          or predictive validity.
-        </p>
-      </section>
-    </>
-  );
-}
-function Analytics(ctx: Context) {
-  const ds = D.db.datasets.filter((d) => d.owner === ctx.user.id);
-  const [id, setId] = useState(ds[0]?.id || "");
-  const d = ds.find((d) => d.id === id);
-  const runs = D.db.runs.filter(
-    (r) => r.dataset === id && r.status === "completed",
-  );
-  const [runId, setRunId] = useState("");
-  const r = runs.find((r) => r.id === runId) || runs[0];
-  const bins = [0, 0, 0, 0];
-  r?.results.forEach((x) => bins[Math.min(3, Math.floor(x.risk * 4))]++);
-  return (
-    <>
-      <Title
-        title="Learning analytics"
-        sub="One dataset. One saved run. A clearly defined perspective."
-      />
-      <section className="card">
-        <div className="button-row">
-          <label>
-            Dataset
-            <select
-              value={id}
-              onChange={(e) => {
-                setId(e.target.value);
-                setRunId("");
-              }}
-            >
-              {ds.map((d) => (
-                <option key={d.id} value={d.id}>
-                  {d.name}
-                </option>
-              ))}
-            </select>
-          </label>
-          <label>
-            Completed run
-            <select
-              value={r?.id || ""}
-              onChange={(e) => setRunId(e.target.value)}
-            >
-              <option value="" disabled>
-                No completed run
-              </option>
-              {runs.map((r) => (
-                <option value={r.id} key={r.id}>
-                  {D.formatDate(r.started)}
-                </option>
-              ))}
-            </select>
-          </label>
-        </div>
-      </section>
-      {d ? (
-        <div className="two-columns">
-          <section className="card mint">
-            <h2>{d.name}</h2>
-            <div className="big-number">{d.rows.length}</div>
-            <p>synthetic records in this scope</p>
-            <Link className="text-link" to={"/datasets/" + d.id}>
-              Open dataset <ArrowUpRight size={16} />
-            </Link>
-          </section>
-          <section className="card">
-            <h2>Simulated risk distribution</h2>
-            {r ? (
-              <>
-                <div className="bar-chart">
-                  {bins.map((n, i) => (
-                    <Link
-                      key={i}
-                      to={"/prediction-runs/" + r.id}
-                      aria-label={`${i * 25} to ${(i + 1) * 25} percent: ${n} records. Open results.`}
-                    >
-                      <strong>{n}</strong>
-                      <span
-                        style={{
-                          height:
-                            Math.max(8, (n / r.results.length) * 180) + "px",
-                        }}
-                      />
-                      <small>
-                        {i * 25}–{(i + 1) * 25}%
-                      </small>
-                    </Link>
-                  ))}
-                </div>
-                <p>
-                  {r.results.filter((x) => x.risk >= 0.5).length} above
-                  threshold · {r.results.filter((x) => x.risk < 0.5).length}{" "}
-                  below
-                </p>
-                <Link className="button" to={"/prediction-runs/" + r.id}>
-                  Review saved results
-                </Link>
-                <button
-                  onClick={() =>
-                    ctx.act(() =>
-                      D.download(
-                        "analytics.csv",
-                        D.csv(
-                          bins.map((count, i) => ({
-                            scope: d.name,
-                            run: r.id,
-                            bin: `${i * 25}-${(i + 1) * 25}%`,
-                            count,
-                          })),
-                        ),
-                      ),
-                    )
-                  }
-                >
-                  Export aggregate summary
-                </button>
-              </>
-            ) : (
-              <>
-                <p>No completed prediction exists for this dataset.</p>
-                <Link to={"/datasets/" + d.id} className="button">
-                  Run prediction
-                </Link>
-              </>
-            )}
-          </section>
-        </div>
-      ) : (
-        <ErrorPanel
-          title="No datasets yet"
-          text="Upload a dataset to explore analytics."
-        />
-      )}
-    </>
-  );
-}
-function Activity({ user, act, modal }: Context) {
-  const [kind, setKind] = useState("all");
-  const [after, setAfter] = useState("");
-  const events = D.db.events.filter(
-    (e) =>
-      e.owner === user.id &&
-      (kind === "all" || e.text.toLowerCase().includes(kind)) &&
-      (!after || e.date.slice(0, 10) >= after),
-  );
-  return (
-    <>
-      <Title
-        title="Activity history"
-        sub="A trace of meaningful local changes. Private notes and raw rows are never logged."
-      />
-      <section className="card">
-        <div className="button-row">
-          <label>
-            Event type
-            <select value={kind} onChange={(e) => setKind(e.target.value)}>
-              {[
-                "all",
-                "import",
-                "prediction",
-                "review",
-                "deleted",
-                "account",
-              ].map((k) => (
-                <option key={k}>{k}</option>
-              ))}
-            </select>
-          </label>
-          <label>
-            On or after (YYYY-MM-DD)
-            <input
-              placeholder="2026-10-01"
-              value={after}
-              onChange={(e) => setAfter(e.target.value)}
-            />
-          </label>
-          <button
-            onClick={() => {
-              setKind("all");
-              setAfter("");
-            }}
-          >
-            Clear filters
-          </button>
-        </div>
-        <Table
-          name="events"
-          exportable
-          data={events.map((e) => ({ ...e, time: D.formatDate(e.date) }))}
-          columns={[
-            { key: "time", label: "Timestamp" },
-            { key: "text", label: "Operation" },
-            {
-              key: "id",
-              label: "Reference",
-              render: (r) => <code>{String(r.id).slice(0, 8)}</code>,
-            },
-            {
-              key: "read",
-              label: "Status",
-              render: (r) => <span>{r.read ? "Read" : "New"}</span>,
-            },
-            {
-              key: "details",
-              label: "Details",
-              render: (r) => (
-                <button
-                  onClick={() =>
-                    modal({
-                      title: "Activity details",
-                      body: (
-                        <>
-                          <p>{String(r.text)}</p>
-                          <p>
-                            Actor: {user.name}
-                            <br />
-                            Timestamp: {String(r.time)}
-                            <br />
-                            Reference: {String(r.id)}
-                          </p>
-                          <p>
-                            No raw rows, password or review note contents are
-                            logged.
-                          </p>
-                        </>
-                      ),
-                    })
-                  }
-                >
-                  View event
-                </button>
-              ),
-            },
-          ]}
-        />
-        <button
-          onClick={() =>
-            act(async () => {
-              events.forEach((e) => (e.read = true));
-              await D.persist();
-              notify("Activity marked read.");
-            })
-          }
-        >
-          Mark all read
-        </button>
-      </section>
-    </>
-  );
-}
 function Accounts(ctx: Context) {
   const { modal, act } = ctx;
+  const query = useQuery();
+  const roleFilter = query.params.get("role") || "all",
+    enabledFilter = query.params.get("status") || "all";
   const edit = (a?: D.Account) => {
     let name = a?.name || "",
       email = a?.email || "",
@@ -1835,6 +1684,7 @@ function Accounts(ctx: Context) {
           <label>
             Full name
             <input
+              required
               defaultValue={name}
               onChange={(e) => (name = e.target.value)}
             />
@@ -1843,6 +1693,7 @@ function Accounts(ctx: Context) {
             Email
             <input
               type="email"
+              required
               defaultValue={email}
               onChange={(e) => (email = e.target.value)}
             />
@@ -1933,13 +1784,55 @@ function Accounts(ctx: Context) {
         }
       />
       <section className="card">
+        <div className="button-row">
+          <label>
+            Role
+            <select
+              value={roleFilter}
+              onChange={(e) => query.set({ role: e.target.value })}
+            >
+              {["all", "teacher", "analyst", "administrator"].map((v) => (
+                <option key={v}>{v}</option>
+              ))}
+            </select>
+          </label>
+          <label>
+            Account status
+            <select
+              value={enabledFilter}
+              onChange={(e) => query.set({ status: e.target.value })}
+            >
+              {["all", "enabled", "disabled"].map((v) => (
+                <option key={v}>{v}</option>
+              ))}
+            </select>
+          </label>
+          <button onClick={() => query.set({ role: "", status: "" })}>
+            Clear filters
+          </button>
+        </div>
         <Table
           name="accounts"
-          data={D.db.accounts.map((a) => ({ ...a }))}
+          data={D.db.accounts
+            .filter(
+              (a) =>
+                (roleFilter === "all" || a.role === roleFilter) &&
+                (enabledFilter === "all" ||
+                  a.enabled === (enabledFilter === "enabled")),
+            )
+            .map((a) => ({
+              ...a,
+              created: Date.parse(a.created || new Date(0).toISOString()),
+            }))}
           columns={[
             { key: "name", label: "Name" },
             { key: "email", label: "Email" },
             { key: "role", label: "Role" },
+            {
+              key: "created",
+              label: "Created",
+              render: (r) => D.formatDate(Number(r.created)),
+            },
             {
               key: "enabled",
               label: "Status",
@@ -1955,11 +1848,20 @@ function Accounts(ctx: Context) {
               key: "action",
               label: "Actions",
               render: (r) => (
-                <button
-                  onClick={() => edit(D.db.accounts.find((a) => a.id === r.id))}
-                >
-                  Edit account
-                </button>
+                <details className="row-menu">
+                  <summary aria-label={"Actions for " + r.name}>
+                    Account actions
+                  </summary>
+                  <div>
+                    <button
+                      onClick={() =>
+                        edit(D.db.accounts.find((a) => a.id === r.id))
+                      }
+                    >
+                      Edit account
+                    </button>
+                  </div>
+                </details>
               ),
             },
           ]}
@@ -1986,28 +1888,7 @@ function Help({ user, modal, act }: Context) {
     [message, setMessage] = useState(""),
     [error, setError] = useState(""),
     [busy, setBusy] = useState(false);
-  const topics = [
-    [
-      "Getting started",
-      "Import → Preview → Predict → Review. Download a sample, upload it, correct any errors, confirm once, then run a simulated prediction.",
-    ],
-    [
-      "CSV requirements",
-      "Maximum 1 MB and 500 records. Comma and semicolon delimiters are detected. Quoted fields, BOM and CRLF are supported. Strict schema: no missing, duplicate or extra headers.",
-    ],
-    [
-      "Prediction limitations",
-      "demo-rule-v1 is deterministic: clamp(0.50 − 0.04(G1−10) + 0.10 failures − 0.035(studytime−2) − 0.03 when schoolsup=yes, 0.02, 0.98). It is an invented simulator, not a validated model.",
-    ],
-    [
-      "Recovery and troubleshooting",
-      "Read failures can be retried. For uncertain imports use Check import status. Running predictions resume by saved ID after reload. Previews expire after 30 minutes.",
-    ],
-    [
-      "Demo accounts",
-      "Use maya@demo.example, noah@demo.example, analyst@demo.example or admin@demo.example with DemoOnly!2026. Disabled account: disabled@demo.example. No real credentials.",
-    ],
-  ];
+  const topics = helpTopics;
   return (
     <>
       <Title
@@ -2019,7 +1900,7 @@ function Help({ user, modal, act }: Context) {
               act(() =>
                 D.download(
                   "student-performance-guide.txt",
-                  topics.map((t) => t.join("\n")).join("\n\n"),
+                  guideDownloads.guide,
                   "text/plain",
                 ),
               )
@@ -2059,7 +1940,42 @@ function Help({ user, modal, act }: Context) {
                 <p>{text}</p>
               </details>
             ))}
+          {!topics.some((t) =>
+            t.join(" ").toLowerCase().includes(query.toLowerCase()),
+          ) && (
+            <p role="status">
+              No help topics match. Clear the search to see all topics.
+            </p>
+          )}
           <Schema />
+          <div className="button-row">
+            <button
+              onClick={() =>
+                act(() =>
+                  D.download(
+                    "csv-schema-guide.txt",
+                    guideDownloads.schema,
+                    "text/plain",
+                  ),
+                )
+              }
+            >
+              Download schema guide
+            </button>
+            <button
+              onClick={() =>
+                act(() =>
+                  D.download(
+                    "troubleshooting.txt",
+                    guideDownloads.troubleshooting,
+                    "text/plain",
+                  ),
+                )
+              }
+            >
+              Download troubleshooting
+            </button>
+          </div>
         </section>
         <section className="card lavender">
           <h2>Sample datasets</h2>
@@ -2071,14 +1987,21 @@ function Help({ user, modal, act }: Context) {
                 <strong>{name}</strong>
                 <small>{description}</small>
               </span>
-              <button
-                className="icon"
+              <a
+                className="icon button"
                 title={"Download " + name}
                 aria-label={"Download " + name}
-                onClick={() => act(() => D.download(name, D.fixture(name)))}
+                href={"/fixtures/" + name}
+                download={name}
+                onClick={(e) => {
+                  if (D.consumeScenario("download")) {
+                    e.preventDefault();
+                    notify("Download preparation failed. Retry.", "error");
+                  }
+                }}
               >
                 <Download size={17} />
-              </button>
+              </a>
             </div>
           ))}
         </section>
@@ -2121,6 +2044,8 @@ function Help({ user, modal, act }: Context) {
             <label>
               Subject
               <input
+                required
+                minLength={3}
                 value={subject}
                 onChange={(e) => setSubject(e.target.value)}
               />
@@ -2141,11 +2066,13 @@ function Help({ user, modal, act }: Context) {
               <textarea
                 className="resize-none"
                 style={{ resize: "none" }}
+                required
+                minLength={10}
                 value={message}
                 onChange={(e) => setMessage(e.target.value)}
               />
             </label>
-            {error && <p className="error">{error}</p>}
+            <FormMessage error={error} />
             <button className="primary" disabled={busy}>
               {busy ? "Saving…" : "Save demo feedback"}
             </button>
@@ -2153,66 +2080,38 @@ function Help({ user, modal, act }: Context) {
         </section>
         <section className="card">
           <h2>Your demo outbox</h2>
-          <p>Only feedback from {user.name} is shown.</p>
-          {D.db.outbox
-            .filter((o) => o.owner === user.id)
-            .map((o) => (
-              <article className="review-note" key={o.id}>
-                <strong>{o.subject}</strong>
-                <p>{o.message}</p>
-                <small>
-                  {D.formatDate(o.date)} · {o.id.slice(0, 8)}
-                </small>
-                <div className="button-row">
-                  <button
-                    onClick={() =>
-                      act(() =>
-                        D.download(
-                          "feedback-" + o.id + ".json",
-                          JSON.stringify(o, null, 2),
-                          "application/json",
-                        ),
-                      )
-                    }
-                  >
-                    Download
-                  </button>
-                  <button
-                    className="danger-text"
-                    onClick={() =>
-                      modal({
-                        title: "Delete feedback?",
-                        body: <p>Remove this local outbox item permanently?</p>,
-                        label: "Delete",
-                        danger: true,
-                        action: () =>
-                          act(async () => {
-                            D.db.outbox = D.db.outbox.filter(
-                              (x) => x.id !== o.id,
-                            );
-                            await D.persist();
-                            modal(null);
-                          }),
-                      })
-                    }
-                  >
-                    Delete
-                  </button>
-                </div>
-              </article>
-            ))}
-          {!D.db.outbox.some((o) => o.owner === user.id) && (
-            <div className="empty">
-              <CheckCheck size={30} />
-              <p>No feedback saved yet.</p>
-            </div>
-          )}
+          <p>
+            {D.db.outbox.filter((o) => o.owner === user.id).length} saved items
+            · No email was sent.
+          </p>
+          <button
+            onClick={() =>
+              modal({
+                title: "Demo outbox",
+                variant: "drawer",
+                body: <Outbox user={user} act={act} />,
+              })
+            }
+          >
+            Open demo outbox
+          </button>
         </section>
       </div>
     </>
   );
 }
 function Preferences({ user, modal, act }: Context) {
+  const clearSize = () => {
+    Object.keys(sessionStorage)
+      .filter((k) => k.startsWith("view:" + user.id + ":"))
+      .forEach((k) => {
+        const v = sessionStorage.getItem(k)!;
+        const u = new URL(v, location.origin);
+        u.searchParams.delete("size");
+        u.searchParams.delete("page");
+        sessionStorage.setItem(k, u.pathname + u.search);
+      });
+  };
   const defaults = { density: "comfortable", size: 10, zone: "Europe/Warsaw" };
   const [prefs, setPrefs] = useState(D.db.preferences[user.id] || defaults);
   useUnsaved(
@@ -2267,6 +2166,7 @@ function Preferences({ user, modal, act }: Context) {
             className="primary"
             onClick={() =>
               act(async () => {
+                clearSize();
                 D.db.preferences[user.id] = prefs;
                 await D.persist();
                 document.documentElement.dataset.density = prefs.density;
@@ -2295,6 +2195,7 @@ function Preferences({ user, modal, act }: Context) {
                 action: () =>
                   act(async () => {
                     setPrefs(defaults);
+                    clearSize();
                     D.db.preferences[user.id] = defaults;
                     await D.persist();
                     modal(null);

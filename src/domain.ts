@@ -1,5 +1,14 @@
 import Papa from "papaparse";
 import { get, set } from "idb-keyval";
+export const contract = {
+  schema: "demo-input-v1",
+  model: "demo-rule-v1",
+  thresholdVersion: "demo-threshold-v1",
+  threshold: 0.5,
+  maxBytes: 1048576,
+  maxRows: 500,
+  previewMs: 1800000,
+} as const;
 export type Row = {
   record_id: string;
   G1: number;
@@ -24,6 +33,13 @@ export type Dataset = {
   rows: Row[];
 };
 export type Run = {
+  model?: string;
+  schema?: string;
+  thresholdVersion?: string;
+  threshold?: number;
+  requested?: number;
+  completed?: number;
+  code?: string;
   id: string;
   dataset: string;
   status: "running" | "completed" | "failed";
@@ -42,6 +58,7 @@ export type Preview = {
   dataset?: string;
 };
 export type Issue = {
+  record_id?: string;
   row: number;
   column: string;
   value: string;
@@ -64,6 +81,12 @@ export type Store = {
     date: string;
   }[];
   events: {
+    type?: string;
+    outcome?: "success" | "failed" | "running";
+    actor?: string;
+    object?: string;
+    objectId?: string;
+    destination?: string;
     id: string;
     owner: string;
     text: string;
@@ -114,6 +137,7 @@ export function seed(): Store {
     email: email + "@demo.example",
     role,
     enabled: id !== "disabled",
+    created: new Date(Date.now() - 30 * 86400000).toISOString(),
   }));
   const datasets = [24, 80, 120, 36].map((n, i) => ({
     id: `dataset-${i + 1}`,
@@ -132,15 +156,34 @@ export function seed(): Store {
     version: 1,
     accounts,
     datasets,
-    runs: datasets.slice(0, 2).map((d, i) => ({
-      id: `run-${i + 1}`,
-      dataset: d.id,
-      status: "completed",
-      started: Date.now() - 86400000,
-      finish: Date.now() - 86000000,
-      failure: "",
-      results: d.rows.map((r) => ({ id: r.record_id, risk: risk(r) })),
-    })),
+    runs: [
+      ...datasets.slice(0, 2).map((d, i) => ({
+        ...runMetadata(),
+        id: `run-${i + 1}`,
+        requested: Date.now() - 86400000,
+        dataset: d.id,
+        status: "completed" as const,
+        started: Date.now() - 86400000,
+        finish: Date.now() - 86000000,
+        failure: "",
+        results: d.rows.map((r) => ({ id: r.record_id, risk: risk(r) })),
+        completed: Date.now() - 86000000,
+      })),
+      {
+        ...runMetadata(),
+        id: "run-failed",
+        requested: Date.now() - 7200000,
+        dataset: "dataset-3",
+        status: "failed",
+        started: Date.now() - 7200000,
+        finish: Date.now() - 7197000,
+        completed: Date.now() - 7197000,
+        failure:
+          "The simulated prediction service was unavailable. Start a new run when ready.",
+        code: "ML_UNAVAILABLE",
+        results: [],
+      },
+    ],
     previews: [],
     reviews: [],
     events: [],
@@ -152,31 +195,88 @@ export let db: Store;
 export let storageError = "";
 export let scenario = "normal";
 export let latency = 450;
-let update = () => {};
+const listeners = new Set<() => void>();
+const update = () => listeners.forEach((fn) => fn());
+let savedSnapshot: Store | undefined;
+let writes: Promise<void> = Promise.resolve();
+export let scenarioState = "No scenario armed";
+export let sessionRevision = 0;
+export function invalidateSession() {
+  sessionRevision++;
+}
+export function runMetadata() {
+  return {
+    model: contract.model as string,
+    schema: contract.schema as string,
+    thresholdVersion: contract.thresholdVersion as string,
+    threshold: contract.threshold as number,
+    requested: Date.now(),
+  };
+}
+export function consumeScenario(name: string) {
+  if (scenario !== name) return false;
+  scenario = "normal";
+  scenarioState = name + " · consumed";
+  update();
+  return true;
+}
+export function assertActor(id: string | undefined) {
+  if (!id || current()?.id !== id)
+    throw Error("Session changed. This operation was cancelled.");
+}
 export function config(s: string, l: number) {
   scenario = s;
+  scenarioState = s === "normal" ? "No scenario armed" : s + " · armed";
   latency = l;
+  update();
 }
 export function subscribe(f: () => void) {
-  update = f;
+  listeners.add(f);
   return () => {
-    update = () => {};
+    listeners.delete(f);
   };
 }
 export async function init() {
   try {
     const saved = await get("student-performance-v1");
-    db = saved === undefined ? seed() : validateBackup(saved);
+    db = saved === undefined ? seed() : migrate(validateBackup(saved));
+    savedSnapshot = structuredClone(db);
     await persist();
   } catch {
     storageError =
       "Local demo storage could not be read. Restore a valid backup or reset the demo.";
-    db = seed();
+    db = {
+      version: 1,
+      accounts: [],
+      datasets: [],
+      runs: [],
+      previews: [],
+      reviews: [],
+      events: [],
+      outbox: [],
+      preferences: {},
+    };
   }
 }
 export async function persist() {
-  await set("student-performance-v1", db);
-  update();
+  const candidate = structuredClone(db);
+  const operation = writes.then(async () => {
+    try {
+      if (consumeScenario("storage failure"))
+        throw Error("Simulated browser storage failure");
+      await set("student-performance-v1", candidate);
+      savedSnapshot = structuredClone(candidate);
+    } catch {
+      if (savedSnapshot) db = structuredClone(savedSnapshot);
+      update();
+      throw Error(
+        "Browser storage could not save this change. The previous saved state is retained. Free browser storage and retry.",
+      );
+    }
+    update();
+  });
+  writes = operation.catch(() => {});
+  await operation;
 }
 export function current() {
   const a = db?.accounts.find(
@@ -196,9 +296,22 @@ export function owned(id: string) {
 export async function delay(operation: string) {
   const actor = current()?.id;
   await new Promise((r) => setTimeout(r, latency));
-  if (scenario === operation) {
-    scenario = "normal";
-    update();
+  if (consumeScenario(operation)) {
+    if (current() && operation !== "login") {
+      event("Failed " + operation, {
+        type:
+          operation === "review"
+            ? "review"
+            : operation === "accounts"
+              ? "account"
+              : operation === "validate" || operation === "import rollback"
+                ? "import"
+                : "dataset",
+        outcome: "failed",
+        object: "Demo operation",
+      });
+      await persist();
+    }
     throw Error(
       `${operation}: simulated service interruption. Your changes were not saved. Retry when ready.`,
     );
@@ -209,9 +322,13 @@ export async function delay(operation: string) {
     throw Error("Session expired. Sign in to continue.");
 }
 export async function login(email: string, password: string) {
+  const revision = sessionRevision;
   await delay("login");
-  if (scenario === "invalid credentials") {
-    scenario = "normal";
+  if (revision !== sessionRevision)
+    throw Error(
+      "A newer sign-in replaced this request. Try again deliberately.",
+    );
+  if (consumeScenario("invalid credentials")) {
     throw Error("Email or password is incorrect.");
   }
   const a = db.accounts.find((a) => a.email === email.trim().toLowerCase());
@@ -221,19 +338,60 @@ export async function login(email: string, password: string) {
     );
   if (!a.enabled)
     throw Error("This demo account is disabled. Choose an active account.");
+  const drafts = Object.keys(sessionStorage)
+    .filter((k) => k.startsWith("draft:" + a.id + ":"))
+    .map((k) => [k, sessionStorage.getItem(k)!]);
   sessionStorage.clear();
+  drafts.forEach(([k, v]) => sessionStorage.setItem(k, v));
   sessionStorage.setItem("persona", a.id);
+  sessionRevision++;
   update();
   return a;
 }
-export function event(text: string) {
+export function event(
+  text: string,
+  details: Partial<Store["events"][number]> = {},
+) {
+  const actor = current();
+  if (!actor) return;
+  const type = /account/.test(text)
+    ? "account"
+    : /review/i.test(text)
+      ? "review"
+      : /prediction/i.test(text)
+        ? "prediction"
+        : /deleted/i.test(text)
+          ? "deleted"
+          : /import/i.test(text)
+            ? "import"
+            : "dataset";
   db.events.unshift({
     id: uid(),
-    owner: current()!.id,
+    owner: actor.id,
+    actor: actor.name,
     text,
     date: new Date().toISOString(),
     read: false,
+    type,
+    outcome: /started/i.test(text) ? "running" : "success",
+    ...details,
   });
+}
+export function authorizedEvents() {
+  const a = current();
+  return db.events.filter(
+    (e) =>
+      e.owner === a?.id &&
+      (a?.role !== "administrator" || e.type === "account"),
+  );
+}
+export function eventDestination(e: Store["events"][number]) {
+  const a = current();
+  if (!a || e.owner !== a.id) return undefined;
+  if (e.type === "account")
+    return a.role === "administrator" ? "/admin/accounts" : undefined;
+  const d = db.datasets.find((d) => d.id === e.objectId && d.owner === a.id);
+  return d ? e.destination || "/datasets/" + d.id : undefined;
 }
 export const headers = [
   "record_id",
@@ -271,7 +429,7 @@ export function parse(text: string): { rows: Row[]; issues: Issue[] } {
       value: "0",
       hint: "Include at least one record.",
     });
-  if (result.data.length > 500)
+  if (result.data.length > contract.maxRows)
     issues.push({
       row: 502,
       column: "Rows",
@@ -305,7 +463,14 @@ export function parse(text: string): { rows: Row[]; issues: Issue[] } {
         valid = /^\d+$/.test(val) && +val >= min && +val <= max;
         hint = `Use an integer from ${min} to ${max}.`;
       }
-      if (!valid) issues.push({ row: i + 2, column: k, value: val, hint });
+      if (!valid)
+        issues.push({
+          row: i + 2,
+          record_id: obj.record_id,
+          column: k,
+          value: val,
+          hint,
+        });
     }
     return {
       ...obj,
@@ -316,22 +481,42 @@ export function parse(text: string): { rows: Row[]; issues: Issue[] } {
   });
   return { rows: parsed, issues };
 }
-export async function preview(file: File): Promise<Preview> {
+export async function preview(
+  file: File,
+  signal?: AbortSignal,
+  stage?: (s: string) => void,
+): Promise<Preview> {
+  const actor = current()?.id;
+  stage?.("Checking file…");
   await delay("validate");
-  if (file.size > 1048576) throw Error("File exceeds the 1 MB limit.");
+  signal?.throwIfAborted();
+  if (file.size > contract.maxBytes)
+    throw Error("File exceeds the 1 MB limit.");
   if (!file.name.toLowerCase().endsWith(".csv"))
     throw Error("Choose a CSV file.");
+  stage?.("Reading and parsing CSV…");
+  const text = await file.text();
+  signal?.throwIfAborted();
+  assertActor(actor);
+  stage?.("Validating rows…");
   const p = {
     id: uid(),
-    owner: current()!.id,
+    owner: actor!,
     file: file.name,
-    ...parse(await file.text()),
-    expires: Date.now() + 1800000,
+    ...parse(text),
+    expires: Date.now() + contract.previewMs,
   };
   db.previews = db.previews.filter((x) => x.dataset || x.expires > Date.now());
   db.previews.push(p);
   await persist();
   return p;
+}
+export async function discardPreview(id: string) {
+  const p = db.previews.find((p) => p.id === id);
+  if (!p || p.owner !== current()?.id) throw Error("Preview unavailable.");
+  if (p.dataset) return;
+  db.previews = db.previews.filter((p) => p.id !== id);
+  await persist();
 }
 export async function confirmImport(id: string) {
   const p = db.previews.find((p) => p.id === id);
@@ -355,10 +540,13 @@ export async function confirmImport(id: string) {
   };
   db.datasets.push(d);
   p.dataset = d.id;
-  event("Imported " + d.name);
+  event("Imported " + d.name, {
+    object: d.name,
+    objectId: d.id,
+    destination: "/datasets/" + d.id,
+  });
   await persist();
-  if (scenario === "uncertain import") {
-    scenario = "normal";
+  if (consumeScenario("uncertain import")) {
     throw Error(
       "Confirmation response interrupted. Check import status before proceeding.",
     );
@@ -377,10 +565,19 @@ export async function startRun(id: string) {
   );
   if (inFlight) return inFlight;
   const interrupted = scenario === "connection loss";
-  const failure = ["ML unavailable", "malformed predictions"].includes(scenario)
+  const failure = [
+    "ML unavailable",
+    "malformed predictions",
+    "schema mismatch",
+    "model mismatch",
+    "duplicate IDs",
+    "missing IDs",
+    "out of range",
+  ].includes(scenario)
     ? scenario
     : "";
   const r: Run = {
+    ...runMetadata(),
     id: uid(),
     dataset: id,
     status: "running",
@@ -389,10 +586,14 @@ export async function startRun(id: string) {
     failure,
     results: [],
   };
-  scenario = "normal";
+  if (scenario !== "normal") consumeScenario(scenario);
   if (interrupted) sessionStorage.setItem("interrupted-run", r.id);
   db.runs.unshift(r);
-  event("Prediction started for " + d.name);
+  event("Prediction started for " + d.name, {
+    object: d.name,
+    objectId: d.id,
+    destination: "/prediction-runs/" + r.id,
+  });
   await persist();
   return r;
 }
@@ -430,6 +631,19 @@ export async function resolveRuns() {
           risk: risk(row),
         }));
         if (r.failure === "malformed predictions") result[0].risk = NaN;
+        if (r.failure === "duplicate IDs") result[1].id = result[0].id;
+        if (r.failure === "missing IDs") result.pop();
+        if (r.failure === "out of range") result[0].risk = 1.3;
+        validateEnvelope({
+          model:
+            r.failure === "model mismatch"
+              ? "unsupported"
+              : r.model || contract.model,
+          schema:
+            r.failure === "schema mismatch"
+              ? "unsupported"
+              : r.schema || contract.schema,
+        });
         r.results =
           r.failure === "ML unavailable" ? [] : validateResults(result, d.rows);
       } catch (e) {
@@ -437,7 +651,20 @@ export async function resolveRuns() {
         r.failure = (e as Error).message;
         r.results = [];
       }
+      r.completed = Date.now();
+      r.code =
+        r.status === "failed"
+          ? r.failure === "ML unavailable"
+            ? "ML_UNAVAILABLE"
+            : "INVALID_RESPONSE"
+          : undefined;
       db.events.unshift({
+        type: "prediction",
+        actor: "Demo prediction service",
+        object: d.name,
+        objectId: d.id,
+        destination: "/prediction-runs/" + r.id,
+        outcome: r.status === "failed" ? "failed" : "success",
         id: uid(),
         owner: d.owner,
         text: `Prediction ${r.status} for ${d.name}`,
@@ -456,10 +683,14 @@ export async function deleteDataset(id: string) {
       "A prediction is running. Wait for completion before deleting.",
     );
   await delay("delete");
+  if (db.runs.some((r) => r.dataset === id && r.status === "running"))
+    throw Error(
+      "A prediction is running. Wait for completion before deleting.",
+    );
   db.datasets = db.datasets.filter((x) => x.id !== id);
   db.runs = db.runs.filter((x) => x.dataset !== id);
   db.reviews = db.reviews.filter((x) => x.dataset !== id);
-  event("Dataset deleted: " + d.name);
+  event("Dataset deleted: " + d.name, { object: d.name, objectId: d.id });
   await persist();
 }
 export function formatDate(value: string | number) {
@@ -489,8 +720,7 @@ export function download(
   content: string,
   type = "text/csv;charset=utf-8",
 ) {
-  if (scenario === "download") {
-    scenario = "normal";
+  if (consumeScenario("download")) {
     throw Error("Download preparation failed. Retry.");
   }
   const url = URL.createObjectURL(new Blob(["\uFEFF" + content], { type }));
@@ -501,7 +731,26 @@ export function download(
   a.download = name;
   a.click();
   a.remove();
-  setTimeout(() => URL.revokeObjectURL(url), 1000);
+  preparedDownloads.unshift({ name, url, owner: current()?.id });
+  while (preparedDownloads.length > 5) {
+    const old = preparedDownloads.pop();
+    if (old) URL.revokeObjectURL(old.url);
+  }
+  setTimeout(() => dismissDownload(url), 300000);
+  update();
+}
+export const preparedDownloads: {
+  name: string;
+  url: string;
+  owner?: string;
+}[] = [];
+export function dismissDownload(url: string) {
+  const i = preparedDownloads.findIndex((d) => d.url === url);
+  if (i >= 0) {
+    URL.revokeObjectURL(url);
+    preparedDownloads.splice(i, 1);
+    update();
+  }
 }
 export function fixture(name: string) {
   let text = csv(rows(name.includes("too-many") ? 501 : 12));
@@ -604,6 +853,14 @@ export function validateBackup(value: unknown): Store {
       !d ||
       !["running", "completed", "failed"].includes(r.status) ||
       !Array.isArray(r.results) ||
+      !Number.isFinite(r.started) ||
+      !Number.isFinite(r.finish) ||
+      (r.threshold !== undefined &&
+        (!Number.isFinite(r.threshold) ||
+          r.threshold < 0 ||
+          r.threshold > 1)) ||
+      (r.schema !== undefined && r.schema !== contract.schema) ||
+      (r.model !== undefined && r.model !== contract.model) ||
       r.results.some(
         (x) => !Number.isFinite(x.risk) || x.risk < 0 || x.risk > 1,
       ) ||
@@ -616,6 +873,14 @@ export function validateBackup(value: unknown): Store {
   }
   for (const r of s.reviews)
     if (
+      !["Not reviewed", "Needs review", "Reviewed"].includes(r.status) ||
+      typeof r.note !== "string" ||
+      r.note.length < 5 ||
+      r.note.length > 1000 ||
+      !Number.isFinite(Date.parse(r.date)) ||
+      (r.run &&
+        !s.runs.some((run) => run.id === r.run && run.dataset === r.dataset)) ||
+      !s.datasets.some((d) => d.id === r.dataset && d.owner === r.owner) ||
       !ids.has(r.owner) ||
       !s.datasets.some(
         (d) =>
@@ -668,9 +933,13 @@ export function validateBackup(value: unknown): Store {
   return s;
 }
 export async function restore(s: Store) {
-  storageError = "";
-  db = validateBackup(s);
+  const candidate = migrate(validateBackup(s));
+  db = candidate;
   await persist();
+  storageError = "";
+  sessionStorage.clear();
+  sessionRevision++;
+  update();
 }
 export async function saveAccount(account: Account) {
   if (current()?.role !== "administrator")
@@ -704,7 +973,12 @@ export async function saveAccount(account: Account) {
     )
   )
     throw Error("Email already exists.");
-  event((a ? "Updated" : "Created") + " demo account " + account.name);
+  event((a ? "Updated" : "Created") + " demo account " + account.name, {
+    type: "account",
+    object: account.name,
+    objectId: account.id,
+    destination: "/admin/accounts",
+  });
   if (a) db.accounts = db.accounts.map((x) => (x.id === a.id ? account : x));
   else db.accounts.push(account);
   await persist();
@@ -730,6 +1004,237 @@ export async function saveReview(item: Store["reviews"][number]) {
     throw Error("Forbidden review.");
   if (exists) db.reviews = db.reviews.map((x) => (x.id === item.id ? item : x));
   else db.reviews.push(item);
-  event("Saved review for " + item.record);
+  event("Saved review for " + item.record, {
+    object: d.name + " / " + item.record,
+    objectId: d.id,
+    destination:
+      "/datasets/" + d.id + "/records/" + encodeURIComponent(item.record),
+  });
   await persist();
+}
+
+export function migrate(state: Store): Store {
+  state.runs.forEach((r) =>
+    Object.assign(r, {
+      ...runMetadata(),
+      ...r,
+      requested: r.requested ?? r.started,
+      completed: r.completed ?? (r.status !== "running" ? r.finish : undefined),
+    }),
+  );
+  state.accounts.forEach(
+    (a) =>
+      (a.created ||=
+        state.datasets.find((d) => d.owner === a.id)?.created ||
+        new Date(0).toISOString()),
+  );
+  state.events.forEach((e) => {
+    e.type ||= /account/.test(e.text)
+      ? "account"
+      : /review/i.test(e.text)
+        ? "review"
+        : /prediction/i.test(e.text)
+          ? "prediction"
+          : /deleted/i.test(e.text)
+            ? "deleted"
+            : "import";
+    e.actor ||=
+      state.accounts.find((a) => a.id === e.owner)?.name || "Demo service";
+    e.outcome ||= /failed/i.test(e.text)
+      ? "failed"
+      : /started/i.test(e.text)
+        ? "running"
+        : "success";
+  });
+  return state;
+}
+export function validateEnvelope(value: { model: string; schema: string }) {
+  if (value.schema !== contract.schema)
+    throw Error(
+      "SCHEMA_MISMATCH: Unsupported response schema. No results were saved.",
+    );
+  if (value.model !== contract.model)
+    throw Error(
+      "MODEL_MISMATCH: Unsupported response model. No results were saved.",
+    );
+}
+export function ownedDatasets() {
+  const a = current();
+  return db.datasets.filter((d) => a?.role === "teacher" && d.owner === a.id);
+}
+export function datasetRuns(id: string) {
+  owned(id);
+  return db.runs
+    .filter((r) => r.dataset === id)
+    .sort((a, b) => b.started - a.started);
+}
+export function runResults(run: Run, selection = "all", bin = "") {
+  const d = owned(run.dataset),
+    threshold = run.threshold ?? contract.threshold;
+  return run.results
+    .filter(
+      (r) =>
+        (selection === "all" ||
+          (selection === "above" ? r.risk >= threshold : r.risk < threshold)) &&
+        (bin === "" || Math.min(3, Math.floor(r.risk * 4)) === Number(bin)),
+    )
+    .map((r) => ({
+      ...d.rows.find((row) => row.record_id === r.id)!,
+      id: r.id,
+      risk: r.risk,
+      label:
+        r.risk >= threshold ? "Above demo threshold" : "Below demo threshold",
+    }));
+}
+export const fieldRules: Record<string, string> = {
+  record_id: "Unique non-empty string",
+  G1: "Integer 0–20",
+  failures: "Integer 0–4",
+  studytime: "Integer category 1–4",
+  schoolsup: "yes or no",
+};
+export function fieldDistribution(d: Dataset, field: string) {
+  const counts = new Map<string, number>();
+  d.rows.forEach((r) => {
+    const v = String(r[field as keyof Row] ?? "");
+    counts.set(v, (counts.get(v) || 0) + 1);
+  });
+  return [...counts].map(([value, count]) => ({
+    value,
+    count,
+    share: Number(((count / d.rows.length) * 100).toFixed(1)),
+  }));
+}
+export function qualitySummary(d: Dataset) {
+  const observations = headers.map((field) => {
+    const values = d.rows.map((r) => r[field as keyof Row]);
+    return {
+      field,
+      allowed: fieldRules[field],
+      missing: values.filter((v) => v == null || String(v).trim() === "")
+        .length,
+      observed:
+        field === "record_id"
+          ? new Set(values).size + " unique IDs"
+          : field === "schoolsup"
+            ? [...new Set(values)].join(", ")
+            : Math.min(...values.map(Number)) +
+              "–" +
+              Math.max(...values.map(Number)),
+    };
+  });
+  return {
+    dataset: d.id,
+    name: d.name,
+    schema: contract.schema,
+    records: d.rows.length,
+    duplicateIds: d.rows.length - new Set(d.rows.map((r) => r.record_id)).size,
+    completeness:
+      100 *
+      (1 -
+        observations.reduce((n, x) => n + x.missing, 0) /
+          (d.rows.length * headers.length)),
+    issues: parse(csv(d.rows)).issues.length,
+    observations,
+  };
+}
+export function reviewStatus(dataset: string, record: string) {
+  return (
+    db.reviews
+      .filter((r) => r.dataset === dataset && r.record === record)
+      .sort((a, b) => Date.parse(b.date) - Date.parse(a.date))[0]?.status ||
+    "Not reviewed"
+  );
+}
+export function safeReturn(
+  value: string | null | undefined,
+  account: Account,
+  full = true,
+) {
+  if (
+    !value ||
+    !value.startsWith("/") ||
+    value.startsWith("//") ||
+    /[\\\r\n]/.test(value)
+  )
+    return undefined;
+  const path = value.split(/[?#]/)[0];
+  if (
+    path === "/" ||
+    path === "/help" ||
+    path.startsWith("/evaluations/") ||
+    (path === "/settings" && full)
+  )
+    return value;
+  if (
+    account.role === "teacher" &&
+    (/^\/(datasets|imports|prediction-runs)(\/|$)/.test(path) ||
+      (full && ["/analytics", "/activity"].includes(path)))
+  )
+    return value;
+  if (
+    account.role === "administrator" &&
+    full &&
+    ["/admin/accounts", "/activity"].includes(path)
+  )
+    return value;
+  return undefined;
+}
+export type EvaluationArtifact = {
+  version: string;
+  date: string;
+  population: string;
+  count: number;
+  positive: string;
+  threshold: number;
+  selected: string;
+  matrix: number[];
+  comparison: { model: string; accuracy: number }[];
+};
+export function evaluationFixture(version: string): EvaluationArtifact {
+  if (!["demo-eval-v1", "one-class"].includes(version))
+    throw Error("Evaluation not found. Choose an available fixture.");
+  return {
+    version,
+    date: "2026-10-01T12:00:00Z",
+    population: "Test",
+    count: 100,
+    positive: "Demo academic-risk flag",
+    threshold: contract.threshold,
+    selected: "Random forest",
+    matrix: version === "one-class" ? [0, 0, 0, 100] : [32, 8, 12, 48],
+    comparison: [
+      { model: "Dummy baseline", accuracy: 0.6 },
+      { model: "Logistic regression", accuracy: 0.76 },
+      { model: "Random forest", accuracy: 0.81 },
+    ],
+  };
+}
+export async function readEvaluation(version: string) {
+  await delay("evaluation unavailable");
+  return evaluationFixture(version);
+}
+export async function readWorkspace() {
+  await delay("read workspace");
+}
+export function exportMetadata() {
+  const path = location.pathname;
+  const run = path.startsWith("/prediction-runs/")
+    ? db.runs.find((r) => r.id === path.split("/")[2])
+    : undefined;
+  const d = run
+    ? db.datasets.find((d) => d.id === run.dataset)
+    : path.startsWith("/datasets/")
+      ? db.datasets.find((d) => d.id === path.split("/")[2])
+      : undefined;
+  return {
+    synthetic: true,
+    dataset: d?.name || "",
+    dataset_id: d?.id || "",
+    run_id: run?.id || "",
+    schema: run?.schema || contract.schema,
+    model: run?.model || "",
+    threshold_version: run?.thresholdVersion || "",
+    threshold: run?.threshold ?? "",
+  };
 }

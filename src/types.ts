@@ -3,7 +3,8 @@ import * as D from "./domain";
 export type Modal = {
   title: string;
   body: React.ReactNode;
-  action?: () => void;
+  action?: () => Promise<unknown> | unknown;
+  variant?: "dialog" | "drawer";
   label?: string;
   danger?: boolean;
   cancel?: () => void;
