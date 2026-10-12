@@ -9,12 +9,12 @@ function record(o) {
   return o && typeof o === "object" && !Array.isArray(o);
 }
 export function validateState(o) {
-  if (!record(o) || o.version !== 2)
+  if (!record(o) || o.version !== 3)
     throw Error(
-      "Use a v2 progress backup. Keep v1 backups with the earlier HTML; its checklist positions and assignments differ.",
+      "Use a reduced-plan v3 progress backup. Earlier-plan backups have different tasks and checklist positions and cannot be restored here.",
     );
   const r = {
-    version: 2,
+    version: 3,
     names: {},
     cards: {},
     checks: {},
@@ -127,11 +127,11 @@ export function mountPlan(root, downloadArtifact, onOpen, onChange) {
     el.addEventListener(event, handler);
     events.push(() => el.removeEventListener(event, handler));
   }
-  const KEY = "student-performance-roadmap-v2";
+  const KEY = "student-performance-roadmap-v3-reduced";
   const tasks = DATA.tasks,
     byId = Object.fromEntries(tasks.map((t) => [t.id, t]));
   const state = {
-    version: 2,
+    version: 3,
     names: {},
     cards: {},
     checks: {},
@@ -183,41 +183,15 @@ export function mountPlan(root, downloadArtifact, onOpen, onChange) {
   try {
     const raw = localStorage.getItem(KEY);
     if (raw) Object.assign(state, validateState(JSON.parse(raw)));
-    else {
-      const old = localStorage.getItem("student-performance-roadmap-v1");
-      if (old) {
-        const legacy = JSON.parse(old);
-        for (const m of DATA.members)
-          if (
-            typeof legacy.names?.[m.id] === "string" &&
-            legacy.names[m.id].length <= 80
-          )
-            state.names[m.id] = legacy.names[m.id];
-        $("storage-notice").textContent =
-          "Revision 2 imported your previous member names only. Changed steps/owners need fresh checks; your original v1 progress remains untouched in its separate storage.";
-      }
-    }
+
   } catch (e) {
     $("storage-notice").textContent =
-      "Saved progress could not be loaded. The saved copy was not overwritten; restore a valid v2 backup or export before closing.";
+      "Saved progress could not be loaded. The saved copy was not overwritten; restore a valid reduced-plan v3 backup or export before closing.";
   }
   function reconcile() {
     reconcileProgress(state);
   }
-  const navs = [
-    ["roadmap", "Roadmap"],
-    ["moscow", "MoSCoW & scope"],
-    ["board", "Three-list board"],
-    ["team", "Team & capacity"],
-    ["proposal", "Project idea"],
-    ["git", "Git strategy"],
-    ["structure", "Project structure"],
-    ["api", "API endpoints"],
-    ["frontend", "Frontend spec"],
-    ["syncs", "Syncs & cuts"],
-    ["contracts", "Integration contracts"],
-    ["docs", "Documentation"],
-  ];
+  const navs = [['roadmap','Roadmap'],['moscow','MoSCoW & scope'],['board','Three-list board'],['team','Team & capacity'],['proposal','Project idea'],['git','Git strategy'],['architecture','Architecture'],['structure','Project structure'],['api','Routes & contracts'],['frontend','Frontend spec'],['syncs','Syncs & cuts'],['contracts','Integration contracts'],['docs','Documentation']];
   function legend() {
     $("legend").innerHTML = DATA.members
       .map(
@@ -404,7 +378,7 @@ export function mountPlan(root, downloadArtifact, onOpen, onChange) {
       })
       .join(
         "",
-      )}</tbody></table></div><p>Three cards per person is the visible structure, not a workload guarantee. If W1’s coaching load is high, reassign bounded work, schedule shorter pairs or obtain support. Dependency-path SP is not elapsed duration.</p>`;
+      )}</tbody></table></div><p>Most members have one guided deliverable per sprint; AI has two ordered cards in Sprint 3. Card count is not a workload guarantee. If W1’s coaching load is high, reassign bounded work, schedule shorter pairs or obtain support. Dependency-path SP is not elapsed duration.</p>`;
   }
   function renderTeam() {
     return `<article class="prose"><h1>People, learning support & capacity</h1><p>Assignments are provisional experience profiles. Complete a 45–60 minute practical check before mapping actual names. No person has been assessed by this file.</p><div class="roster">${DATA.members
@@ -624,20 +598,20 @@ export function mountPlan(root, downloadArtifact, onOpen, onChange) {
     }
     if (id === "exportText") {
       download(
-        "team-project-cards-v2.md",
-        "# Team project cards — revision 2\n\n" +
+        "team-project-cards-v3-reduced.md",
+        "# Reduced team project cards — revision 3\n\n" +
           tasks.map((t) => "## " + cardText(t)).join("\n\n---\n\n"),
       );
       announce(
-        "Downloaded all 122 full briefs. Set exactly two labels and current owners in the real board.",
+        "Downloaded all 80 full briefs. Set exactly two labels and current owners in the real board.",
       );
     }
     if (id === "exportProgress") {
       download(
-        "team-project-progress-v2.json",
+        "team-project-progress-v3-reduced.json",
         JSON.stringify(
           {
-            format: "student-performance-roadmap",
+            format: "student-performance-roadmap-reduced",
             exportedAt: new Date().toISOString(),
             state,
           },
@@ -646,7 +620,7 @@ export function mountPlan(root, downloadArtifact, onOpen, onChange) {
         ),
         "application/json",
       );
-      announce("Exported v2 progress, scope selections, skills and capacity.");
+      announce("Exported reduced-plan v3 progress, scope selections, skills and capacity.");
     }
     if (id === "importProgress") $("restoreFile").click();
   }
@@ -657,13 +631,13 @@ export function mountPlan(root, downloadArtifact, onOpen, onChange) {
       if (f.size > 2000000) throw Error("Backup too large; maximum 2 MB.");
       const data = JSON.parse(await f.text());
       if (!active) return;
-      if (data.format !== "student-performance-roadmap")
-        throw Error("Choose a roadmap progress backup.");
+      if (data.format !== "student-performance-roadmap-reduced")
+        throw Error("Choose a reduced-plan v3 backup. Earlier-plan backups cannot be restored here.");
       const fresh = validateState(data.state);
       download(
-        "team-project-before-restore-v2.json",
+        "team-project-before-restore-v3-reduced.json",
         JSON.stringify(
-          { format: "student-performance-roadmap", state },
+          { format: "student-performance-roadmap-reduced", state },
           null,
           2,
         ),
@@ -675,7 +649,7 @@ export function mountPlan(root, downloadArtifact, onOpen, onChange) {
       legend();
       render();
       announce(
-        "Restored v2 progress. A backup of the previous state was downloaded first.",
+        "Restored reduced-plan v3 progress. A backup of the previous state was downloaded first.",
       );
     } catch (err) {
       announce("Restore failed: " + err.message + " Current progress kept.");

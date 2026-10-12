@@ -4,7 +4,7 @@ import { DATA, PANELS, validateState } from "./runtime.js";
 import { completionProblem, reconcileProgress } from "./model";
 
 const fresh = () => ({
-  version: 2,
+  version: 3,
   names: {},
   cards: {} as Record<string, string>,
   checks: {} as Record<string, boolean>,
@@ -17,7 +17,7 @@ const fresh = () => ({
 describe("shared plan conservation", () => {
   it("retains every supplied data field and reference section", () => {
     const original = readFileSync(
-      "public/student-performance-plan-original.html",
+      "public/student-performance-plan-reduced.html",
       "utf8",
     );
     const dataStart = original.indexOf("const DATA=") + "const DATA=".length;
@@ -36,13 +36,13 @@ describe("shared plan conservation", () => {
           .replace(/;$/, ""),
       ),
     );
-    expect(DATA.tasks).toHaveLength(122);
+    expect(DATA.tasks).toHaveLength(80);
     expect(DATA.sprints).toHaveLength(5);
-    expect(Object.keys(PANELS)).toHaveLength(10);
+    expect(Object.keys(PANELS)).toHaveLength(11);
   });
   it("keeps all task links resolvable and IDs unique", () => {
     const ids = new Set(DATA.tasks.map((t) => t.id));
-    expect(ids.size).toBe(122);
+    expect(ids.size).toBe(80);
     for (const task of DATA.tasks) {
       expect(task.labels).toHaveLength(2);
       for (const id of [...task.depends, ...task.unlocks])
@@ -52,7 +52,7 @@ describe("shared plan conservation", () => {
 });
 
 describe("planning workflow", () => {
-  it("keeps older v2 backups compatible with optional review notes", () => {
+  it("keeps reduced-plan v3 backups compatible with optional review notes", () => {
     const { evidence, ...legacy } = fresh();
     expect(validateState(legacy).evidence).toEqual({});
     const state = fresh();
@@ -117,6 +117,9 @@ describe("planning workflow", () => {
     for (const task of DATA.tasks.filter((t) => t.depends.includes(root.id)))
       expect(state.cards[task.id]).not.toBe("Done");
   });
+  it("rejects earlier-plan v2 progress even when IDs overlap", () => {
+    expect(() => validateState({ ...fresh(), version: 2 })).toThrow(/reduced-plan v3/);
+  });
   it("validates backups without modifying the supplied state", () => {
     const state = fresh();
     state.names = { W1: "Team lead" };
@@ -133,7 +136,7 @@ describe("planning workflow", () => {
     expect(() =>
       validateState({ ...state, checks: { "S1-W1-01:step:999": true } }),
     ).toThrow(/checklist/);
-    expect(() => validateState({ ...state, version: 1 })).toThrow(/v2/);
+    expect(() => validateState({ ...state, version: 1 })).toThrow(/v3/);
     expect(state.cards).toEqual({});
   });
 });

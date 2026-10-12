@@ -16,7 +16,7 @@ Runtime ownership remains in src/style.css: dark semantic palette → light-dark
 
 ## Typography
 
-The `/plan` page reuses Title, the app shell and shared downloads. Its scoped planning styles use the same fonts, pill buttons, fields, 25px cards and lavender/mint/lime surfaces. Member colors convey ownership. Desktop roadmap lanes and long reference tables scroll locally; phone task lanes stack. The supplied planning runtime is isolated in a React mount adapter, with listeners removed on cleanup and delayed restore work cancelled on unmount. The complete original data and static reference HTML stay separate from the presentation.
+The `/plan` page reuses Title, the app shell and shared downloads. Its scoped planning styles use the same fonts, pill buttons, fields, 25px cards and lavender/mint/lime surfaces. Member colors convey ownership. Desktop roadmap lanes and long reference tables scroll locally; phone task lanes stack. The supplied planning runtime is isolated in a React mount adapter, with listeners removed on cleanup and delayed restore work cancelled on unmount. The complete reduced-plan data and static reference HTML stay separate from the presentation.
 
 Manrope Variable display; DM Sans Variable body; Consolas utility. Robust system fallbacks. Titles 40px desktop / 32px mobile. Variable fonts are bundled locally through Fontsource; no remote font dependency.
 

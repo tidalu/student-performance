@@ -5,7 +5,7 @@ import { DATA, type Planner, type PlanProgress } from "./runtime.js";
 
 it("renders every supplied brief in the modal without dropping its detailed content", () => {
   const state: PlanProgress = {
-    version: 2,
+    version: 3,
     names: {},
     cards: {},
     checks: {},
