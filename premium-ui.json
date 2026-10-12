@@ -3,17 +3,9 @@
   "sourceRoots": ["src"],
   "locale": "en-GB",
   "canonicalMap": "UX-CONTRACT.md",
-  "requiredCapabilities": [
-    "Select/Listbox",
-    "Form",
-    "Scrollbar",
-    "Toast",
-    "CRUD",
-    "Date"
-  ],
+  "requiredCapabilities": ["Select/Listbox", "Form", "Scrollbar"],
   "ownership": {
-    "Select/Listbox": "native",
-    "Date": "native"
+    "Select/Listbox": "native"
   },
   "commands": {
     "unit": "npm test",

@@ -1,23 +1,43 @@
-# Feature manifest
+# Reduced MVP feature manifest
 
-Appearance: one header button switches the entire app between light and the supplied card reference's dark palette. The choice persists across visits and synchronizes between tabs; system appearance is the initial default. Authentication, workspace routes, tables, charts, popovers, dialogs and the hidden planner share the same theme.
+## Must — demonstrated
 
-Core: simulated sign-in, teacher-owned datasets, real CSV upload, strict preview, atomic single confirmation, deterministic saved predictions, aggregate evaluation, help, forbidden/missing states.
+- Ordinary account registration, login and logout
+- Account-owned datasets and saved runs
+- One-step validated CSV import with all-or-none mutation
+- Exact four-column provisional schema and bounded errors
+- Dataset metadata, stored rows and G1 count/mean/min/max
+- Synchronous prediction using one versioned synthetic rule
+- Complete saved run/results with schema, threshold and model version
+- Separate validation comparison and held-out evaluation evidence
+- Evaluation limitations and metric definitions
+- Help and error/unavailable states
 
-Optional course enhancements (Full mode): record review, quality, analytics, activity, account management, local preferences, record/result exports and report downloads. These are prototype explorations, not mandatory course commitments.
+## Should — retained as light usability
 
-Demo tooling: persona switching, latency and one-shot named failures, preview/session expiry, reset, backup/restore, synthetic fixtures and local feedback outbox.
+- Responsive shell and locally scrollable tables
+- 25-row pagination
+- Accessible password reveal, inline errors and stable busy buttons
+- Developer-only downloadable test fixtures and named failure injection
 
-## Frontend completion additions
+## Could — not implemented
 
-Requirement-level mapping and evidence live in FRONTEND-GAP-AUDIT.md and VERIFICATION.md. Added shared accessible drawers/popovers/tooltips/read/form recovery, remembered filters and source context; saved prediction metadata/failure subtypes; typed evaluation reports/comparison charts; computed quality/analytics distributions; structured authorized activity and admin history; complete review editing; feedback outbox/downloadable guides; persistence rollback and staged preview cancellation.
+- Download example CSV as a professor-facing product control
+- Small optional glossary
+- Additional summary statistics approved after the data audit
+- One additional baseline display if the statistics member needs it
 
-## Registration and recovery UI
+## Won't — current release
 
-The sign-in screen includes Create an account, Forgot password and Continue with Google (Demo). Registration validates name/email and matching passwords, permits duplicate display names, creates teacher-only accounts and requires explicit sign-in afterward. Password reset uses an expiring, one-use local demo inbox message and a new-password form. Google sign-in is a synthetic account chooser, not a configured OAuth integration. No Google requests or reset emails are sent. Local mock credentials are salted digests; do not use real passwords or treat browser state as an authentication boundary.
+- Multiple roles or administration
+- Import preview/confirmation tokens
+- Async queue or job monitoring
+- Charts, advanced filters or exports
+- Student profiles, notes, reviews or interventions
+- Audit/activity history and notifications
+- Dataset editing/deletion UI
+- Model upload, registry, retraining or hyperparameter controls
+- Password reset, email or OAuth
+- Deployment/operations dashboard
 
-## Shared project plan
-
-Every task opens a large card-detail modal using the supplied tile design. Effort, dependencies, people, steps, worked example, acceptance, learning resources, pitfalls and scope stay readable in separate cards. Related-task navigation includes Back; close preserves the roadmap context. Optional artifact and reviewer notes persist with planning progress and exports. The Plan link remains hidden from project navigation.
-
-`/plan` adds all 80 reduced-plan task briefs, five sprints, MoSCoW decisions, three-list board, editable team/skills/capacity and every reference section. Filters, dependency navigation, checklists, guarded status changes, optional prerequisite selection, full-card copy/download and version-3 reduced-plan progress export/restore remain interactive. The reduced supplied HTML is preserved as a download. Planning progress is browser-local, separate from workspace backups and external project boards.
+Developer test controls and the hidden team `/plan` route are not professor-facing product features.
