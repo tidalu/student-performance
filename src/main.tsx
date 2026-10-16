@@ -1,6 +1,4 @@
 import React, {
-  lazy,
-  Suspense,
   useEffect,
   useRef,
   useState,
@@ -40,7 +38,6 @@ import {
 } from "./components";
 import "./style.css";
 
-const Plan = lazy(() => import("./features/plan/Plan"));
 const PAGE_SIZE = 25;
 
 function useStore() {
@@ -74,7 +71,7 @@ function App() {
   const user = D.currentUser();
   const [demoOpen, setDemoOpen] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
-  const protectedRoute = !["/login", "/register", "/plan"].includes(
+  const protectedRoute = !["/login", "/register"].includes(
     location.pathname,
   );
 
@@ -181,7 +178,7 @@ function App() {
       )}
       <main
         className={
-          user || location.pathname === "/plan" ? "workspace" : "auth-workspace"
+          user ? "workspace" : "auth-workspace"
         }
       >
         <RouteView />
@@ -208,12 +205,6 @@ function RouteView() {
   const user = D.currentUser();
   if (pathname === "/login") return <LoginPage />;
   if (pathname === "/register") return <RegisterPage />;
-  if (pathname === "/plan")
-    return (
-      <Suspense fallback={<p role="status">Loading team roadmap…</p>}>
-        <Plan />
-      </Suspense>
-    );
   if (!user || pathname === "/") return null;
   if (pathname === "/dashboard") return <DashboardPage />;
   if (pathname === "/upload") return <UploadPage />;
