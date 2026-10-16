@@ -74,7 +74,9 @@ function App() {
   const user = D.currentUser();
   const [demoOpen, setDemoOpen] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
-  const protectedRoute = !["/login", "/register"].includes(location.pathname);
+  const protectedRoute = !["/login", "/register", "/plan"].includes(
+    location.pathname,
+  );
 
   useEffect(() => {
     setMenuOpen(false);
@@ -177,7 +179,11 @@ function App() {
           ))}
         </nav>
       )}
-      <main className={user ? "workspace" : "auth-workspace"}>
+      <main
+        className={
+          user || location.pathname === "/plan" ? "workspace" : "auth-workspace"
+        }
+      >
         <RouteView />
       </main>
       <footer className="app-footer">
@@ -202,17 +208,17 @@ function RouteView() {
   const user = D.currentUser();
   if (pathname === "/login") return <LoginPage />;
   if (pathname === "/register") return <RegisterPage />;
-  if (!user || pathname === "/") return null;
-  if (pathname === "/dashboard") return <DashboardPage />;
-  if (pathname === "/upload") return <UploadPage />;
-  if (pathname === "/evaluation") return <EvaluationPage />;
-  if (pathname === "/help") return <HelpPage />;
   if (pathname === "/plan")
     return (
       <Suspense fallback={<p role="status">Loading team roadmap…</p>}>
         <Plan />
       </Suspense>
     );
+  if (!user || pathname === "/") return null;
+  if (pathname === "/dashboard") return <DashboardPage />;
+  if (pathname === "/upload") return <UploadPage />;
+  if (pathname === "/evaluation") return <EvaluationPage />;
+  if (pathname === "/help") return <HelpPage />;
   if (pathname.startsWith("/datasets/"))
     return <DatasetPage id={pathname.split("/")[2]} />;
   if (pathname.startsWith("/runs/"))
