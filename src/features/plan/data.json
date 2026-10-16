@@ -1,29 +1,29 @@
 {
   "title": "Student Performance — Course MVP",
-  "version": "3.0-reduced-mvp",
+  "version": "3.1-express-python-mvp",
   "members": [
     {
       "id": "W1",
       "name": "Web lead — enter name",
-      "role": "Application lead: Django setup, built-in authentication, ownership checks, model integration and architecture. Short planned reviews/pairs; no custom auth or separate ML service.",
+      "role": "Web lead: Node.js/Express, library-based session authentication, ownership checks, JavaScript integration and architecture. No Python programming assumed; consume the ML-owned CLI contract.",
       "color": "#2d6a4f"
     },
     {
       "id": "W2",
       "name": "Frontend learner — enter name",
-      "role": "Frontend learner: repository/workspace owner (proposed), HTML/CSS templates, basic JavaScript, accessible forms and tables, acceptance walkthrough and user manual. No independent security ownership.",
+      "role": "Frontend learner: repository/board, HTML/CSS and small JavaScript in EJS templates served by Express, acceptance walkthrough and user manual. Prototype React screens remain visual references; no required React rewrite.",
       "color": "#1d4e89"
     },
     {
       "id": "W3",
       "name": "Database learner — enter name",
-      "role": "Database learner: schema, migrations, validated one-step CSV import, prediction persistence and data documentation. Pair on transactions; no deployment or backup-drill ownership.",
+      "role": "Database learner: small SQLite schema, versioned SQL migrations, parameterized queries, JavaScript CSV validation and atomic persistence. Focused W1 support on transaction boundaries; no Python or deployment ownership.",
       "color": "#7c3aed"
     },
     {
       "id": "AI",
       "name": "AI / ML member",
-      "role": "ML learner: source audit, reproducible splits, baseline plus two small classifiers, saved inference pipeline, final ML documentation. Confirm Python competence in Sprint 1.",
+      "role": "ML learner: Python source audit, fixed splits, simple candidates, frozen model and Python prediction CLI including environment/dependency instructions. Verify the CLI with W1; no Express/service ownership.",
       "color": "#0f766e"
     },
     {
@@ -39,7 +39,7 @@
       "title": "Agree the small project and make it run",
       "weeks": "Weeks 1–2",
       "goal": "Freeze the scope and data question; run register/login and the database locally.",
-      "gate": "Each person can explain the journey; auth works on synthetic accounts; schema and candidate data are inspected.",
+      "gate": "Each person can explain the journey; auth works on synthetic accounts; schema and candidate data are inspected. W1 and AI demonstrate a two-record Node-to-Python JSON round trip.",
       "lab": "Trace a form submission through a single backend.",
       "failure": "Try a duplicate username and a logged-out request; show useful outcomes.",
       "cadence": "Two weeks; one core deliverable per member plus process records. Optional work starts only after core and capacity checks."
@@ -81,7 +81,7 @@
       "goal": "Reproduce the local release, complete evidence and rehearse the professor demo.",
       "gate": "A teammate follows the README successfully; core acceptance evidence, five backlogs, 25 summaries and manuals are complete.",
       "lab": "Explain the smallest justified future improvement.",
-      "failure": "Start in a clean virtual environment with a fresh demo database; follow the troubleshooting guide.",
+      "failure": "Start with a fresh Node install, ML-owned Python virtual environment and fresh SQLite demo database; follow the README.",
       "cadence": "Two weeks; one core deliverable per member plus process records. Optional work starts only after core and capacity checks."
     }
   ],
@@ -114,10 +114,7 @@
       "reviewer": "W3",
       "pair": {
         "member": null,
-        "hours": [
-          0,
-          0
-        ],
+        "hours": [0, 0],
         "mode": "Independent work with review",
         "plan": "Try the starter first. Ask the named reviewer for a focused check of the stated acceptance evidence; escalate a blocker rather than silently enlarging this task."
       },
@@ -126,14 +123,8 @@
         "high": 0.75,
         "basis": "Provisional focused owner hours, including learning, task documentation, checks and owner-side pairing. Track actual time; do not infer hours from SP."
       },
-      "reviewHours": [
-        0,
-        0
-      ],
-      "labels": [
-        "Must",
-        "SP:1"
-      ],
+      "reviewHours": [0, 0],
+      "labels": ["Must", "SP:1"],
       "steps": [
         "Read the focused resources and do the starter exercise below; stop and ask for help if you cannot explain the result.",
         "Collect actual available hours from every member; subtract meetings/support/review and keep 20% uncommitted.",
@@ -156,11 +147,7 @@
           "focus": "Read the sprint goal, backlog, review and retrospective; retain the course-required individual summaries."
         }
       ],
-      "tools": [
-        "Markdown",
-        "shared board",
-        "GitHub"
-      ],
+      "tools": ["Markdown", "shared board", "GitHub"],
       "starterExercise": "Have each member state available hours before selecting cards.",
       "snippet": {
         "language": "illustrative contract / pseudocode",
@@ -186,9 +173,7 @@
       "owner": "AI",
       "title": "Audit one dataset and freeze the prediction input contract",
       "sp": 5,
-      "depends": [
-        "S1-PLAN"
-      ],
+      "depends": ["S1-PLAN"],
       "unlocks": [
         "S1-ST-01",
         "S2-AI-01",
@@ -205,26 +190,17 @@
       "reviewer": "ST",
       "pair": {
         "member": null,
-        "hours": [
-          0,
-          0
-        ],
+        "hours": [0, 0],
         "mode": "Independent work with review",
         "plan": "Try the starter first. Ask the named reviewer for a focused check of the stated acceptance evidence; escalate a blocker rather than silently enlarging this task."
       },
       "hours": {
-        "low": 6,
-        "high": 10,
-        "basis": "Provisional focused owner hours, including learning, task documentation, checks and owner-side pairing. Track actual time; do not infer hours from SP."
+        "low": 7,
+        "high": 12,
+        "basis": "Provisional direct estimate for Express/auth or Python CLI handoff; includes owner learning and checks. No Python programming assumed for W1. Validate after the Sprint 1 spike; not scaled from SP."
       },
-      "reviewHours": [
-        0.25,
-        0.5
-      ],
-      "labels": [
-        "Must",
-        "SP:5"
-      ],
+      "reviewHours": [0.25, 0.5],
+      "labels": ["Must", "SP:5"],
       "steps": [
         "Read the focused resources and do the starter exercise below; stop and ask for help if you cannot explain the result.",
         "Confirm you can run a small pandas script and explain target versus feature. Use the provided source link to inspect one UCI subject file; do not combine subject files.",
@@ -233,12 +209,14 @@
         "If measurement timing cannot support early warning, explicitly call it a retrospective educational experiment. Do not claim an earlier intervention window without evidence.",
         "Write schema-v1.json with ordered allowlist, numeric ranges and missing-value policy, plus two synthetic valid rows and invalid examples. The shipped planning CSV is provisional until this audit.",
         "Provide W1/W3 with a plain Python inference contract and a labelled stub. Predictions must return row ID, finite score, risk flag and version; do not put model logic in the frontend.",
+        "Provide ml/predict.py with a labelled toy mode for the Sprint 1 contract spike: one JSON input on stdin, one JSON output on stdout, diagnostics on stderr and nonzero exit on error. Supply virtual-environment setup and the interpreter path for W1; replace toy output with the frozen pipeline in Sprint 3. Never present toy scores as a model.",
         "Attach the changed file/report, exact input and actual check result to this card. Record actual hours and request the named review before marking Done."
       ],
       "accept": [
         "The data source and target are explicit; no test-set tuning has happened.",
         "The input contract lists allowed columns, ranges and missing handling.",
-        "Timing uncertainty and demographic/domain limits are recorded."
+        "Timing uncertainty and demographic/domain limits are recorded.",
+        "W1 can invoke the toy CLI with two synthetic records; AI can explain its Python environment and JSON contract."
       ],
       "outcome": "A reproducible data audit, bounded research question and versioned training/inference contract.",
       "avoid": "A column that exists in the CSV is not automatically available at the claimed prediction time.",
@@ -287,15 +265,8 @@
       "owner": "ST",
       "title": "Write the question, one-page evaluation rule and requirements",
       "sp": 3,
-      "depends": [
-        "S1-PLAN",
-        "S1-AI-01"
-      ],
-      "unlocks": [
-        "S2-AI-01",
-        "S2-ST-01",
-        "S5-W1-01"
-      ],
+      "depends": ["S1-PLAN", "S1-AI-01"],
+      "unlocks": ["S2-AI-01", "S2-ST-01", "S5-W1-01"],
       "objective": "One-page preregistered protocol, requirements baseline and professor scope-confirmation draft.",
       "priority": "Must",
       "kind": "Delivery",
@@ -303,10 +274,7 @@
       "reviewer": "AI",
       "pair": {
         "member": "AI",
-        "hours": [
-          0.5,
-          1
-        ],
+        "hours": [0.5, 1],
         "mode": "Guided pair on the difficult boundary",
         "plan": "Use one tiny confusion-matrix example and check the feature/target boundary together."
       },
@@ -315,14 +283,8 @@
         "high": 8,
         "basis": "Provisional focused owner hours, including learning, task documentation, checks and owner-side pairing. Track actual time; do not infer hours from SP."
       },
-      "reviewHours": [
-        0.25,
-        0.5
-      ],
-      "labels": [
-        "Must",
-        "SP:3"
-      ],
+      "reviewHours": [0.25, 0.5],
+      "labels": ["Must", "SP:3"],
       "steps": [
         "Read the focused resources and do the starter exercise below; stop and ask for help if you cannot explain the result.",
         "Write a short plain-language product description and the reduced scope note for the professor. Record that broad topic approval exists, while revised scope and local-demo sufficiency still need confirmation.",
@@ -387,88 +349,78 @@
       "id": "S1-W1-01",
       "sprint": 1,
       "owner": "W1",
-      "title": "Run Django and connect built-in registration/login",
+      "title": "Run Express and connect session registration/login",
       "sp": 5,
-      "depends": [
-        "S1-PLAN"
-      ],
-      "unlocks": [
-        "S1-W3-01",
-        "S2-W1-01",
-        "S5-W1-01"
-      ],
-      "objective": "A running single-backend skeleton, reusable authentication and a short route/context contract.",
+      "depends": ["S1-PLAN"],
+      "unlocks": ["S1-W3-01", "S2-W1-01", "S5-W1-01"],
+      "objective": "A JavaScript web skeleton with library-based authentication and a checked toy Python handoff.",
       "priority": "Must",
       "kind": "Delivery",
       "status": "Backlog",
       "reviewer": "W2",
       "pair": {
         "member": null,
-        "hours": [
-          0,
-          0
-        ],
+        "hours": [0, 0],
         "mode": "Independent work with review",
         "plan": "Try the starter first. Ask the named reviewer for a focused check of the stated acceptance evidence; escalate a blocker rather than silently enlarging this task."
       },
       "hours": {
-        "low": 8,
-        "high": 14,
-        "basis": "Provisional focused owner hours, including learning, task documentation, checks and owner-side pairing. Track actual time; do not infer hours from SP."
+        "low": 10,
+        "high": 16,
+        "basis": "Provisional direct estimate for Express/auth or Python CLI handoff; includes owner learning and checks. No Python programming assumed for W1. Validate after the Sprint 1 spike; not scaled from SP."
       },
-      "reviewHours": [
-        0.25,
-        0.5
-      ],
-      "labels": [
-        "Must",
-        "SP:5"
-      ],
+      "reviewHours": [0.25, 0.5],
+      "labels": ["Must", "SP:5"],
       "steps": [
-        "Read the focused resources and do the starter exercise below; stop and ask for help if you cannot explain the result.",
-        "In the first two-hour spike, run the official tutorial and trace a built-in login form. Record whether Django is viable for you; if blocked, arrange help and revise estimates before building on it.",
-        "Create one Python environment, the Django project and a minimal home template. Pin the working package versions; add .gitignore and an environment example without secrets.",
-        "Use UserCreationForm, LoginView and POST logout with CSRF. Use username/password only; no email service, password-reset flow or custom password implementation.",
-        "Protect the home/upload/dataset/run/evaluation routes with authentication. Stub pages clearly say no data yet; do not add a separate JSON API or ML server.",
-        "Write a small view/service/template contract for W2/W3 and pair for one hour with W2 to demonstrate form errors.",
-        "Check successful registration, duplicate username, weak/mismatched passwords, login failure, logout and logged-out access. Record the result in the requirements checklist.",
-        "Attach the changed file/report, exact input and actual check result to this card. Record actual hours and request the named review before marking Done."
+        "Read the focused resources and do the starter exercise below; ask the named reviewer about a concrete blocker.",
+        "Create a minimal Express app serving EJS templates with ordinary HTML/CSS and small JavaScript. Pin Node/package versions and add an environment example without secrets.",
+        "Implement username/password registration with validation, unique username and a maintained password-hashing library. Use express-session with a SQLite-backed session store; regenerate the session on login and destroy it on POST logout. Do not write cryptography or email flows.",
+        "Use HttpOnly, SameSite cookies, CSRF tokens on state-changing forms, and a session secret outside source control. Document localhost HTTP cookie settings and HTTPS-only settings for any future hosting.",
+        "Protect home/upload/dataset/run/evaluation routes. Agree shared Account/session SQL with W3 and form field/error locals with W2; no separate frontend API is required.",
+        "With AI, use Node child_process.spawn with shell:false to send two synthetic records over stdin to AI’s toy Python script and receive one JSON response. AI owns the Python code; W1 owns the JavaScript adapter. This spike is a handoff check, not model training.",
+        "Check registration, duplicate username, weak/mismatched passwords, failed login, logout, CSRF rejection and logged-out routes. Confirm Node can report a failed Python command clearly.",
+        "Attach actual output and acceptance evidence; record actual hours and request review before Done."
       ],
       "accept": [
-        "A second member can start the skeleton from the README.",
-        "A synthetic account registers, signs in and signs out; protected pages reject a logged-out request.",
-        "Passwords use the framework’s handling and no secret is committed."
+        "A teammate starts Express from the README; passwords are hashed with a maintained library and secrets are uncommitted.",
+        "Registration/login/logout, session regeneration and protected-route checks pass on synthetic accounts.",
+        "Two-record JSON round trip works with the AI-owned Python CLI; CSRF rejection is demonstrated."
       ],
-      "outcome": "A running single-backend skeleton, reusable authentication and a short route/context contract.",
-      "avoid": "Django built-in login does not implement ownership checks for your datasets; add those in Sprint 2.",
-      "learn": "Explain how the browser, form, session and view connect.",
+      "outcome": "Express skeleton, session auth, route/template locals contract and two-record CLI round-trip evidence.",
+      "avoid": "Express does not supply complete authentication. Use maintained libraries and explicit ownership checks; W1 is not assigned Python model development.",
+      "learn": "Explain middleware, password hash, server session and the JSON process boundary.",
       "resources": [
         {
-          "label": "Django tutorial",
-          "url": "https://docs.djangoproject.com/en/5.2/intro/tutorial01/",
-          "focus": "Follow the local project and request-routing example; stop before unrelated features."
+          "label": "Express guide",
+          "url": "https://expressjs.com/en/guide/routing.html",
+          "focus": "JavaScript handlers, middleware, server-rendered templates and form validation."
         },
         {
-          "label": "Django authentication",
-          "url": "https://docs.djangoproject.com/en/5.2/topics/auth/default/",
-          "focus": "Use built-in forms, login/logout views and password handling; add object ownership in your own views."
+          "label": "Express session middleware",
+          "url": "https://expressjs.com/en/resources/middleware/session/",
+          "focus": "Session store, cookie settings, regeneration and destruction; add CSRF and ownership checks."
         },
         {
-          "label": "Django forms",
-          "url": "https://docs.djangoproject.com/en/5.2/topics/forms/",
-          "focus": "Connect a form to its view, field errors and a CSRF-protected template."
+          "label": "Express guide",
+          "url": "https://expressjs.com/en/guide/routing.html",
+          "focus": "JavaScript handlers, middleware, server-rendered templates and form validation."
+        },
+        {
+          "label": "Node child processes",
+          "url": "https://nodejs.org/api/child_process.html",
+          "focus": "Asynchronous spawn with fixed executable/args, shell:false, stdin/stdout, error/close handling and process termination."
         }
       ],
       "tools": [
-        "Python virtual environment",
-        "Django",
+        "Node.js/npm (AI provides Python interpreter for CLI calls)",
+        "Node.js / Express",
         "Git",
         "browser"
       ],
-      "starterExercise": "Make a tiny protected hello page before styling it.",
+      "starterExercise": "Serve one protected hello page, then send two records to the AI-owned toy CLI.",
       "snippet": {
         "language": "illustrative contract / pseudocode",
-        "code": "register -> UserCreationForm -> saved account\nlogin -> framework session -> protected home\nPOST logout -> session ended",
+        "code": "POST register -> validate -> password hash -> account\nPOST login -> verify -> regenerate session\nNode spawn(pythonExecutable, [fixedScript], {shell:false})\nstdin JSON -> stdout JSON",
         "note": "Starting pattern only; adapt to the agreed schema. This is not completed application code or measured results."
       },
       "troubleshooting": "Reduce the failing case to the starter fixture, compare expected and actual output, then ask the named reviewer with the input and error. Do not change several layers at once.",
@@ -490,13 +442,8 @@
       "owner": "W2",
       "title": "Set up collaboration and build the small template shell",
       "sp": 3,
-      "depends": [
-        "S1-PLAN"
-      ],
-      "unlocks": [
-        "S2-W2-01",
-        "S5-W1-01"
-      ],
+      "depends": ["S1-PLAN"],
+      "unlocks": ["S2-W2-01", "S5-W1-01"],
       "objective": "Shared repository/board and a reusable HTML/CSS shell with login/registration templates.",
       "priority": "Must",
       "kind": "Delivery",
@@ -504,10 +451,7 @@
       "reviewer": "W3",
       "pair": {
         "member": "W1",
-        "hours": [
-          1,
-          1.5
-        ],
+        "hours": [1, 1.5],
         "mode": "Guided pair on the difficult boundary",
         "plan": "W1 demonstrates one form context and one small PR. W2 implements the remaining shared templates."
       },
@@ -516,20 +460,14 @@
         "high": 8,
         "basis": "Provisional focused owner hours, including learning, task documentation, checks and owner-side pairing. Track actual time; do not infer hours from SP."
       },
-      "reviewHours": [
-        0.25,
-        0.5
-      ],
-      "labels": [
-        "Must",
-        "SP:3"
-      ],
+      "reviewHours": [0.25, 0.5],
+      "labels": ["Must", "SP:3"],
       "steps": [
         "Read the focused resources and do the starter exercise below; stop and ask for help if you cannot explain the result.",
         "Enter actual member names and handles. As proposed owner, create both the GitHub repository and Trello workspace; add all teammates. Prepare the repository link/private-access invitation for the professor.",
         "Create Backlog, In Progress and Done. Add the supplied card text; apply exactly one MoSCoW and one SP label to every card. Record sprint, owner and dependencies in descriptions.",
         "Create a static base layout using supplied screen/component descriptions. Start login, registration and empty dashboard templates using placeholder context.",
-        "Pair with W1 on the Django form context once the skeleton is ready; connect the existing templates using the agreed field/error names.",
+        "Pair with W1 on the Express form locals once the skeleton is ready; connect the existing templates using the agreed field/error names.",
         "Keep only Dashboard, Upload, Evaluation and Help navigation; dataset and result pages are reached from the dashboard. Make narrow screens usable with plain CSS.",
         "Open one small PR; ensure every teammate can make an introductory commit and locate their Sprint 1 card.",
         "Attach the changed file/report, exact input and actual check result to this card. Record actual hours and request the named review before marking Done."
@@ -541,7 +479,7 @@
       ],
       "outcome": "Shared repository/board and a reusable HTML/CSS shell with login/registration templates.",
       "avoid": "Repository ownership is an account responsibility, not a requirement to do other members’ coding.",
-      "learn": "Explain a branch, PR and Django template variable.",
+      "learn": "Explain a branch, PR and EJS template variable.",
       "resources": [
         {
           "label": "GitHub Hello World",
@@ -554,14 +492,14 @@
           "focus": "Use labels, error text and native buttons; keep progressive enhancement small."
         },
         {
-          "label": "Django forms",
-          "url": "https://docs.djangoproject.com/en/5.2/topics/forms/",
-          "focus": "Connect a form to its view, field errors and a CSRF-protected template."
+          "label": "Express guide",
+          "url": "https://expressjs.com/en/guide/routing.html",
+          "focus": "JavaScript handlers, middleware, server-rendered templates and form validation."
         }
       ],
       "tools": [
         "HTML/CSS",
-        "Django templates",
+        "Express-served EJS templates",
         "plain JavaScript",
         "browser",
         "Git"
@@ -569,7 +507,7 @@
       "starterExercise": "Create one trial board card and one form with an inline error.",
       "snippet": {
         "language": "illustrative contract / pseudocode",
-        "code": "template context: form, user, messages\nlabels: Must + SP:3",
+        "code": "template locals: user, messages, csrf_token, values, field_errors\nlabels: Must + SP:3",
         "note": "Starting pattern only; adapt to the agreed schema. This is not completed application code or measured results."
       },
       "troubleshooting": "Reduce the failing case to the starter fixture, compare expected and actual output, then ask the named reviewer with the input and error. Do not change several layers at once.",
@@ -591,26 +529,16 @@
       "owner": "W3",
       "title": "Learn the schema and create the first migrations",
       "sp": 3,
-      "depends": [
-        "S1-PLAN",
-        "S1-W1-01"
-      ],
-      "unlocks": [
-        "S2-W1-01",
-        "S2-W3-01",
-        "S5-W1-01"
-      ],
-      "objective": "Reviewed DBML, first ORM models/migrations and a tiny synthetic fixture.",
+      "depends": ["S1-PLAN", "S1-W1-01"],
+      "unlocks": ["S2-W1-01", "S2-W3-01", "S5-W1-01"],
+      "objective": "Reviewed DBML, versioned SQL migrations and a tiny synthetic fixture.",
       "priority": "Must",
       "kind": "Delivery",
       "status": "Backlog",
       "reviewer": "W1",
       "pair": {
         "member": "W1",
-        "hours": [
-          1,
-          2
-        ],
+        "hours": [1, 2],
         "mode": "Guided pair on the difficult boundary",
         "plan": "Explain migration/foreign-key errors on the tiny fixture, then review W3’s implementation."
       },
@@ -619,21 +547,15 @@
         "high": 8,
         "basis": "Provisional focused owner hours, including learning, task documentation, checks and owner-side pairing. Track actual time; do not infer hours from SP."
       },
-      "reviewHours": [
-        0.25,
-        0.5
-      ],
-      "labels": [
-        "Must",
-        "SP:3"
-      ],
+      "reviewHours": [0.25, 0.5],
+      "labels": ["Must", "SP:3"],
       "steps": [
         "Read the focused resources and do the starter exercise below; stop and ask for help if you cannot explain the result.",
         "Draw Account, Dataset, StudentRecord, PredictionRun and PredictionResult using design/schema.dbml; identify each foreign key and explain ownership.",
         "Complete a two-table practice example with a fake account and dataset. Read it back with an owner-filtered query.",
-        "After W1’s skeleton is available, add the four domain models using Django ORM. Keep feature values in a validated JSON field until the data audit freezes the allowlist.",
-        "Use the framework Account/session tables; do not create a second password table. Add uniqueness for dataset plus source row ID and run plus student record.",
-        "Pair with W1 to create/apply migrations against a fresh SQLite file. Write a synthetic fixture and show it can be read back.",
+        "After W1’s skeleton is available, create Account, Dataset, StudentRecord, PredictionRun and PredictionResult using versioned SQL migrations and parameterized JavaScript queries. Store validated feature JSON as SQLite text; enable foreign keys on each connection.",
+        "Agree the single Account table and password_hash column with W1. Let the session middleware own its store schema; do not create duplicate accounts or password storage. Add dataset/row and run/record uniqueness.",
+        "Pair with W1 to apply migrations to a fresh SQLite file and verify foreign keys are enabled. Insert and reload a synthetic fixture using bound parameters.",
         "Write one page explaining the schema and which invariants are enforced by the service rather than by SQLite.",
         "Attach the changed file/report, exact input and actual check result to this card. Record actual hours and request the named review before marking Done."
       ],
@@ -642,14 +564,14 @@
         "Duplicate row IDs within one dataset are refused.",
         "W3 can explain a dataset’s owner and a result’s run/record relationship."
       ],
-      "outcome": "Reviewed DBML, first ORM models/migrations and a tiny synthetic fixture.",
+      "outcome": "SQL migrations for Account and four domain tables, agreed session-store setup and checked fixture.",
       "avoid": "A JSON field is not input validation; the import service must apply the frozen schema.",
       "learn": "Explain foreign keys and the difference between model definition and stored rows.",
       "resources": [
         {
-          "label": "Django models",
-          "url": "https://docs.djangoproject.com/en/5.2/topics/db/models/",
-          "focus": "Read foreign keys, constraints and model migrations alongside the small schema."
+          "label": "SQLite transactions",
+          "url": "https://www.sqlite.org/lang_transaction.html",
+          "focus": "Use explicit transactions on one connection, bound parameters and enabled foreign keys."
         },
         {
           "label": "DBML syntax",
@@ -658,9 +580,9 @@
         }
       ],
       "tools": [
-        "Django ORM",
+        "SQLite + JavaScript bound queries",
         "SQLite",
-        "Python csv",
+        "JavaScript CSV parser",
         "Git"
       ],
       "starterExercise": "Create and query one fake dataset before writing all models.",
@@ -688,13 +610,8 @@
       "owner": "AI",
       "title": "Sprint 1: write AI’s individual summary",
       "sp": 1,
-      "depends": [
-        "S1-PLAN"
-      ],
-      "unlocks": [
-        "S1-REVIEW",
-        "S5-W1-01"
-      ],
+      "depends": ["S1-PLAN"],
+      "unlocks": ["S1-REVIEW", "S5-W1-01"],
       "objective": "One truthful individual summary for AI, Sprint 1.",
       "priority": "Must",
       "kind": "Scrum",
@@ -702,10 +619,7 @@
       "reviewer": "W3",
       "pair": {
         "member": null,
-        "hours": [
-          0,
-          0
-        ],
+        "hours": [0, 0],
         "mode": "Independent work with review",
         "plan": "Try the starter first. Ask the named reviewer for a focused check of the stated acceptance evidence; escalate a blocker rather than silently enlarging this task."
       },
@@ -714,14 +628,8 @@
         "high": 0.75,
         "basis": "Provisional focused owner hours, including learning, task documentation, checks and owner-side pairing. Track actual time; do not infer hours from SP."
       },
-      "reviewHours": [
-        0,
-        0
-      ],
-      "labels": [
-        "Must",
-        "SP:1"
-      ],
+      "reviewHours": [0, 0],
+      "labels": ["Must", "SP:1"],
       "steps": [
         "Read the focused resources and do the starter exercise below; stop and ask for help if you cannot explain the result.",
         "List committed tasks, actual progress and evidence links; unfinished work stays unfinished.",
@@ -743,11 +651,7 @@
           "focus": "Read the sprint goal, backlog, review and retrospective; retain the course-required individual summaries."
         }
       ],
-      "tools": [
-        "Markdown",
-        "shared board",
-        "GitHub"
-      ],
+      "tools": ["Markdown", "shared board", "GitHub"],
       "starterExercise": "Write three bullets: built, learned, blocked.",
       "snippet": {
         "language": "illustrative contract / pseudocode",
@@ -773,13 +677,8 @@
       "owner": "ST",
       "title": "Sprint 1: write ST’s individual summary",
       "sp": 1,
-      "depends": [
-        "S1-PLAN"
-      ],
-      "unlocks": [
-        "S1-REVIEW",
-        "S5-W1-01"
-      ],
+      "depends": ["S1-PLAN"],
+      "unlocks": ["S1-REVIEW", "S5-W1-01"],
       "objective": "One truthful individual summary for ST, Sprint 1.",
       "priority": "Must",
       "kind": "Scrum",
@@ -787,10 +686,7 @@
       "reviewer": "W3",
       "pair": {
         "member": null,
-        "hours": [
-          0,
-          0
-        ],
+        "hours": [0, 0],
         "mode": "Independent work with review",
         "plan": "Try the starter first. Ask the named reviewer for a focused check of the stated acceptance evidence; escalate a blocker rather than silently enlarging this task."
       },
@@ -799,14 +695,8 @@
         "high": 0.75,
         "basis": "Provisional focused owner hours, including learning, task documentation, checks and owner-side pairing. Track actual time; do not infer hours from SP."
       },
-      "reviewHours": [
-        0,
-        0
-      ],
-      "labels": [
-        "Must",
-        "SP:1"
-      ],
+      "reviewHours": [0, 0],
+      "labels": ["Must", "SP:1"],
       "steps": [
         "Read the focused resources and do the starter exercise below; stop and ask for help if you cannot explain the result.",
         "List committed tasks, actual progress and evidence links; unfinished work stays unfinished.",
@@ -828,11 +718,7 @@
           "focus": "Read the sprint goal, backlog, review and retrospective; retain the course-required individual summaries."
         }
       ],
-      "tools": [
-        "Markdown",
-        "shared board",
-        "GitHub"
-      ],
+      "tools": ["Markdown", "shared board", "GitHub"],
       "starterExercise": "Write three bullets: built, learned, blocked.",
       "snippet": {
         "language": "illustrative contract / pseudocode",
@@ -858,13 +744,8 @@
       "owner": "W1",
       "title": "Sprint 1: write W1’s individual summary",
       "sp": 1,
-      "depends": [
-        "S1-PLAN"
-      ],
-      "unlocks": [
-        "S1-REVIEW",
-        "S5-W1-01"
-      ],
+      "depends": ["S1-PLAN"],
+      "unlocks": ["S1-REVIEW", "S5-W1-01"],
       "objective": "One truthful individual summary for W1, Sprint 1.",
       "priority": "Must",
       "kind": "Scrum",
@@ -872,10 +753,7 @@
       "reviewer": "W3",
       "pair": {
         "member": null,
-        "hours": [
-          0,
-          0
-        ],
+        "hours": [0, 0],
         "mode": "Independent work with review",
         "plan": "Try the starter first. Ask the named reviewer for a focused check of the stated acceptance evidence; escalate a blocker rather than silently enlarging this task."
       },
@@ -884,14 +762,8 @@
         "high": 0.75,
         "basis": "Provisional focused owner hours, including learning, task documentation, checks and owner-side pairing. Track actual time; do not infer hours from SP."
       },
-      "reviewHours": [
-        0,
-        0
-      ],
-      "labels": [
-        "Must",
-        "SP:1"
-      ],
+      "reviewHours": [0, 0],
+      "labels": ["Must", "SP:1"],
       "steps": [
         "Read the focused resources and do the starter exercise below; stop and ask for help if you cannot explain the result.",
         "List committed tasks, actual progress and evidence links; unfinished work stays unfinished.",
@@ -913,11 +785,7 @@
           "focus": "Read the sprint goal, backlog, review and retrospective; retain the course-required individual summaries."
         }
       ],
-      "tools": [
-        "Markdown",
-        "shared board",
-        "GitHub"
-      ],
+      "tools": ["Markdown", "shared board", "GitHub"],
       "starterExercise": "Write three bullets: built, learned, blocked.",
       "snippet": {
         "language": "illustrative contract / pseudocode",
@@ -943,13 +811,8 @@
       "owner": "W2",
       "title": "Sprint 1: write W2’s individual summary",
       "sp": 1,
-      "depends": [
-        "S1-PLAN"
-      ],
-      "unlocks": [
-        "S1-REVIEW",
-        "S5-W1-01"
-      ],
+      "depends": ["S1-PLAN"],
+      "unlocks": ["S1-REVIEW", "S5-W1-01"],
       "objective": "One truthful individual summary for W2, Sprint 1.",
       "priority": "Must",
       "kind": "Scrum",
@@ -957,10 +820,7 @@
       "reviewer": "W3",
       "pair": {
         "member": null,
-        "hours": [
-          0,
-          0
-        ],
+        "hours": [0, 0],
         "mode": "Independent work with review",
         "plan": "Try the starter first. Ask the named reviewer for a focused check of the stated acceptance evidence; escalate a blocker rather than silently enlarging this task."
       },
@@ -969,14 +829,8 @@
         "high": 0.75,
         "basis": "Provisional focused owner hours, including learning, task documentation, checks and owner-side pairing. Track actual time; do not infer hours from SP."
       },
-      "reviewHours": [
-        0,
-        0
-      ],
-      "labels": [
-        "Must",
-        "SP:1"
-      ],
+      "reviewHours": [0, 0],
+      "labels": ["Must", "SP:1"],
       "steps": [
         "Read the focused resources and do the starter exercise below; stop and ask for help if you cannot explain the result.",
         "List committed tasks, actual progress and evidence links; unfinished work stays unfinished.",
@@ -998,11 +852,7 @@
           "focus": "Read the sprint goal, backlog, review and retrospective; retain the course-required individual summaries."
         }
       ],
-      "tools": [
-        "Markdown",
-        "shared board",
-        "GitHub"
-      ],
+      "tools": ["Markdown", "shared board", "GitHub"],
       "starterExercise": "Write three bullets: built, learned, blocked.",
       "snippet": {
         "language": "illustrative contract / pseudocode",
@@ -1028,13 +878,8 @@
       "owner": "W3",
       "title": "Sprint 1: write W3’s individual summary",
       "sp": 1,
-      "depends": [
-        "S1-PLAN"
-      ],
-      "unlocks": [
-        "S1-REVIEW",
-        "S5-W1-01"
-      ],
+      "depends": ["S1-PLAN"],
+      "unlocks": ["S1-REVIEW", "S5-W1-01"],
       "objective": "One truthful individual summary for W3, Sprint 1.",
       "priority": "Must",
       "kind": "Scrum",
@@ -1042,10 +887,7 @@
       "reviewer": "W1",
       "pair": {
         "member": null,
-        "hours": [
-          0,
-          0
-        ],
+        "hours": [0, 0],
         "mode": "Independent work with review",
         "plan": "Try the starter first. Ask the named reviewer for a focused check of the stated acceptance evidence; escalate a blocker rather than silently enlarging this task."
       },
@@ -1054,14 +896,8 @@
         "high": 0.75,
         "basis": "Provisional focused owner hours, including learning, task documentation, checks and owner-side pairing. Track actual time; do not infer hours from SP."
       },
-      "reviewHours": [
-        0,
-        0
-      ],
-      "labels": [
-        "Must",
-        "SP:1"
-      ],
+      "reviewHours": [0, 0],
+      "labels": ["Must", "SP:1"],
       "steps": [
         "Read the focused resources and do the starter exercise below; stop and ask for help if you cannot explain the result.",
         "List committed tasks, actual progress and evidence links; unfinished work stays unfinished.",
@@ -1083,11 +919,7 @@
           "focus": "Read the sprint goal, backlog, review and retrospective; retain the course-required individual summaries."
         }
       ],
-      "tools": [
-        "Markdown",
-        "shared board",
-        "GitHub"
-      ],
+      "tools": ["Markdown", "shared board", "GitHub"],
       "starterExercise": "Write three bullets: built, learned, blocked.",
       "snippet": {
         "language": "illustrative contract / pseudocode",
@@ -1121,10 +953,7 @@
         "S1-AI-SUMMARY",
         "S1-ST-SUMMARY"
       ],
-      "unlocks": [
-        "S2-PLAN",
-        "S5-W1-01"
-      ],
+      "unlocks": ["S2-PLAN", "S5-W1-01"],
       "objective": "One Sprint 1 review/retrospective record with actual feedback and follow-up.",
       "priority": "Must",
       "kind": "Scrum",
@@ -1132,10 +961,7 @@
       "reviewer": "W1",
       "pair": {
         "member": null,
-        "hours": [
-          0,
-          0
-        ],
+        "hours": [0, 0],
         "mode": "Independent work with review",
         "plan": "Try the starter first. Ask the named reviewer for a focused check of the stated acceptance evidence; escalate a blocker rather than silently enlarging this task."
       },
@@ -1144,14 +970,8 @@
         "high": 0.75,
         "basis": "Provisional focused owner hours, including learning, task documentation, checks and owner-side pairing. Track actual time; do not infer hours from SP."
       },
-      "reviewHours": [
-        0,
-        0
-      ],
-      "labels": [
-        "Must",
-        "SP:1"
-      ],
+      "reviewHours": [0, 0],
+      "labels": ["Must", "SP:1"],
       "steps": [
         "Read the focused resources and do the starter exercise below; stop and ask for help if you cannot explain the result.",
         "Demo actual working behavior to the professor/team at the two-week checkpoint; show known gaps honestly.",
@@ -1173,11 +993,7 @@
           "focus": "Read the sprint goal, backlog, review and retrospective; retain the course-required individual summaries."
         }
       ],
-      "tools": [
-        "Markdown",
-        "shared board",
-        "GitHub"
-      ],
+      "tools": ["Markdown", "shared board", "GitHub"],
       "starterExercise": "Show one working action and one limitation.",
       "snippet": {
         "language": "illustrative contract / pseudocode",
@@ -1203,9 +1019,7 @@
       "owner": "W2",
       "title": "Sprint 2: agree and record the team backlog",
       "sp": 1,
-      "depends": [
-        "S1-REVIEW"
-      ],
+      "depends": ["S1-REVIEW"],
       "unlocks": [
         "S2-AI-01",
         "S2-ST-01",
@@ -1227,10 +1041,7 @@
       "reviewer": "AI",
       "pair": {
         "member": null,
-        "hours": [
-          0,
-          0
-        ],
+        "hours": [0, 0],
         "mode": "Independent work with review",
         "plan": "Try the starter first. Ask the named reviewer for a focused check of the stated acceptance evidence; escalate a blocker rather than silently enlarging this task."
       },
@@ -1239,14 +1050,8 @@
         "high": 0.75,
         "basis": "Provisional focused owner hours, including learning, task documentation, checks and owner-side pairing. Track actual time; do not infer hours from SP."
       },
-      "reviewHours": [
-        0,
-        0
-      ],
-      "labels": [
-        "Must",
-        "SP:1"
-      ],
+      "reviewHours": [0, 0],
+      "labels": ["Must", "SP:1"],
       "steps": [
         "Read the focused resources and do the starter exercise below; stop and ask for help if you cannot explain the result.",
         "Collect actual available hours from every member; subtract meetings/support/review and keep 20% uncommitted.",
@@ -1269,11 +1074,7 @@
           "focus": "Read the sprint goal, backlog, review and retrospective; retain the course-required individual summaries."
         }
       ],
-      "tools": [
-        "Markdown",
-        "shared board",
-        "GitHub"
-      ],
+      "tools": ["Markdown", "shared board", "GitHub"],
       "starterExercise": "Have each member state available hours before selecting cards.",
       "snippet": {
         "language": "illustrative contract / pseudocode",
@@ -1299,17 +1100,8 @@
       "owner": "AI",
       "title": "Create fixed splits and train baseline plus logistic regression",
       "sp": 5,
-      "depends": [
-        "S2-PLAN",
-        "S1-AI-01",
-        "S1-ST-01"
-      ],
-      "unlocks": [
-        "S2-ST-01",
-        "S3-AI-01",
-        "S3-ST-01",
-        "S5-W1-01"
-      ],
+      "depends": ["S2-PLAN", "S1-AI-01", "S1-ST-01"],
+      "unlocks": ["S2-ST-01", "S3-AI-01", "S3-ST-01", "S5-W1-01"],
       "objective": "Reproducible baseline/logistic training and validation-only predictions.",
       "priority": "Must",
       "kind": "Delivery",
@@ -1317,10 +1109,7 @@
       "reviewer": "ST",
       "pair": {
         "member": null,
-        "hours": [
-          0,
-          0
-        ],
+        "hours": [0, 0],
         "mode": "Independent work with review",
         "plan": "Try the starter first. Ask the named reviewer for a focused check of the stated acceptance evidence; escalate a blocker rather than silently enlarging this task."
       },
@@ -1329,14 +1118,8 @@
         "high": 10,
         "basis": "Provisional focused owner hours, including learning, task documentation, checks and owner-side pairing. Track actual time; do not infer hours from SP."
       },
-      "reviewHours": [
-        0.25,
-        0.5
-      ],
-      "labels": [
-        "Must",
-        "SP:5"
-      ],
+      "reviewHours": [0.25, 0.5],
+      "labels": ["Must", "SP:5"],
       "steps": [
         "Read the focused resources and do the starter exercise below; stop and ask for help if you cannot explain the result.",
         "Create stable row IDs and group exact duplicate observations before splitting. Save train/validation/test ID manifests, seed and source hash; verify disjointness.",
@@ -1404,16 +1187,8 @@
       "owner": "ST",
       "title": "Check descriptive statistics and validation metrics independently",
       "sp": 3,
-      "depends": [
-        "S2-PLAN",
-        "S1-ST-01",
-        "S1-AI-01",
-        "S2-AI-01"
-      ],
-      "unlocks": [
-        "S3-ST-01",
-        "S5-W1-01"
-      ],
+      "depends": ["S2-PLAN", "S1-ST-01", "S1-AI-01", "S2-AI-01"],
+      "unlocks": ["S3-ST-01", "S5-W1-01"],
       "objective": "Checked descriptive-statistics fixture and independent baseline/logistic validation report.",
       "priority": "Must",
       "kind": "Delivery",
@@ -1421,10 +1196,7 @@
       "reviewer": "AI",
       "pair": {
         "member": null,
-        "hours": [
-          0,
-          0
-        ],
+        "hours": [0, 0],
         "mode": "Independent work with review",
         "plan": "Try the starter first. Ask the named reviewer for a focused check of the stated acceptance evidence; escalate a blocker rather than silently enlarging this task."
       },
@@ -1433,14 +1205,8 @@
         "high": 8,
         "basis": "Provisional focused owner hours, including learning, task documentation, checks and owner-side pairing. Track actual time; do not infer hours from SP."
       },
-      "reviewHours": [
-        0.25,
-        0.5
-      ],
-      "labels": [
-        "Must",
-        "SP:3"
-      ],
+      "reviewHours": [0.25, 0.5],
+      "labels": ["Must", "SP:3"],
       "steps": [
         "Read the focused resources and do the starter exercise below; stop and ask for help if you cannot explain the result.",
         "Use a five-row synthetic sample to calculate count and mean/min/max G1. Give W2/W3 the expected values and distinguish them from final-grade evaluation.",
@@ -1501,17 +1267,8 @@
       "owner": "W1",
       "title": "Connect owner-protected dataset views and review import integration",
       "sp": 5,
-      "depends": [
-        "S2-PLAN",
-        "S1-W1-01",
-        "S1-W3-01",
-        "S1-AI-01",
-        "S2-W3-01"
-      ],
-      "unlocks": [
-        "S3-W1-01",
-        "S5-W1-01"
-      ],
+      "depends": ["S2-PLAN", "S1-W1-01", "S1-W3-01", "S1-AI-01", "S2-W3-01"],
+      "unlocks": ["S3-W1-01", "S5-W1-01"],
       "objective": "A working authenticated CSV-to-dataset journey with server-enforced ownership.",
       "priority": "Must",
       "kind": "Delivery",
@@ -1519,10 +1276,7 @@
       "reviewer": "W3",
       "pair": {
         "member": null,
-        "hours": [
-          0,
-          0
-        ],
+        "hours": [0, 0],
         "mode": "Independent work with review",
         "plan": "Try the starter first. Ask the named reviewer for a focused check of the stated acceptance evidence; escalate a blocker rather than silently enlarging this task."
       },
@@ -1531,14 +1285,8 @@
         "high": 10,
         "basis": "Provisional focused owner hours, including learning, task documentation, checks and owner-side pairing. Track actual time; do not infer hours from SP."
       },
-      "reviewHours": [
-        0.25,
-        0.5
-      ],
-      "labels": [
-        "Must",
-        "SP:5"
-      ],
+      "reviewHours": [0.25, 0.5],
+      "labels": ["Must", "SP:5"],
       "steps": [
         "Read the focused resources and do the starter exercise below; stop and ask for help if you cannot explain the result.",
         "Create list/detail/upload view boundaries from docs/routes-and-contracts.md; always derive user ownership from the authenticated session.",
@@ -1559,31 +1307,31 @@
       "learn": "Explain why the server rechecks ownership on every object request.",
       "resources": [
         {
-          "label": "Django authentication",
-          "url": "https://docs.djangoproject.com/en/5.2/topics/auth/default/",
-          "focus": "Use built-in forms, login/logout views and password handling; add object ownership in your own views."
+          "label": "Express session middleware",
+          "url": "https://expressjs.com/en/resources/middleware/session/",
+          "focus": "Session store, cookie settings, regeneration and destruction; add CSRF and ownership checks."
         },
         {
-          "label": "Django forms",
-          "url": "https://docs.djangoproject.com/en/5.2/topics/forms/",
-          "focus": "Connect a form to its view, field errors and a CSRF-protected template."
+          "label": "Express guide",
+          "url": "https://expressjs.com/en/guide/routing.html",
+          "focus": "JavaScript handlers, middleware, server-rendered templates and form validation."
         },
         {
-          "label": "Database transactions",
-          "url": "https://docs.djangoproject.com/en/5.2/topics/db/transactions/",
-          "focus": "Study transaction.atomic and the effect of an exception on grouped writes."
+          "label": "SQLite transactions",
+          "url": "https://www.sqlite.org/lang_transaction.html",
+          "focus": "Use explicit transactions on one connection, bound parameters and enabled foreign keys."
         }
       ],
       "tools": [
-        "Python virtual environment",
-        "Django",
+        "Node.js/npm (AI provides Python interpreter for CLI calls)",
+        "Node.js / Express",
         "Git",
         "browser"
       ],
       "starterExercise": "Read an owned dataset and reject a different account’s ID.",
       "snippet": {
         "language": "illustrative contract / pseudocode",
-        "code": "dataset = get_object_or_404(Dataset, pk=id, owner=request.user)\n# Apply the same owner filter to every related request.",
+        "code": "dataset = get_object_or_404(Dataset, pk=id, owner=req.session.userId)\n# Apply the same owner filter to every related request.",
         "note": "Starting pattern only; adapt to the agreed schema. This is not completed application code or measured results."
       },
       "troubleshooting": "Reduce the failing case to the starter fixture, compare expected and actual output, then ask the named reviewer with the input and error. Do not change several layers at once.",
@@ -1605,15 +1353,8 @@
       "owner": "W2",
       "title": "Build upload, dataset list and basic statistics screens",
       "sp": 3,
-      "depends": [
-        "S2-PLAN",
-        "S1-W2-01",
-        "S1-AI-01"
-      ],
-      "unlocks": [
-        "S3-W2-01",
-        "S5-W1-01"
-      ],
+      "depends": ["S2-PLAN", "S1-W2-01", "S1-AI-01"],
+      "unlocks": ["S3-W2-01", "S5-W1-01"],
       "objective": "Usable upload, dataset list/detail and basic statistics templates.",
       "priority": "Must",
       "kind": "Delivery",
@@ -1621,10 +1362,7 @@
       "reviewer": "W1",
       "pair": {
         "member": null,
-        "hours": [
-          0,
-          0
-        ],
+        "hours": [0, 0],
         "mode": "Independent work with review",
         "plan": "Try the starter first. Ask the named reviewer for a focused check of the stated acceptance evidence; escalate a blocker rather than silently enlarging this task."
       },
@@ -1633,18 +1371,12 @@
         "high": 8,
         "basis": "Provisional focused owner hours, including learning, task documentation, checks and owner-side pairing. Track actual time; do not infer hours from SP."
       },
-      "reviewHours": [
-        0.25,
-        0.5
-      ],
-      "labels": [
-        "Must",
-        "SP:3"
-      ],
+      "reviewHours": [0.25, 0.5],
+      "labels": ["Must", "SP:3"],
       "steps": [
         "Read the focused resources and do the starter exercise below; stop and ask for help if you cannot explain the result.",
         "Use synthetic context first to build dashboard dataset rows and the upload form; no advanced filters, charts or export controls.",
-        "Display the exact accepted schema, 1 MiB/500-row cap, and a native file picker. Add multipart encoding and CSRF when connected to Django.",
+        "Display the exact accepted schema, 1 MiB/500-row cap, and a native file picker. Add multipart encoding and a CSRF token when connected to Express.",
         "Render server errors with row, column and reason; focus the error summary and retain the selected file name only when feasible. Ask users to reselect after a failed page submission.",
         "On dataset detail, display record count and mean/min/max G1 (or the audited prior-grade feature), clearly labelled as observed input statistics.",
         "Add plain previous/next paging (25 rows) for the dataset table and dataset list; preserve dataset identity in links. This is bounded navigation, not advanced search.",
@@ -1666,19 +1398,19 @@
           "focus": "Use labels, error text and native buttons; keep progressive enhancement small."
         },
         {
-          "label": "Django forms",
-          "url": "https://docs.djangoproject.com/en/5.2/topics/forms/",
-          "focus": "Connect a form to its view, field errors and a CSRF-protected template."
+          "label": "Express guide",
+          "url": "https://expressjs.com/en/guide/routing.html",
+          "focus": "JavaScript handlers, middleware, server-rendered templates and form validation."
         },
         {
-          "label": "Django file uploads",
-          "url": "https://docs.djangoproject.com/en/5.2/topics/http/file-uploads/",
-          "focus": "Use request.FILES and multipart forms; enforce our own size, row and schema limits."
+          "label": "Express guide",
+          "url": "https://expressjs.com/en/guide/routing.html",
+          "focus": "JavaScript handlers, middleware, server-rendered templates and form validation."
         }
       ],
       "tools": [
         "HTML/CSS",
-        "Django templates",
+        "Express-served EJS templates",
         "plain JavaScript",
         "browser",
         "Git"
@@ -1708,18 +1440,8 @@
       "owner": "W3",
       "title": "Implement one validated, atomic CSV import",
       "sp": 5,
-      "depends": [
-        "S2-PLAN",
-        "S1-W3-01",
-        "S1-AI-01"
-      ],
-      "unlocks": [
-        "S2-W1-01",
-        "S3-W1-01",
-        "S3-W3-01",
-        "S4-W3-01",
-        "S5-W1-01"
-      ],
+      "depends": ["S2-PLAN", "S1-W3-01", "S1-AI-01"],
+      "unlocks": ["S2-W1-01", "S3-W1-01", "S3-W3-01", "S4-W3-01", "S5-W1-01"],
       "objective": "One-step import service and explicit input-error/atomicity evidence.",
       "priority": "Must",
       "kind": "Delivery",
@@ -1727,10 +1449,7 @@
       "reviewer": "W1",
       "pair": {
         "member": "W1",
-        "hours": [
-          1,
-          2
-        ],
+        "hours": [1, 2],
         "mode": "Guided pair on the difficult boundary",
         "plan": "Walk through rollback with two inserts; W3 owns parser and model code, W1 reviews the boundary."
       },
@@ -1739,20 +1458,14 @@
         "high": 10,
         "basis": "Provisional focused owner hours, including learning, task documentation, checks and owner-side pairing. Track actual time; do not infer hours from SP."
       },
-      "reviewHours": [
-        0.25,
-        0.5
-      ],
-      "labels": [
-        "Must",
-        "SP:5"
-      ],
+      "reviewHours": [0.25, 0.5],
+      "labels": ["Must", "SP:5"],
       "steps": [
         "Read the focused resources and do the starter exercise below; stop and ask for help if you cannot explain the result.",
-        "Implement Python csv.DictReader against schema-v1.json. Enforce .csv, UTF-8 text, exact headers, 1 MiB and 1–500 data rows; reject binary/malformed content even if its extension is .csv.",
+        "Implement a maintained JavaScript CSV parser against schema-v1.json. Enforce .csv, UTF-8, exact headers, 1 MiB and 1–500 data rows; reject binary/malformed content regardless of extension.",
         "Validate unique synthetic source_row_id values, no blanks, numeric types, finite values, ranges and the exact approved feature allowlist. G2/G3 or personal identifiers are unsupported in application uploads.",
         "Collect a bounded list of useful row/column errors. Validate all rows before any database insert; do not silently skip bad rows or invent missing values.",
-        "Within transaction.atomic create Dataset and StudentRecord rows. Use request.user provided by the trusted view, never an owner supplied in CSV.",
+        "Within one SQLite transaction on the same connection, create Dataset and all StudentRecord rows using bound parameters. The trusted Express handler supplies the authenticated user ID; never accept owner_id from CSV or browser.",
         "Discard raw upload bytes after parsing; store only approved values. Document that deliberate repeat uploads create separate datasets; no hash/deduplication service is promised.",
         "Pair with W1 on injected insert failure; test empty, oversized, malformed, out-of-range, duplicate ID and valid files. Write the import contract and a synthetic fixture.",
         "Attach the changed file/report, exact input and actual check result to this card. Record actual hours and request the named review before marking Done."
@@ -1772,26 +1485,26 @@
           "focus": "Use DictReader for the application CSV; reject malformed headers and rows."
         },
         {
-          "label": "Django file uploads",
-          "url": "https://docs.djangoproject.com/en/5.2/topics/http/file-uploads/",
-          "focus": "Use request.FILES and multipart forms; enforce our own size, row and schema limits."
+          "label": "Express guide",
+          "url": "https://expressjs.com/en/guide/routing.html",
+          "focus": "JavaScript handlers, middleware, server-rendered templates and form validation."
         },
         {
-          "label": "Database transactions",
-          "url": "https://docs.djangoproject.com/en/5.2/topics/db/transactions/",
-          "focus": "Study transaction.atomic and the effect of an exception on grouped writes."
+          "label": "SQLite transactions",
+          "url": "https://www.sqlite.org/lang_transaction.html",
+          "focus": "Use explicit transactions on one connection, bound parameters and enabled foreign keys."
         }
       ],
       "tools": [
-        "Django ORM",
+        "SQLite + JavaScript bound queries",
         "SQLite",
-        "Python csv",
+        "JavaScript CSV parser",
         "Git"
       ],
       "starterExercise": "Parse two valid rows, then make one G1 value invalid and prove zero inserts.",
       "snippet": {
         "language": "illustrative contract / pseudocode",
-        "code": "validated_rows = validate_all(csv_file, schema)\nwith transaction.atomic():\n    dataset = create_dataset(owner=user)\n    save_all_rows(dataset, validated_rows)",
+        "code": "rows = validateAll(csvFile, schema)\nBEGIN transaction on one connection\ncreateDataset(authenticatedUserId)\ninsertAllRowsWithBoundParameters(rows)\nCOMMIT; on error ROLLBACK",
         "note": "Starting pattern only; adapt to the agreed schema. This is not completed application code or measured results."
       },
       "troubleshooting": "Reduce the failing case to the starter fixture, compare expected and actual output, then ask the named reviewer with the input and error. Do not change several layers at once.",
@@ -1813,13 +1526,8 @@
       "owner": "AI",
       "title": "Sprint 2: write AI’s individual summary",
       "sp": 1,
-      "depends": [
-        "S2-PLAN"
-      ],
-      "unlocks": [
-        "S2-REVIEW",
-        "S5-W1-01"
-      ],
+      "depends": ["S2-PLAN"],
+      "unlocks": ["S2-REVIEW", "S5-W1-01"],
       "objective": "One truthful individual summary for AI, Sprint 2.",
       "priority": "Must",
       "kind": "Scrum",
@@ -1827,10 +1535,7 @@
       "reviewer": "W2",
       "pair": {
         "member": null,
-        "hours": [
-          0,
-          0
-        ],
+        "hours": [0, 0],
         "mode": "Independent work with review",
         "plan": "Try the starter first. Ask the named reviewer for a focused check of the stated acceptance evidence; escalate a blocker rather than silently enlarging this task."
       },
@@ -1839,14 +1544,8 @@
         "high": 0.75,
         "basis": "Provisional focused owner hours, including learning, task documentation, checks and owner-side pairing. Track actual time; do not infer hours from SP."
       },
-      "reviewHours": [
-        0,
-        0
-      ],
-      "labels": [
-        "Must",
-        "SP:1"
-      ],
+      "reviewHours": [0, 0],
+      "labels": ["Must", "SP:1"],
       "steps": [
         "Read the focused resources and do the starter exercise below; stop and ask for help if you cannot explain the result.",
         "List committed tasks, actual progress and evidence links; unfinished work stays unfinished.",
@@ -1868,11 +1567,7 @@
           "focus": "Read the sprint goal, backlog, review and retrospective; retain the course-required individual summaries."
         }
       ],
-      "tools": [
-        "Markdown",
-        "shared board",
-        "GitHub"
-      ],
+      "tools": ["Markdown", "shared board", "GitHub"],
       "starterExercise": "Write three bullets: built, learned, blocked.",
       "snippet": {
         "language": "illustrative contract / pseudocode",
@@ -1898,13 +1593,8 @@
       "owner": "ST",
       "title": "Sprint 2: write ST’s individual summary",
       "sp": 1,
-      "depends": [
-        "S2-PLAN"
-      ],
-      "unlocks": [
-        "S2-REVIEW",
-        "S5-W1-01"
-      ],
+      "depends": ["S2-PLAN"],
+      "unlocks": ["S2-REVIEW", "S5-W1-01"],
       "objective": "One truthful individual summary for ST, Sprint 2.",
       "priority": "Must",
       "kind": "Scrum",
@@ -1912,10 +1602,7 @@
       "reviewer": "AI",
       "pair": {
         "member": null,
-        "hours": [
-          0,
-          0
-        ],
+        "hours": [0, 0],
         "mode": "Independent work with review",
         "plan": "Try the starter first. Ask the named reviewer for a focused check of the stated acceptance evidence; escalate a blocker rather than silently enlarging this task."
       },
@@ -1924,14 +1611,8 @@
         "high": 0.75,
         "basis": "Provisional focused owner hours, including learning, task documentation, checks and owner-side pairing. Track actual time; do not infer hours from SP."
       },
-      "reviewHours": [
-        0,
-        0
-      ],
-      "labels": [
-        "Must",
-        "SP:1"
-      ],
+      "reviewHours": [0, 0],
+      "labels": ["Must", "SP:1"],
       "steps": [
         "Read the focused resources and do the starter exercise below; stop and ask for help if you cannot explain the result.",
         "List committed tasks, actual progress and evidence links; unfinished work stays unfinished.",
@@ -1953,11 +1634,7 @@
           "focus": "Read the sprint goal, backlog, review and retrospective; retain the course-required individual summaries."
         }
       ],
-      "tools": [
-        "Markdown",
-        "shared board",
-        "GitHub"
-      ],
+      "tools": ["Markdown", "shared board", "GitHub"],
       "starterExercise": "Write three bullets: built, learned, blocked.",
       "snippet": {
         "language": "illustrative contract / pseudocode",
@@ -1983,13 +1660,8 @@
       "owner": "W1",
       "title": "Sprint 2: write W1’s individual summary",
       "sp": 1,
-      "depends": [
-        "S2-PLAN"
-      ],
-      "unlocks": [
-        "S2-REVIEW",
-        "S5-W1-01"
-      ],
+      "depends": ["S2-PLAN"],
+      "unlocks": ["S2-REVIEW", "S5-W1-01"],
       "objective": "One truthful individual summary for W1, Sprint 2.",
       "priority": "Must",
       "kind": "Scrum",
@@ -1997,10 +1669,7 @@
       "reviewer": "AI",
       "pair": {
         "member": null,
-        "hours": [
-          0,
-          0
-        ],
+        "hours": [0, 0],
         "mode": "Independent work with review",
         "plan": "Try the starter first. Ask the named reviewer for a focused check of the stated acceptance evidence; escalate a blocker rather than silently enlarging this task."
       },
@@ -2009,14 +1678,8 @@
         "high": 0.75,
         "basis": "Provisional focused owner hours, including learning, task documentation, checks and owner-side pairing. Track actual time; do not infer hours from SP."
       },
-      "reviewHours": [
-        0,
-        0
-      ],
-      "labels": [
-        "Must",
-        "SP:1"
-      ],
+      "reviewHours": [0, 0],
+      "labels": ["Must", "SP:1"],
       "steps": [
         "Read the focused resources and do the starter exercise below; stop and ask for help if you cannot explain the result.",
         "List committed tasks, actual progress and evidence links; unfinished work stays unfinished.",
@@ -2038,11 +1701,7 @@
           "focus": "Read the sprint goal, backlog, review and retrospective; retain the course-required individual summaries."
         }
       ],
-      "tools": [
-        "Markdown",
-        "shared board",
-        "GitHub"
-      ],
+      "tools": ["Markdown", "shared board", "GitHub"],
       "starterExercise": "Write three bullets: built, learned, blocked.",
       "snippet": {
         "language": "illustrative contract / pseudocode",
@@ -2068,13 +1727,8 @@
       "owner": "W2",
       "title": "Sprint 2: write W2’s individual summary",
       "sp": 1,
-      "depends": [
-        "S2-PLAN"
-      ],
-      "unlocks": [
-        "S2-REVIEW",
-        "S5-W1-01"
-      ],
+      "depends": ["S2-PLAN"],
+      "unlocks": ["S2-REVIEW", "S5-W1-01"],
       "objective": "One truthful individual summary for W2, Sprint 2.",
       "priority": "Must",
       "kind": "Scrum",
@@ -2082,10 +1736,7 @@
       "reviewer": "AI",
       "pair": {
         "member": null,
-        "hours": [
-          0,
-          0
-        ],
+        "hours": [0, 0],
         "mode": "Independent work with review",
         "plan": "Try the starter first. Ask the named reviewer for a focused check of the stated acceptance evidence; escalate a blocker rather than silently enlarging this task."
       },
@@ -2094,14 +1745,8 @@
         "high": 0.75,
         "basis": "Provisional focused owner hours, including learning, task documentation, checks and owner-side pairing. Track actual time; do not infer hours from SP."
       },
-      "reviewHours": [
-        0,
-        0
-      ],
-      "labels": [
-        "Must",
-        "SP:1"
-      ],
+      "reviewHours": [0, 0],
+      "labels": ["Must", "SP:1"],
       "steps": [
         "Read the focused resources and do the starter exercise below; stop and ask for help if you cannot explain the result.",
         "List committed tasks, actual progress and evidence links; unfinished work stays unfinished.",
@@ -2123,11 +1768,7 @@
           "focus": "Read the sprint goal, backlog, review and retrospective; retain the course-required individual summaries."
         }
       ],
-      "tools": [
-        "Markdown",
-        "shared board",
-        "GitHub"
-      ],
+      "tools": ["Markdown", "shared board", "GitHub"],
       "starterExercise": "Write three bullets: built, learned, blocked.",
       "snippet": {
         "language": "illustrative contract / pseudocode",
@@ -2153,13 +1794,8 @@
       "owner": "W3",
       "title": "Sprint 2: write W3’s individual summary",
       "sp": 1,
-      "depends": [
-        "S2-PLAN"
-      ],
-      "unlocks": [
-        "S2-REVIEW",
-        "S5-W1-01"
-      ],
+      "depends": ["S2-PLAN"],
+      "unlocks": ["S2-REVIEW", "S5-W1-01"],
       "objective": "One truthful individual summary for W3, Sprint 2.",
       "priority": "Must",
       "kind": "Scrum",
@@ -2167,10 +1803,7 @@
       "reviewer": "AI",
       "pair": {
         "member": null,
-        "hours": [
-          0,
-          0
-        ],
+        "hours": [0, 0],
         "mode": "Independent work with review",
         "plan": "Try the starter first. Ask the named reviewer for a focused check of the stated acceptance evidence; escalate a blocker rather than silently enlarging this task."
       },
@@ -2179,14 +1812,8 @@
         "high": 0.75,
         "basis": "Provisional focused owner hours, including learning, task documentation, checks and owner-side pairing. Track actual time; do not infer hours from SP."
       },
-      "reviewHours": [
-        0,
-        0
-      ],
-      "labels": [
-        "Must",
-        "SP:1"
-      ],
+      "reviewHours": [0, 0],
+      "labels": ["Must", "SP:1"],
       "steps": [
         "Read the focused resources and do the starter exercise below; stop and ask for help if you cannot explain the result.",
         "List committed tasks, actual progress and evidence links; unfinished work stays unfinished.",
@@ -2208,11 +1835,7 @@
           "focus": "Read the sprint goal, backlog, review and retrospective; retain the course-required individual summaries."
         }
       ],
-      "tools": [
-        "Markdown",
-        "shared board",
-        "GitHub"
-      ],
+      "tools": ["Markdown", "shared board", "GitHub"],
       "starterExercise": "Write three bullets: built, learned, blocked.",
       "snippet": {
         "language": "illustrative contract / pseudocode",
@@ -2246,10 +1869,7 @@
         "S2-AI-SUMMARY",
         "S2-ST-SUMMARY"
       ],
-      "unlocks": [
-        "S3-PLAN",
-        "S5-W1-01"
-      ],
+      "unlocks": ["S3-PLAN", "S5-W1-01"],
       "objective": "One Sprint 2 review/retrospective record with actual feedback and follow-up.",
       "priority": "Must",
       "kind": "Scrum",
@@ -2257,10 +1877,7 @@
       "reviewer": "W2",
       "pair": {
         "member": null,
-        "hours": [
-          0,
-          0
-        ],
+        "hours": [0, 0],
         "mode": "Independent work with review",
         "plan": "Try the starter first. Ask the named reviewer for a focused check of the stated acceptance evidence; escalate a blocker rather than silently enlarging this task."
       },
@@ -2269,14 +1886,8 @@
         "high": 0.75,
         "basis": "Provisional focused owner hours, including learning, task documentation, checks and owner-side pairing. Track actual time; do not infer hours from SP."
       },
-      "reviewHours": [
-        0,
-        0
-      ],
-      "labels": [
-        "Must",
-        "SP:1"
-      ],
+      "reviewHours": [0, 0],
+      "labels": ["Must", "SP:1"],
       "steps": [
         "Read the focused resources and do the starter exercise below; stop and ask for help if you cannot explain the result.",
         "Demo actual working behavior to the professor/team at the two-week checkpoint; show known gaps honestly.",
@@ -2298,11 +1909,7 @@
           "focus": "Read the sprint goal, backlog, review and retrospective; retain the course-required individual summaries."
         }
       ],
-      "tools": [
-        "Markdown",
-        "shared board",
-        "GitHub"
-      ],
+      "tools": ["Markdown", "shared board", "GitHub"],
       "starterExercise": "Show one working action and one limitation.",
       "snippet": {
         "language": "illustrative contract / pseudocode",
@@ -2328,9 +1935,7 @@
       "owner": "W3",
       "title": "Sprint 3: agree and record the team backlog",
       "sp": 1,
-      "depends": [
-        "S2-REVIEW"
-      ],
+      "depends": ["S2-REVIEW"],
       "unlocks": [
         "S3-AI-01",
         "S3-ST-01",
@@ -2352,10 +1957,7 @@
       "reviewer": "ST",
       "pair": {
         "member": null,
-        "hours": [
-          0,
-          0
-        ],
+        "hours": [0, 0],
         "mode": "Independent work with review",
         "plan": "Try the starter first. Ask the named reviewer for a focused check of the stated acceptance evidence; escalate a blocker rather than silently enlarging this task."
       },
@@ -2364,14 +1966,8 @@
         "high": 0.75,
         "basis": "Provisional focused owner hours, including learning, task documentation, checks and owner-side pairing. Track actual time; do not infer hours from SP."
       },
-      "reviewHours": [
-        0,
-        0
-      ],
-      "labels": [
-        "Must",
-        "SP:1"
-      ],
+      "reviewHours": [0, 0],
+      "labels": ["Must", "SP:1"],
       "steps": [
         "Read the focused resources and do the starter exercise below; stop and ask for help if you cannot explain the result.",
         "Collect actual available hours from every member; subtract meetings/support/review and keep 20% uncommitted.",
@@ -2394,11 +1990,7 @@
           "focus": "Read the sprint goal, backlog, review and retrospective; retain the course-required individual summaries."
         }
       ],
-      "tools": [
-        "Markdown",
-        "shared board",
-        "GitHub"
-      ],
+      "tools": ["Markdown", "shared board", "GitHub"],
       "starterExercise": "Have each member state available hours before selecting cards.",
       "snippet": {
         "language": "illustrative contract / pseudocode",
@@ -2424,15 +2016,8 @@
       "owner": "AI",
       "title": "Train one fixed forest and hand over validation outputs",
       "sp": 3,
-      "depends": [
-        "S3-PLAN",
-        "S2-AI-01"
-      ],
-      "unlocks": [
-        "S3-AI-02",
-        "S3-ST-01",
-        "S5-W1-01"
-      ],
+      "depends": ["S3-PLAN", "S2-AI-01"],
+      "unlocks": ["S3-AI-02", "S3-ST-01", "S5-W1-01"],
       "objective": "One fixed random forest evaluated on the same validation rows as the existing candidates.",
       "priority": "Must",
       "kind": "Delivery",
@@ -2440,10 +2025,7 @@
       "reviewer": "ST",
       "pair": {
         "member": null,
-        "hours": [
-          0,
-          0
-        ],
+        "hours": [0, 0],
         "mode": "Independent work with review",
         "plan": "Try the starter first. Ask the named reviewer for a focused check of the stated acceptance evidence; escalate a blocker rather than silently enlarging this task."
       },
@@ -2452,14 +2034,8 @@
         "high": 5,
         "basis": "Provisional focused owner hours, including learning, task documentation, checks and owner-side pairing. Track actual time; do not infer hours from SP."
       },
-      "reviewHours": [
-        0.25,
-        0.5
-      ],
-      "labels": [
-        "Must",
-        "SP:3"
-      ],
+      "reviewHours": [0.25, 0.5],
+      "labels": ["Must", "SP:3"],
       "steps": [
         "Read the focused resources and do the starter exercise below; stop and ask for help if you cannot explain the result.",
         "Train one RandomForestClassifier with predeclared fixed settings (for example 100 trees, max_depth=5, min_samples_leaf=5, random_state=42). Record the actual settings before inspecting its validation result.",
@@ -2523,15 +2099,8 @@
       "owner": "AI",
       "title": "Freeze and package the independently selected model",
       "sp": 2,
-      "depends": [
-        "S3-AI-01",
-        "S3-ST-01"
-      ],
-      "unlocks": [
-        "S3-W1-01",
-        "S4-AI-01",
-        "S5-W1-01"
-      ],
+      "depends": ["S3-AI-01", "S3-ST-01"],
+      "unlocks": ["S3-W1-01", "S4-AI-01", "S5-W1-01"],
       "objective": "Package the selected trained pipeline after ST’s checked decision, before any held-out test access.",
       "priority": "Must",
       "kind": "Delivery",
@@ -2539,38 +2108,30 @@
       "reviewer": "ST",
       "pair": {
         "member": null,
-        "hours": [
-          0,
-          0
-        ],
+        "hours": [0, 0],
         "mode": "Independent work with review",
         "plan": "Try the starter first. Ask the named reviewer for a focused check of the stated acceptance evidence; escalate a blocker rather than silently enlarging this task."
       },
       "hours": {
-        "low": 3,
-        "high": 4,
-        "basis": "Provisional focused owner hours, including learning, task documentation, checks and owner-side pairing. Track actual time; do not infer hours from SP."
+        "low": 4,
+        "high": 6,
+        "basis": "Provisional direct estimate for Express/auth or Python CLI handoff; includes owner learning and checks. No Python programming assumed for W1. Validate after the Sprint 1 spike; not scaled from SP."
       },
-      "reviewHours": [
-        0.25,
-        0.5
-      ],
-      "labels": [
-        "Must",
-        "SP:2"
-      ],
+      "reviewHours": [0.25, 0.5],
+      "labels": ["Must", "SP:2"],
       "steps": [
         "Read the focused resources and do the starter exercise below; stop and ask for help if you cannot explain the result.",
         "Apply the preregistered selection rule after ST independently checks the comparison; do not tune against validation repeatedly.",
         "Freeze the selected already-trained pipeline, threshold=0.5, feature schema, source/split hashes and exact dependency versions. Do not refit on test or silently combine train+validation.",
-        "Create an inference function for approved row batches and a synthetic expected-output fixture. Document the positive-class lookup.",
-        "Give W1 the artifact and command that reproduces the fixture; mark held-out results unavailable until the Sprint 4 evaluation.",
+        "Replace the toy CLI with ml/predict.py that loads the frozen trusted pipeline, validates schema/feature order, reads one JSON request from stdin and writes only one JSON result to stdout. Send diagnostics to stderr, exit nonzero on failure, and reject non-finite JSON scores. Include model/schema versions, frozen threshold, class-1 score and row IDs; no Express knowledge required.",
+        "Give W1 the pinned Python requirements, interpreter setup, fixed command, versioned metadata and expected-output fixture. Verify the JavaScript-to-Python fixture together; held-out metrics remain unavailable until Sprint 4.",
         "Attach the changed file/report, exact input and actual check result to this card. Record actual hours and request the named review before marking Done."
       ],
       "accept": [
         "Only one fixed forest candidate was added; no hyperparameter search.",
         "The frozen artifact has version/schema metadata and a reproducible fixture.",
-        "Test labels have not influenced model choice or threshold."
+        "Test labels have not influenced model choice or threshold.",
+        "The real CLI replaces toy mode, returns strict JSON on stdout and is verified with W1 using the agreed fixture."
       ],
       "outcome": "Frozen candidate pipeline and inference contract, ready for W1 after ST signs the comparison.",
       "avoid": "If ST has not checked the comparison, freeze is not finished; do not fill the gap with invented approval.",
@@ -2624,18 +2185,8 @@
       "owner": "ST",
       "title": "Compare candidates and sign the freeze decision",
       "sp": 3,
-      "depends": [
-        "S3-PLAN",
-        "S2-ST-01",
-        "S2-AI-01",
-        "S3-AI-01"
-      ],
-      "unlocks": [
-        "S3-AI-02",
-        "S3-W1-01",
-        "S4-AI-01",
-        "S5-W1-01"
-      ],
+      "depends": ["S3-PLAN", "S2-ST-01", "S2-AI-01", "S3-AI-01"],
+      "unlocks": ["S3-AI-02", "S3-W1-01", "S4-AI-01", "S5-W1-01"],
       "objective": "Independent validation comparison and explicit model/threshold freeze record.",
       "priority": "Must",
       "kind": "Delivery",
@@ -2643,10 +2194,7 @@
       "reviewer": "AI",
       "pair": {
         "member": null,
-        "hours": [
-          0,
-          0
-        ],
+        "hours": [0, 0],
         "mode": "Independent work with review",
         "plan": "Try the starter first. Ask the named reviewer for a focused check of the stated acceptance evidence; escalate a blocker rather than silently enlarging this task."
       },
@@ -2655,14 +2203,8 @@
         "high": 7,
         "basis": "Provisional focused owner hours, including learning, task documentation, checks and owner-side pairing. Track actual time; do not infer hours from SP."
       },
-      "reviewHours": [
-        0.25,
-        0.5
-      ],
-      "labels": [
-        "Must",
-        "SP:3"
-      ],
+      "reviewHours": [0.25, 0.5],
+      "labels": ["Must", "SP:3"],
       "steps": [
         "Read the focused resources and do the starter exercise below; stop and ask for help if you cannot explain the result.",
         "Read the completed forest validation outputs from S3-AI-01 alongside the baseline/logistic outputs; check IDs before calculating metrics.",
@@ -2721,7 +2263,7 @@
       "id": "S3-W1-01",
       "sprint": 3,
       "owner": "W1",
-      "title": "Load the frozen model and connect synchronous prediction",
+      "title": "Connect Express to the frozen Python prediction CLI",
       "sp": 5,
       "depends": [
         "S3-PLAN",
@@ -2731,56 +2273,43 @@
         "S3-W3-01",
         "S3-AI-02"
       ],
-      "unlocks": [
-        "S3-W2-01",
-        "S4-W1-01",
-        "S5-W1-01"
-      ],
-      "objective": "The smallest real prediction journey from stored inputs to saved risk results.",
+      "unlocks": ["S3-W2-01", "S4-W1-01", "S5-W1-01"],
+      "objective": "JavaScript adapter from owned stored rows to the ML-owned Python CLI and atomic saved results.",
       "priority": "Must",
       "kind": "Delivery",
       "status": "Backlog",
       "reviewer": "AI",
       "pair": {
         "member": null,
-        "hours": [
-          0,
-          0
-        ],
+        "hours": [0, 0],
         "mode": "Independent work with review",
         "plan": "Try the starter first. Ask the named reviewer for a focused check of the stated acceptance evidence; escalate a blocker rather than silently enlarging this task."
       },
       "hours": {
-        "low": 5,
-        "high": 9,
-        "basis": "Provisional focused owner hours, including learning, task documentation, checks and owner-side pairing. Track actual time; do not infer hours from SP."
+        "low": 7,
+        "high": 12,
+        "basis": "Provisional direct estimate for Express/auth or Python CLI handoff; includes owner learning and checks. No Python programming assumed for W1. Validate after the Sprint 1 spike; not scaled from SP."
       },
-      "reviewHours": [
-        0.25,
-        0.5
-      ],
-      "labels": [
-        "Must",
-        "SP:5"
-      ],
+      "reviewHours": [0.25, 0.5],
+      "labels": ["Must", "SP:5"],
       "steps": [
-        "Read the focused resources and do the starter exercise below; stop and ask for help if you cannot explain the result.",
-        "Load only the frozen team-produced pipeline and metadata; check package/schema version and feature order. Never load a model file uploaded by a user.",
-        "Accept POST prediction for an owned dataset after CSRF/auth checks. Read approved rows and invoke Python inference in the same backend process.",
-        "Check one output per row, ID/order mapping, finite probabilities in [0,1] and the frozen threshold. Refuse mismatches/NaN before writing results.",
-        "Call W3’s persistence function atomically and redirect to the saved run page. Use a disabled busy submit button and POST/redirect/GET; document that a deliberate retry creates a new run.",
-        "Connect the W2 result context. If inference/save fails, show a recoverable error and keep the dataset; save no partial successful run.",
-        "Test a tiny successful dataset, wrong schema, missing artifact and invalid score; compare app output with AI’s direct script.",
-        "Attach the changed file/report, exact input and actual check result to this card. Record actual hours and request the named review before marking Done."
+        "Read the focused resources and do the starter exercise below; ask the named reviewer about a concrete blocker.",
+        "Use only the fixed team-controlled Python script/interpreter and frozen artifact metadata. AI maintains the script, pipeline loading and Python environment; W1 does not rewrite inference in JavaScript.",
+        "Accept POST predict after session, CSRF and ownership checks. Load approved rows and invoke child_process.spawn asynchronously with shell:false and fixed argument paths; write one JSON request to stdin. Keep the HTTP request open while awaiting the bounded job; do not block the Node event loop with spawnSync.",
+        "Apply a documented process deadline (initially 30 seconds), 1 MiB output cap and one-active-prediction local-demo guard. Handle interpreter missing, stdin/process error, nonzero exit, timeout and malformed/oversized JSON; kill and await process termination on failure.",
+        "Validate schema/model version, threshold, exact unique row-ID coverage, boolean flags and finite [0,1] scores. Check returned flags against the frozen threshold. Reject inconsistent metadata/results before persistence.",
+        "Call W3’s atomic save only after valid process completion. Redirect to the saved run, disable repeat clicks and document that a deliberate retry creates a new run.",
+        "With AI compare app results and direct CLI output on the same frozen fixture. Test missing Python/artifact, timeout, nonzero exit, invalid JSON, duplicate/missing IDs and NaN; no failure saves a partial successful run.",
+        "Attach actual output and acceptance evidence; record actual hours and request review before Done."
       ],
       "accept": [
-        "App and standalone inference agree on the same fixture.",
-        "Model mismatch/invalid score never appears as a successful saved run.",
-        "The model is loaded in process; no worker queue or extra service is needed for the capped demo."
+        "Express and the standalone frozen CLI agree on the fixture.",
+        "Failed, timed-out or invalid output saves no run; existing datasets remain intact.",
+        "Only Express listens for web requests; Python is a short-lived subprocess with a deadline and no shell."
       ],
       "outcome": "The smallest real prediction journey from stored inputs to saved risk results.",
-      "avoid": "Synchronous execution is a bounded local-demo choice, not a concurrency promise.",
-      "learn": "Explain where inference ends and persistence starts.",
+      "avoid": "The HTTP request waits for bounded inference, but Node process creation is asynchronous. No Python HTTP server, queue or JS model port.",
+      "learn": "Explain the stdin/stdout contract, process deadline and save boundary.",
       "resources": [
         {
           "label": "Model persistence",
@@ -2788,26 +2317,31 @@
           "focus": "Load only the team-produced trusted artifact and pin matching package versions."
         },
         {
-          "label": "Database transactions",
-          "url": "https://docs.djangoproject.com/en/5.2/topics/db/transactions/",
-          "focus": "Study transaction.atomic and the effect of an exception on grouped writes."
+          "label": "SQLite transactions",
+          "url": "https://www.sqlite.org/lang_transaction.html",
+          "focus": "Use explicit transactions on one connection, bound parameters and enabled foreign keys."
         },
         {
-          "label": "Django authentication",
-          "url": "https://docs.djangoproject.com/en/5.2/topics/auth/default/",
-          "focus": "Use built-in forms, login/logout views and password handling; add object ownership in your own views."
+          "label": "Express session middleware",
+          "url": "https://expressjs.com/en/resources/middleware/session/",
+          "focus": "Session store, cookie settings, regeneration and destruction; add CSRF and ownership checks."
+        },
+        {
+          "label": "Node child processes",
+          "url": "https://nodejs.org/api/child_process.html",
+          "focus": "Asynchronous spawn with fixed executable/args, shell:false, stdin/stdout, error/close handling and process termination."
         }
       ],
       "tools": [
-        "Python virtual environment",
-        "Django",
+        "Node.js/npm (AI provides Python interpreter for CLI calls)",
+        "Node.js / Express",
         "Git",
         "browser"
       ],
-      "starterExercise": "Call predict_proba on two approved rows and check finite values.",
+      "starterExercise": "Reuse the Sprint 1 JSON adapter with the frozen CLI fixture.",
       "snippet": {
         "language": "illustrative contract / pseudocode",
-        "code": "validate_schema(dataset, artifact.schema_version)\noutputs = predict_in_process(rows)\nvalidate_outputs(outputs, row_ids)\nsave_run_atomically(dataset, outputs, artifact.metadata)",
+        "code": "assertOwnedDataset(session.userId, datasetId)\noutput = await runPythonCli(validatedInput, deadlineMs=30000)\nvalidateMetadataAndExactResults(output)\nrun = saveRunAtomically(output)\nredirectToOwnedRun(run)",
         "note": "Starting pattern only; adapt to the agreed schema. This is not completed application code or measured results."
       },
       "troubleshooting": "Reduce the failing case to the starter fixture, compare expected and actual output, then ask the named reviewer with the input and error. Do not change several layers at once.",
@@ -2829,16 +2363,8 @@
       "owner": "W2",
       "title": "Display saved risk results and a small validation comparison",
       "sp": 3,
-      "depends": [
-        "S3-PLAN",
-        "S2-W2-01",
-        "S3-W1-01"
-      ],
-      "unlocks": [
-        "S4-W1-01",
-        "S4-W2-01",
-        "S5-W1-01"
-      ],
+      "depends": ["S3-PLAN", "S2-W2-01", "S3-W1-01"],
+      "unlocks": ["S4-W1-01", "S4-W2-01", "S5-W1-01"],
       "objective": "Results page and small evaluation template without charts, filters or exports.",
       "priority": "Must",
       "kind": "Delivery",
@@ -2846,10 +2372,7 @@
       "reviewer": "ST",
       "pair": {
         "member": null,
-        "hours": [
-          0,
-          0
-        ],
+        "hours": [0, 0],
         "mode": "Independent work with review",
         "plan": "Try the starter first. Ask the named reviewer for a focused check of the stated acceptance evidence; escalate a blocker rather than silently enlarging this task."
       },
@@ -2858,14 +2381,8 @@
         "high": 8,
         "basis": "Provisional focused owner hours, including learning, task documentation, checks and owner-side pairing. Track actual time; do not infer hours from SP."
       },
-      "reviewHours": [
-        0.25,
-        0.5
-      ],
-      "labels": [
-        "Must",
-        "SP:3"
-      ],
+      "reviewHours": [0.25, 0.5],
+      "labels": ["Must", "SP:3"],
       "steps": [
         "Read the focused resources and do the starter exercise below; stop and ask for help if you cannot explain the result.",
         "Build result and evaluation templates against fixed demo context while AI/ST finish the artifact. Label these fixtures as synthetic.",
@@ -2891,9 +2408,9 @@
           "focus": "Use labels, error text and native buttons; keep progressive enhancement small."
         },
         {
-          "label": "Django forms",
-          "url": "https://docs.djangoproject.com/en/5.2/topics/forms/",
-          "focus": "Connect a form to its view, field errors and a CSRF-protected template."
+          "label": "Express guide",
+          "url": "https://expressjs.com/en/guide/routing.html",
+          "focus": "JavaScript handlers, middleware, server-rendered templates and form validation."
         },
         {
           "label": "Model evaluation",
@@ -2903,7 +2420,7 @@
       ],
       "tools": [
         "HTML/CSS",
-        "Django templates",
+        "Express-served EJS templates",
         "plain JavaScript",
         "browser",
         "Git"
@@ -2933,16 +2450,8 @@
       "owner": "W3",
       "title": "Store complete prediction runs and load owned results",
       "sp": 3,
-      "depends": [
-        "S3-PLAN",
-        "S2-W3-01"
-      ],
-      "unlocks": [
-        "S3-W1-01",
-        "S4-W1-01",
-        "S4-W3-01",
-        "S5-W1-01"
-      ],
+      "depends": ["S3-PLAN", "S2-W3-01"],
+      "unlocks": ["S3-W1-01", "S4-W1-01", "S4-W3-01", "S5-W1-01"],
       "objective": "A minimal persistence layer with complete-run snapshots and no partial results.",
       "priority": "Must",
       "kind": "Delivery",
@@ -2950,10 +2459,7 @@
       "reviewer": "W1",
       "pair": {
         "member": "W1",
-        "hours": [
-          0.5,
-          1
-        ],
+        "hours": [0.5, 1],
         "mode": "Guided pair on the difficult boundary",
         "plan": "Review cross-dataset consistency and one rollback case; avoid redesigning the schema."
       },
@@ -2962,14 +2468,8 @@
         "high": 7,
         "basis": "Provisional focused owner hours, including learning, task documentation, checks and owner-side pairing. Track actual time; do not infer hours from SP."
       },
-      "reviewHours": [
-        0.25,
-        0.5
-      ],
-      "labels": [
-        "Must",
-        "SP:3"
-      ],
+      "reviewHours": [0.25, 0.5],
+      "labels": ["Must", "SP:3"],
       "steps": [
         "Read the focused resources and do the starter exercise below; stop and ask for help if you cannot explain the result.",
         "Use the existing Run/Result models. Store model version, schema version, threshold and creation time as a snapshot on each completed run.",
@@ -2990,26 +2490,26 @@
       "learn": "Explain why version/threshold must be copied onto a run.",
       "resources": [
         {
-          "label": "Django models",
-          "url": "https://docs.djangoproject.com/en/5.2/topics/db/models/",
-          "focus": "Read foreign keys, constraints and model migrations alongside the small schema."
+          "label": "SQLite transactions",
+          "url": "https://www.sqlite.org/lang_transaction.html",
+          "focus": "Use explicit transactions on one connection, bound parameters and enabled foreign keys."
         },
         {
-          "label": "Database transactions",
-          "url": "https://docs.djangoproject.com/en/5.2/topics/db/transactions/",
-          "focus": "Study transaction.atomic and the effect of an exception on grouped writes."
+          "label": "SQLite transactions",
+          "url": "https://www.sqlite.org/lang_transaction.html",
+          "focus": "Use explicit transactions on one connection, bound parameters and enabled foreign keys."
         }
       ],
       "tools": [
-        "Django ORM",
+        "SQLite + JavaScript bound queries",
         "SQLite",
-        "Python csv",
+        "JavaScript CSV parser",
         "Git"
       ],
       "starterExercise": "Save a two-row synthetic run, restart and read it back.",
       "snippet": {
         "language": "illustrative contract / pseudocode",
-        "code": "assert set(output_ids) == set(dataset_record_ids)\nwith transaction.atomic():\n    run = create_completed_run(metadata)\n    save_results(run, validated_outputs)",
+        "code": "assert exact unique output IDs == dataset record IDs\nBEGIN transaction on one connection\ncreateCompletedRun(metadata)\ninsertAllValidatedResults()\nCOMMIT; on error ROLLBACK",
         "note": "Starting pattern only; adapt to the agreed schema. This is not completed application code or measured results."
       },
       "troubleshooting": "Reduce the failing case to the starter fixture, compare expected and actual output, then ask the named reviewer with the input and error. Do not change several layers at once.",
@@ -3031,13 +2531,8 @@
       "owner": "AI",
       "title": "Sprint 3: write AI’s individual summary",
       "sp": 1,
-      "depends": [
-        "S3-PLAN"
-      ],
-      "unlocks": [
-        "S3-REVIEW",
-        "S5-W1-01"
-      ],
+      "depends": ["S3-PLAN"],
+      "unlocks": ["S3-REVIEW", "S5-W1-01"],
       "objective": "One truthful individual summary for AI, Sprint 3.",
       "priority": "Must",
       "kind": "Scrum",
@@ -3045,10 +2540,7 @@
       "reviewer": "ST",
       "pair": {
         "member": null,
-        "hours": [
-          0,
-          0
-        ],
+        "hours": [0, 0],
         "mode": "Independent work with review",
         "plan": "Try the starter first. Ask the named reviewer for a focused check of the stated acceptance evidence; escalate a blocker rather than silently enlarging this task."
       },
@@ -3057,14 +2549,8 @@
         "high": 0.75,
         "basis": "Provisional focused owner hours, including learning, task documentation, checks and owner-side pairing. Track actual time; do not infer hours from SP."
       },
-      "reviewHours": [
-        0,
-        0
-      ],
-      "labels": [
-        "Must",
-        "SP:1"
-      ],
+      "reviewHours": [0, 0],
+      "labels": ["Must", "SP:1"],
       "steps": [
         "Read the focused resources and do the starter exercise below; stop and ask for help if you cannot explain the result.",
         "List committed tasks, actual progress and evidence links; unfinished work stays unfinished.",
@@ -3086,11 +2572,7 @@
           "focus": "Read the sprint goal, backlog, review and retrospective; retain the course-required individual summaries."
         }
       ],
-      "tools": [
-        "Markdown",
-        "shared board",
-        "GitHub"
-      ],
+      "tools": ["Markdown", "shared board", "GitHub"],
       "starterExercise": "Write three bullets: built, learned, blocked.",
       "snippet": {
         "language": "illustrative contract / pseudocode",
@@ -3116,13 +2598,8 @@
       "owner": "ST",
       "title": "Sprint 3: write ST’s individual summary",
       "sp": 1,
-      "depends": [
-        "S3-PLAN"
-      ],
-      "unlocks": [
-        "S3-REVIEW",
-        "S5-W1-01"
-      ],
+      "depends": ["S3-PLAN"],
+      "unlocks": ["S3-REVIEW", "S5-W1-01"],
       "objective": "One truthful individual summary for ST, Sprint 3.",
       "priority": "Must",
       "kind": "Scrum",
@@ -3130,10 +2607,7 @@
       "reviewer": "W3",
       "pair": {
         "member": null,
-        "hours": [
-          0,
-          0
-        ],
+        "hours": [0, 0],
         "mode": "Independent work with review",
         "plan": "Try the starter first. Ask the named reviewer for a focused check of the stated acceptance evidence; escalate a blocker rather than silently enlarging this task."
       },
@@ -3142,14 +2616,8 @@
         "high": 0.75,
         "basis": "Provisional focused owner hours, including learning, task documentation, checks and owner-side pairing. Track actual time; do not infer hours from SP."
       },
-      "reviewHours": [
-        0,
-        0
-      ],
-      "labels": [
-        "Must",
-        "SP:1"
-      ],
+      "reviewHours": [0, 0],
+      "labels": ["Must", "SP:1"],
       "steps": [
         "Read the focused resources and do the starter exercise below; stop and ask for help if you cannot explain the result.",
         "List committed tasks, actual progress and evidence links; unfinished work stays unfinished.",
@@ -3171,11 +2639,7 @@
           "focus": "Read the sprint goal, backlog, review and retrospective; retain the course-required individual summaries."
         }
       ],
-      "tools": [
-        "Markdown",
-        "shared board",
-        "GitHub"
-      ],
+      "tools": ["Markdown", "shared board", "GitHub"],
       "starterExercise": "Write three bullets: built, learned, blocked.",
       "snippet": {
         "language": "illustrative contract / pseudocode",
@@ -3201,13 +2665,8 @@
       "owner": "W1",
       "title": "Sprint 3: write W1’s individual summary",
       "sp": 1,
-      "depends": [
-        "S3-PLAN"
-      ],
-      "unlocks": [
-        "S3-REVIEW",
-        "S5-W1-01"
-      ],
+      "depends": ["S3-PLAN"],
+      "unlocks": ["S3-REVIEW", "S5-W1-01"],
       "objective": "One truthful individual summary for W1, Sprint 3.",
       "priority": "Must",
       "kind": "Scrum",
@@ -3215,10 +2674,7 @@
       "reviewer": "ST",
       "pair": {
         "member": null,
-        "hours": [
-          0,
-          0
-        ],
+        "hours": [0, 0],
         "mode": "Independent work with review",
         "plan": "Try the starter first. Ask the named reviewer for a focused check of the stated acceptance evidence; escalate a blocker rather than silently enlarging this task."
       },
@@ -3227,14 +2683,8 @@
         "high": 0.75,
         "basis": "Provisional focused owner hours, including learning, task documentation, checks and owner-side pairing. Track actual time; do not infer hours from SP."
       },
-      "reviewHours": [
-        0,
-        0
-      ],
-      "labels": [
-        "Must",
-        "SP:1"
-      ],
+      "reviewHours": [0, 0],
+      "labels": ["Must", "SP:1"],
       "steps": [
         "Read the focused resources and do the starter exercise below; stop and ask for help if you cannot explain the result.",
         "List committed tasks, actual progress and evidence links; unfinished work stays unfinished.",
@@ -3256,11 +2706,7 @@
           "focus": "Read the sprint goal, backlog, review and retrospective; retain the course-required individual summaries."
         }
       ],
-      "tools": [
-        "Markdown",
-        "shared board",
-        "GitHub"
-      ],
+      "tools": ["Markdown", "shared board", "GitHub"],
       "starterExercise": "Write three bullets: built, learned, blocked.",
       "snippet": {
         "language": "illustrative contract / pseudocode",
@@ -3286,13 +2732,8 @@
       "owner": "W2",
       "title": "Sprint 3: write W2’s individual summary",
       "sp": 1,
-      "depends": [
-        "S3-PLAN"
-      ],
-      "unlocks": [
-        "S3-REVIEW",
-        "S5-W1-01"
-      ],
+      "depends": ["S3-PLAN"],
+      "unlocks": ["S3-REVIEW", "S5-W1-01"],
       "objective": "One truthful individual summary for W2, Sprint 3.",
       "priority": "Must",
       "kind": "Scrum",
@@ -3300,10 +2741,7 @@
       "reviewer": "ST",
       "pair": {
         "member": null,
-        "hours": [
-          0,
-          0
-        ],
+        "hours": [0, 0],
         "mode": "Independent work with review",
         "plan": "Try the starter first. Ask the named reviewer for a focused check of the stated acceptance evidence; escalate a blocker rather than silently enlarging this task."
       },
@@ -3312,14 +2750,8 @@
         "high": 0.75,
         "basis": "Provisional focused owner hours, including learning, task documentation, checks and owner-side pairing. Track actual time; do not infer hours from SP."
       },
-      "reviewHours": [
-        0,
-        0
-      ],
-      "labels": [
-        "Must",
-        "SP:1"
-      ],
+      "reviewHours": [0, 0],
+      "labels": ["Must", "SP:1"],
       "steps": [
         "Read the focused resources and do the starter exercise below; stop and ask for help if you cannot explain the result.",
         "List committed tasks, actual progress and evidence links; unfinished work stays unfinished.",
@@ -3341,11 +2773,7 @@
           "focus": "Read the sprint goal, backlog, review and retrospective; retain the course-required individual summaries."
         }
       ],
-      "tools": [
-        "Markdown",
-        "shared board",
-        "GitHub"
-      ],
+      "tools": ["Markdown", "shared board", "GitHub"],
       "starterExercise": "Write three bullets: built, learned, blocked.",
       "snippet": {
         "language": "illustrative contract / pseudocode",
@@ -3371,13 +2799,8 @@
       "owner": "W3",
       "title": "Sprint 3: write W3’s individual summary",
       "sp": 1,
-      "depends": [
-        "S3-PLAN"
-      ],
-      "unlocks": [
-        "S3-REVIEW",
-        "S5-W1-01"
-      ],
+      "depends": ["S3-PLAN"],
+      "unlocks": ["S3-REVIEW", "S5-W1-01"],
       "objective": "One truthful individual summary for W3, Sprint 3.",
       "priority": "Must",
       "kind": "Scrum",
@@ -3385,10 +2808,7 @@
       "reviewer": "ST",
       "pair": {
         "member": null,
-        "hours": [
-          0,
-          0
-        ],
+        "hours": [0, 0],
         "mode": "Independent work with review",
         "plan": "Try the starter first. Ask the named reviewer for a focused check of the stated acceptance evidence; escalate a blocker rather than silently enlarging this task."
       },
@@ -3397,14 +2817,8 @@
         "high": 0.75,
         "basis": "Provisional focused owner hours, including learning, task documentation, checks and owner-side pairing. Track actual time; do not infer hours from SP."
       },
-      "reviewHours": [
-        0,
-        0
-      ],
-      "labels": [
-        "Must",
-        "SP:1"
-      ],
+      "reviewHours": [0, 0],
+      "labels": ["Must", "SP:1"],
       "steps": [
         "Read the focused resources and do the starter exercise below; stop and ask for help if you cannot explain the result.",
         "List committed tasks, actual progress and evidence links; unfinished work stays unfinished.",
@@ -3426,11 +2840,7 @@
           "focus": "Read the sprint goal, backlog, review and retrospective; retain the course-required individual summaries."
         }
       ],
-      "tools": [
-        "Markdown",
-        "shared board",
-        "GitHub"
-      ],
+      "tools": ["Markdown", "shared board", "GitHub"],
       "starterExercise": "Write three bullets: built, learned, blocked.",
       "snippet": {
         "language": "illustrative contract / pseudocode",
@@ -3464,10 +2874,7 @@
         "S3-AI-SUMMARY",
         "S3-ST-SUMMARY"
       ],
-      "unlocks": [
-        "S4-PLAN",
-        "S5-W1-01"
-      ],
+      "unlocks": ["S4-PLAN", "S5-W1-01"],
       "objective": "One Sprint 3 review/retrospective record with actual feedback and follow-up.",
       "priority": "Must",
       "kind": "Scrum",
@@ -3475,10 +2882,7 @@
       "reviewer": "W3",
       "pair": {
         "member": null,
-        "hours": [
-          0,
-          0
-        ],
+        "hours": [0, 0],
         "mode": "Independent work with review",
         "plan": "Try the starter first. Ask the named reviewer for a focused check of the stated acceptance evidence; escalate a blocker rather than silently enlarging this task."
       },
@@ -3487,14 +2891,8 @@
         "high": 0.75,
         "basis": "Provisional focused owner hours, including learning, task documentation, checks and owner-side pairing. Track actual time; do not infer hours from SP."
       },
-      "reviewHours": [
-        0,
-        0
-      ],
-      "labels": [
-        "Must",
-        "SP:1"
-      ],
+      "reviewHours": [0, 0],
+      "labels": ["Must", "SP:1"],
       "steps": [
         "Read the focused resources and do the starter exercise below; stop and ask for help if you cannot explain the result.",
         "Demo actual working behavior to the professor/team at the two-week checkpoint; show known gaps honestly.",
@@ -3516,11 +2914,7 @@
           "focus": "Read the sprint goal, backlog, review and retrospective; retain the course-required individual summaries."
         }
       ],
-      "tools": [
-        "Markdown",
-        "shared board",
-        "GitHub"
-      ],
+      "tools": ["Markdown", "shared board", "GitHub"],
       "starterExercise": "Show one working action and one limitation.",
       "snippet": {
         "language": "illustrative contract / pseudocode",
@@ -3546,9 +2940,7 @@
       "owner": "AI",
       "title": "Sprint 4: agree and record the team backlog",
       "sp": 1,
-      "depends": [
-        "S3-REVIEW"
-      ],
+      "depends": ["S3-REVIEW"],
       "unlocks": [
         "S4-AI-01",
         "S4-ST-01",
@@ -3570,10 +2962,7 @@
       "reviewer": "W1",
       "pair": {
         "member": null,
-        "hours": [
-          0,
-          0
-        ],
+        "hours": [0, 0],
         "mode": "Independent work with review",
         "plan": "Try the starter first. Ask the named reviewer for a focused check of the stated acceptance evidence; escalate a blocker rather than silently enlarging this task."
       },
@@ -3582,14 +2971,8 @@
         "high": 0.75,
         "basis": "Provisional focused owner hours, including learning, task documentation, checks and owner-side pairing. Track actual time; do not infer hours from SP."
       },
-      "reviewHours": [
-        0,
-        0
-      ],
-      "labels": [
-        "Must",
-        "SP:1"
-      ],
+      "reviewHours": [0, 0],
+      "labels": ["Must", "SP:1"],
       "steps": [
         "Read the focused resources and do the starter exercise below; stop and ask for help if you cannot explain the result.",
         "Collect actual available hours from every member; subtract meetings/support/review and keep 20% uncommitted.",
@@ -3612,11 +2995,7 @@
           "focus": "Read the sprint goal, backlog, review and retrospective; retain the course-required individual summaries."
         }
       ],
-      "tools": [
-        "Markdown",
-        "shared board",
-        "GitHub"
-      ],
+      "tools": ["Markdown", "shared board", "GitHub"],
       "starterExercise": "Have each member state available hours before selecting cards.",
       "snippet": {
         "language": "illustrative contract / pseudocode",
@@ -3642,9 +3021,7 @@
       "owner": "W2",
       "title": "Add one simple grade-distribution chart",
       "sp": 1,
-      "depends": [
-        "S4-W2-01"
-      ],
+      "depends": ["S4-W2-01"],
       "unlocks": [],
       "objective": "An optional chart supplement to the existing statistics table.",
       "priority": "Should",
@@ -3653,10 +3030,7 @@
       "reviewer": "W1",
       "pair": {
         "member": null,
-        "hours": [
-          0,
-          0
-        ],
+        "hours": [0, 0],
         "mode": "Independent work with review",
         "plan": "Try the starter first. Ask the named reviewer for a focused check of the stated acceptance evidence; escalate a blocker rather than silently enlarging this task."
       },
@@ -3665,14 +3039,8 @@
         "high": 2,
         "basis": "Provisional focused owner hours, including learning, task documentation, checks and owner-side pairing. Track actual time; do not infer hours from SP."
       },
-      "reviewHours": [
-        0.25,
-        0.5
-      ],
-      "labels": [
-        "Should",
-        "SP:1"
-      ],
+      "reviewHours": [0.25, 0.5],
+      "labels": ["Should", "SP:1"],
       "steps": [
         "Read the focused resources and do the starter exercise below; stop and ask for help if you cannot explain the result.",
         "Use only existing aggregate values; label the axes and population.",
@@ -3695,7 +3063,7 @@
       ],
       "tools": [
         "HTML/CSS",
-        "Django templates",
+        "Express-served EJS templates",
         "plain JavaScript",
         "browser",
         "Git"
@@ -3725,16 +3093,8 @@
       "owner": "AI",
       "title": "Run held-out evaluation once and package checked artifacts",
       "sp": 3,
-      "depends": [
-        "S4-PLAN",
-        "S3-AI-02",
-        "S3-ST-01"
-      ],
-      "unlocks": [
-        "S4-ST-01",
-        "S5-AI-01",
-        "S5-W1-01"
-      ],
+      "depends": ["S4-PLAN", "S3-AI-02", "S3-ST-01"],
+      "unlocks": ["S4-ST-01", "S5-AI-01", "S5-W1-01"],
       "objective": "Reproducible held-out evidence and a model-card draft.",
       "priority": "Must",
       "kind": "Delivery",
@@ -3742,10 +3102,7 @@
       "reviewer": "ST",
       "pair": {
         "member": null,
-        "hours": [
-          0,
-          0
-        ],
+        "hours": [0, 0],
         "mode": "Independent work with review",
         "plan": "Try the starter first. Ask the named reviewer for a focused check of the stated acceptance evidence; escalate a blocker rather than silently enlarging this task."
       },
@@ -3754,14 +3111,8 @@
         "high": 8,
         "basis": "Provisional focused owner hours, including learning, task documentation, checks and owner-side pairing. Track actual time; do not infer hours from SP."
       },
-      "reviewHours": [
-        0.25,
-        0.5
-      ],
-      "labels": [
-        "Must",
-        "SP:3"
-      ],
+      "reviewHours": [0.25, 0.5],
+      "labels": ["Must", "SP:3"],
       "steps": [
         "Read the focused resources and do the starter exercise below; stop and ask for help if you cannot explain the result.",
         "Confirm freeze record precedes test access and that the pipeline/threshold/schema hashes match. Stop if they do not.",
@@ -3829,16 +3180,8 @@
       "owner": "ST",
       "title": "Verify final metrics and write honest limitations",
       "sp": 3,
-      "depends": [
-        "S4-PLAN",
-        "S4-AI-01"
-      ],
-      "unlocks": [
-        "S4-W1-01",
-        "S4-W2-01",
-        "S5-ST-01",
-        "S5-W1-01"
-      ],
+      "depends": ["S4-PLAN", "S4-AI-01"],
+      "unlocks": ["S4-W1-01", "S4-W2-01", "S5-ST-01", "S5-W1-01"],
       "objective": "Independent final evaluation sign-off and concise statistical limitations.",
       "priority": "Must",
       "kind": "Delivery",
@@ -3846,10 +3189,7 @@
       "reviewer": "AI",
       "pair": {
         "member": null,
-        "hours": [
-          0,
-          0
-        ],
+        "hours": [0, 0],
         "mode": "Independent work with review",
         "plan": "Try the starter first. Ask the named reviewer for a focused check of the stated acceptance evidence; escalate a blocker rather than silently enlarging this task."
       },
@@ -3858,14 +3198,8 @@
         "high": 8,
         "basis": "Provisional focused owner hours, including learning, task documentation, checks and owner-side pairing. Track actual time; do not infer hours from SP."
       },
-      "reviewHours": [
-        0.25,
-        0.5
-      ],
-      "labels": [
-        "Must",
-        "SP:3"
-      ],
+      "reviewHours": [0.25, 0.5],
+      "labels": ["Must", "SP:3"],
       "steps": [
         "Read the focused resources and do the starter exercise below; stop and ask for help if you cannot explain the result.",
         "Recompute held-out confusion counts, precision, recall and F1 from AI’s saved outputs. Check counts and positive-class meaning.",
@@ -3926,16 +3260,8 @@
       "owner": "W1",
       "title": "Repair core integration defects and check the local release",
       "sp": 3,
-      "depends": [
-        "S4-PLAN",
-        "S3-W1-01",
-        "S3-W3-01",
-        "S3-W2-01",
-        "S4-ST-01"
-      ],
-      "unlocks": [
-        "S5-W1-01"
-      ],
+      "depends": ["S4-PLAN", "S3-W1-01", "S3-W3-01", "S3-W2-01", "S4-ST-01"],
+      "unlocks": ["S5-W1-01"],
       "objective": "A coherent local release candidate with checked core boundaries.",
       "priority": "Must",
       "kind": "Delivery",
@@ -3943,10 +3269,7 @@
       "reviewer": "W2",
       "pair": {
         "member": null,
-        "hours": [
-          0,
-          0
-        ],
+        "hours": [0, 0],
         "mode": "Independent work with review",
         "plan": "Try the starter first. Ask the named reviewer for a focused check of the stated acceptance evidence; escalate a blocker rather than silently enlarging this task."
       },
@@ -3955,14 +3278,8 @@
         "high": 7,
         "basis": "Provisional focused owner hours, including learning, task documentation, checks and owner-side pairing. Track actual time; do not infer hours from SP."
       },
-      "reviewHours": [
-        0.25,
-        0.5
-      ],
-      "labels": [
-        "Must",
-        "SP:3"
-      ],
+      "reviewHours": [0.25, 0.5],
+      "labels": ["Must", "SP:3"],
       "steps": [
         "Read the focused resources and do the starter exercise below; stop and ask for help if you cannot explain the result.",
         "Walk through register, login, upload, statistics, prediction, saved results and evaluation using synthetic data; collect only core defects.",
@@ -3982,14 +3299,14 @@
       "learn": "Explain the largest known limitation of the local demo.",
       "resources": [
         {
-          "label": "Django authentication",
-          "url": "https://docs.djangoproject.com/en/5.2/topics/auth/default/",
-          "focus": "Use built-in forms, login/logout views and password handling; add object ownership in your own views."
+          "label": "Express session middleware",
+          "url": "https://expressjs.com/en/resources/middleware/session/",
+          "focus": "Session store, cookie settings, regeneration and destruction; add CSRF and ownership checks."
         },
         {
-          "label": "Django tutorial",
-          "url": "https://docs.djangoproject.com/en/5.2/intro/tutorial01/",
-          "focus": "Follow the local project and request-routing example; stop before unrelated features."
+          "label": "Express guide",
+          "url": "https://expressjs.com/en/guide/routing.html",
+          "focus": "JavaScript handlers, middleware, server-rendered templates and form validation."
         },
         {
           "label": "Model persistence",
@@ -3998,8 +3315,8 @@
         }
       ],
       "tools": [
-        "Python virtual environment",
-        "Django",
+        "Node.js/npm (AI provides Python interpreter for CLI calls)",
+        "Node.js / Express",
         "Git",
         "browser"
       ],
@@ -4028,16 +3345,8 @@
       "owner": "W2",
       "title": "Finish evaluation display and run the user acceptance walkthrough",
       "sp": 3,
-      "depends": [
-        "S4-PLAN",
-        "S3-W2-01",
-        "S4-ST-01"
-      ],
-      "unlocks": [
-        "OPT-01",
-        "S5-W1-01",
-        "S5-W2-01"
-      ],
+      "depends": ["S4-PLAN", "S3-W2-01", "S4-ST-01"],
+      "unlocks": ["OPT-01", "S5-W1-01", "S5-W2-01"],
       "objective": "Final evaluation screen, acceptance evidence and updated manual draft.",
       "priority": "Must",
       "kind": "Delivery",
@@ -4045,10 +3354,7 @@
       "reviewer": "W3",
       "pair": {
         "member": null,
-        "hours": [
-          0,
-          0
-        ],
+        "hours": [0, 0],
         "mode": "Independent work with review",
         "plan": "Try the starter first. Ask the named reviewer for a focused check of the stated acceptance evidence; escalate a blocker rather than silently enlarging this task."
       },
@@ -4057,14 +3363,8 @@
         "high": 7,
         "basis": "Provisional focused owner hours, including learning, task documentation, checks and owner-side pairing. Track actual time; do not infer hours from SP."
       },
-      "reviewHours": [
-        0.25,
-        0.5
-      ],
-      "labels": [
-        "Must",
-        "SP:3"
-      ],
+      "reviewHours": [0.25, 0.5],
+      "labels": ["Must", "SP:3"],
       "steps": [
         "Read the focused resources and do the starter exercise below; stop and ask for help if you cannot explain the result.",
         "Replace placeholder evaluation values with ST-approved artifact context; show model version, population, split type, threshold and sample counts.",
@@ -4096,7 +3396,7 @@
       ],
       "tools": [
         "HTML/CSS",
-        "Django templates",
+        "Express-served EJS templates",
         "plain JavaScript",
         "browser",
         "Git"
@@ -4126,15 +3426,8 @@
       "owner": "W3",
       "title": "Check data consistency and document the local database",
       "sp": 3,
-      "depends": [
-        "S4-PLAN",
-        "S3-W3-01",
-        "S2-W3-01"
-      ],
-      "unlocks": [
-        "S5-W1-01",
-        "S5-W3-01"
-      ],
+      "depends": ["S4-PLAN", "S3-W3-01", "S2-W3-01"],
+      "unlocks": ["S5-W1-01", "S5-W3-01"],
       "objective": "Verified data constraints and concise database/setup notes.",
       "priority": "Must",
       "kind": "Delivery",
@@ -4142,10 +3435,7 @@
       "reviewer": "W1",
       "pair": {
         "member": null,
-        "hours": [
-          0,
-          0
-        ],
+        "hours": [0, 0],
         "mode": "Independent work with review",
         "plan": "Try the starter first. Ask the named reviewer for a focused check of the stated acceptance evidence; escalate a blocker rather than silently enlarging this task."
       },
@@ -4154,14 +3444,8 @@
         "high": 7,
         "basis": "Provisional focused owner hours, including learning, task documentation, checks and owner-side pairing. Track actual time; do not infer hours from SP."
       },
-      "reviewHours": [
-        0.25,
-        0.5
-      ],
-      "labels": [
-        "Must",
-        "SP:3"
-      ],
+      "reviewHours": [0.25, 0.5],
+      "labels": ["Must", "SP:3"],
       "steps": [
         "Read the focused resources and do the starter exercise below; stop and ask for help if you cannot explain the result.",
         "Replay valid/invalid imports and successful/failed run saves on a fresh synthetic database. Record before/after row counts.",
@@ -4181,14 +3465,14 @@
       "learn": "Explain persistence, migration and a disposable seed.",
       "resources": [
         {
-          "label": "Django models",
-          "url": "https://docs.djangoproject.com/en/5.2/topics/db/models/",
-          "focus": "Read foreign keys, constraints and model migrations alongside the small schema."
+          "label": "SQLite transactions",
+          "url": "https://www.sqlite.org/lang_transaction.html",
+          "focus": "Use explicit transactions on one connection, bound parameters and enabled foreign keys."
         },
         {
-          "label": "Database transactions",
-          "url": "https://docs.djangoproject.com/en/5.2/topics/db/transactions/",
-          "focus": "Study transaction.atomic and the effect of an exception on grouped writes."
+          "label": "SQLite transactions",
+          "url": "https://www.sqlite.org/lang_transaction.html",
+          "focus": "Use explicit transactions on one connection, bound parameters and enabled foreign keys."
         },
         {
           "label": "Python CSV reader",
@@ -4197,9 +3481,9 @@
         }
       ],
       "tools": [
-        "Django ORM",
+        "SQLite + JavaScript bound queries",
         "SQLite",
-        "Python csv",
+        "JavaScript CSV parser",
         "Git"
       ],
       "starterExercise": "Count rows before/after a two-row import that fails on row two.",
@@ -4227,13 +3511,8 @@
       "owner": "AI",
       "title": "Sprint 4: write AI’s individual summary",
       "sp": 1,
-      "depends": [
-        "S4-PLAN"
-      ],
-      "unlocks": [
-        "S4-REVIEW",
-        "S5-W1-01"
-      ],
+      "depends": ["S4-PLAN"],
+      "unlocks": ["S4-REVIEW", "S5-W1-01"],
       "objective": "One truthful individual summary for AI, Sprint 4.",
       "priority": "Must",
       "kind": "Scrum",
@@ -4241,10 +3520,7 @@
       "reviewer": "W1",
       "pair": {
         "member": null,
-        "hours": [
-          0,
-          0
-        ],
+        "hours": [0, 0],
         "mode": "Independent work with review",
         "plan": "Try the starter first. Ask the named reviewer for a focused check of the stated acceptance evidence; escalate a blocker rather than silently enlarging this task."
       },
@@ -4253,14 +3529,8 @@
         "high": 0.75,
         "basis": "Provisional focused owner hours, including learning, task documentation, checks and owner-side pairing. Track actual time; do not infer hours from SP."
       },
-      "reviewHours": [
-        0,
-        0
-      ],
-      "labels": [
-        "Must",
-        "SP:1"
-      ],
+      "reviewHours": [0, 0],
+      "labels": ["Must", "SP:1"],
       "steps": [
         "Read the focused resources and do the starter exercise below; stop and ask for help if you cannot explain the result.",
         "List committed tasks, actual progress and evidence links; unfinished work stays unfinished.",
@@ -4282,11 +3552,7 @@
           "focus": "Read the sprint goal, backlog, review and retrospective; retain the course-required individual summaries."
         }
       ],
-      "tools": [
-        "Markdown",
-        "shared board",
-        "GitHub"
-      ],
+      "tools": ["Markdown", "shared board", "GitHub"],
       "starterExercise": "Write three bullets: built, learned, blocked.",
       "snippet": {
         "language": "illustrative contract / pseudocode",
@@ -4312,13 +3578,8 @@
       "owner": "ST",
       "title": "Sprint 4: write ST’s individual summary",
       "sp": 1,
-      "depends": [
-        "S4-PLAN"
-      ],
-      "unlocks": [
-        "S4-REVIEW",
-        "S5-W1-01"
-      ],
+      "depends": ["S4-PLAN"],
+      "unlocks": ["S4-REVIEW", "S5-W1-01"],
       "objective": "One truthful individual summary for ST, Sprint 4.",
       "priority": "Must",
       "kind": "Scrum",
@@ -4326,10 +3587,7 @@
       "reviewer": "W1",
       "pair": {
         "member": null,
-        "hours": [
-          0,
-          0
-        ],
+        "hours": [0, 0],
         "mode": "Independent work with review",
         "plan": "Try the starter first. Ask the named reviewer for a focused check of the stated acceptance evidence; escalate a blocker rather than silently enlarging this task."
       },
@@ -4338,14 +3596,8 @@
         "high": 0.75,
         "basis": "Provisional focused owner hours, including learning, task documentation, checks and owner-side pairing. Track actual time; do not infer hours from SP."
       },
-      "reviewHours": [
-        0,
-        0
-      ],
-      "labels": [
-        "Must",
-        "SP:1"
-      ],
+      "reviewHours": [0, 0],
+      "labels": ["Must", "SP:1"],
       "steps": [
         "Read the focused resources and do the starter exercise below; stop and ask for help if you cannot explain the result.",
         "List committed tasks, actual progress and evidence links; unfinished work stays unfinished.",
@@ -4367,11 +3619,7 @@
           "focus": "Read the sprint goal, backlog, review and retrospective; retain the course-required individual summaries."
         }
       ],
-      "tools": [
-        "Markdown",
-        "shared board",
-        "GitHub"
-      ],
+      "tools": ["Markdown", "shared board", "GitHub"],
       "starterExercise": "Write three bullets: built, learned, blocked.",
       "snippet": {
         "language": "illustrative contract / pseudocode",
@@ -4397,13 +3645,8 @@
       "owner": "W1",
       "title": "Sprint 4: write W1’s individual summary",
       "sp": 1,
-      "depends": [
-        "S4-PLAN"
-      ],
-      "unlocks": [
-        "S4-REVIEW",
-        "S5-W1-01"
-      ],
+      "depends": ["S4-PLAN"],
+      "unlocks": ["S4-REVIEW", "S5-W1-01"],
       "objective": "One truthful individual summary for W1, Sprint 4.",
       "priority": "Must",
       "kind": "Scrum",
@@ -4411,10 +3654,7 @@
       "reviewer": "AI",
       "pair": {
         "member": null,
-        "hours": [
-          0,
-          0
-        ],
+        "hours": [0, 0],
         "mode": "Independent work with review",
         "plan": "Try the starter first. Ask the named reviewer for a focused check of the stated acceptance evidence; escalate a blocker rather than silently enlarging this task."
       },
@@ -4423,14 +3663,8 @@
         "high": 0.75,
         "basis": "Provisional focused owner hours, including learning, task documentation, checks and owner-side pairing. Track actual time; do not infer hours from SP."
       },
-      "reviewHours": [
-        0,
-        0
-      ],
-      "labels": [
-        "Must",
-        "SP:1"
-      ],
+      "reviewHours": [0, 0],
+      "labels": ["Must", "SP:1"],
       "steps": [
         "Read the focused resources and do the starter exercise below; stop and ask for help if you cannot explain the result.",
         "List committed tasks, actual progress and evidence links; unfinished work stays unfinished.",
@@ -4452,11 +3686,7 @@
           "focus": "Read the sprint goal, backlog, review and retrospective; retain the course-required individual summaries."
         }
       ],
-      "tools": [
-        "Markdown",
-        "shared board",
-        "GitHub"
-      ],
+      "tools": ["Markdown", "shared board", "GitHub"],
       "starterExercise": "Write three bullets: built, learned, blocked.",
       "snippet": {
         "language": "illustrative contract / pseudocode",
@@ -4482,13 +3712,8 @@
       "owner": "W2",
       "title": "Sprint 4: write W2’s individual summary",
       "sp": 1,
-      "depends": [
-        "S4-PLAN"
-      ],
-      "unlocks": [
-        "S4-REVIEW",
-        "S5-W1-01"
-      ],
+      "depends": ["S4-PLAN"],
+      "unlocks": ["S4-REVIEW", "S5-W1-01"],
       "objective": "One truthful individual summary for W2, Sprint 4.",
       "priority": "Must",
       "kind": "Scrum",
@@ -4496,10 +3721,7 @@
       "reviewer": "W1",
       "pair": {
         "member": null,
-        "hours": [
-          0,
-          0
-        ],
+        "hours": [0, 0],
         "mode": "Independent work with review",
         "plan": "Try the starter first. Ask the named reviewer for a focused check of the stated acceptance evidence; escalate a blocker rather than silently enlarging this task."
       },
@@ -4508,14 +3730,8 @@
         "high": 0.75,
         "basis": "Provisional focused owner hours, including learning, task documentation, checks and owner-side pairing. Track actual time; do not infer hours from SP."
       },
-      "reviewHours": [
-        0,
-        0
-      ],
-      "labels": [
-        "Must",
-        "SP:1"
-      ],
+      "reviewHours": [0, 0],
+      "labels": ["Must", "SP:1"],
       "steps": [
         "Read the focused resources and do the starter exercise below; stop and ask for help if you cannot explain the result.",
         "List committed tasks, actual progress and evidence links; unfinished work stays unfinished.",
@@ -4537,11 +3753,7 @@
           "focus": "Read the sprint goal, backlog, review and retrospective; retain the course-required individual summaries."
         }
       ],
-      "tools": [
-        "Markdown",
-        "shared board",
-        "GitHub"
-      ],
+      "tools": ["Markdown", "shared board", "GitHub"],
       "starterExercise": "Write three bullets: built, learned, blocked.",
       "snippet": {
         "language": "illustrative contract / pseudocode",
@@ -4567,13 +3779,8 @@
       "owner": "W3",
       "title": "Sprint 4: write W3’s individual summary",
       "sp": 1,
-      "depends": [
-        "S4-PLAN"
-      ],
-      "unlocks": [
-        "S4-REVIEW",
-        "S5-W1-01"
-      ],
+      "depends": ["S4-PLAN"],
+      "unlocks": ["S4-REVIEW", "S5-W1-01"],
       "objective": "One truthful individual summary for W3, Sprint 4.",
       "priority": "Must",
       "kind": "Scrum",
@@ -4581,10 +3788,7 @@
       "reviewer": "W1",
       "pair": {
         "member": null,
-        "hours": [
-          0,
-          0
-        ],
+        "hours": [0, 0],
         "mode": "Independent work with review",
         "plan": "Try the starter first. Ask the named reviewer for a focused check of the stated acceptance evidence; escalate a blocker rather than silently enlarging this task."
       },
@@ -4593,14 +3797,8 @@
         "high": 0.75,
         "basis": "Provisional focused owner hours, including learning, task documentation, checks and owner-side pairing. Track actual time; do not infer hours from SP."
       },
-      "reviewHours": [
-        0,
-        0
-      ],
-      "labels": [
-        "Must",
-        "SP:1"
-      ],
+      "reviewHours": [0, 0],
+      "labels": ["Must", "SP:1"],
       "steps": [
         "Read the focused resources and do the starter exercise below; stop and ask for help if you cannot explain the result.",
         "List committed tasks, actual progress and evidence links; unfinished work stays unfinished.",
@@ -4622,11 +3820,7 @@
           "focus": "Read the sprint goal, backlog, review and retrospective; retain the course-required individual summaries."
         }
       ],
-      "tools": [
-        "Markdown",
-        "shared board",
-        "GitHub"
-      ],
+      "tools": ["Markdown", "shared board", "GitHub"],
       "starterExercise": "Write three bullets: built, learned, blocked.",
       "snippet": {
         "language": "illustrative contract / pseudocode",
@@ -4660,10 +3854,7 @@
         "S4-AI-SUMMARY",
         "S4-ST-SUMMARY"
       ],
-      "unlocks": [
-        "S5-PLAN",
-        "S5-W1-01"
-      ],
+      "unlocks": ["S5-PLAN", "S5-W1-01"],
       "objective": "One Sprint 4 review/retrospective record with actual feedback and follow-up.",
       "priority": "Must",
       "kind": "Scrum",
@@ -4671,10 +3862,7 @@
       "reviewer": "AI",
       "pair": {
         "member": null,
-        "hours": [
-          0,
-          0
-        ],
+        "hours": [0, 0],
         "mode": "Independent work with review",
         "plan": "Try the starter first. Ask the named reviewer for a focused check of the stated acceptance evidence; escalate a blocker rather than silently enlarging this task."
       },
@@ -4683,14 +3871,8 @@
         "high": 0.75,
         "basis": "Provisional focused owner hours, including learning, task documentation, checks and owner-side pairing. Track actual time; do not infer hours from SP."
       },
-      "reviewHours": [
-        0,
-        0
-      ],
-      "labels": [
-        "Must",
-        "SP:1"
-      ],
+      "reviewHours": [0, 0],
+      "labels": ["Must", "SP:1"],
       "steps": [
         "Read the focused resources and do the starter exercise below; stop and ask for help if you cannot explain the result.",
         "Demo actual working behavior to the professor/team at the two-week checkpoint; show known gaps honestly.",
@@ -4712,11 +3894,7 @@
           "focus": "Read the sprint goal, backlog, review and retrospective; retain the course-required individual summaries."
         }
       ],
-      "tools": [
-        "Markdown",
-        "shared board",
-        "GitHub"
-      ],
+      "tools": ["Markdown", "shared board", "GitHub"],
       "starterExercise": "Show one working action and one limitation.",
       "snippet": {
         "language": "illustrative contract / pseudocode",
@@ -4742,9 +3920,7 @@
       "owner": "ST",
       "title": "Sprint 5: agree and record the team backlog",
       "sp": 1,
-      "depends": [
-        "S4-REVIEW"
-      ],
+      "depends": ["S4-REVIEW"],
       "unlocks": [
         "S5-AI-01",
         "S5-ST-01",
@@ -4765,10 +3941,7 @@
       "reviewer": "W2",
       "pair": {
         "member": null,
-        "hours": [
-          0,
-          0
-        ],
+        "hours": [0, 0],
         "mode": "Independent work with review",
         "plan": "Try the starter first. Ask the named reviewer for a focused check of the stated acceptance evidence; escalate a blocker rather than silently enlarging this task."
       },
@@ -4777,14 +3950,8 @@
         "high": 0.75,
         "basis": "Provisional focused owner hours, including learning, task documentation, checks and owner-side pairing. Track actual time; do not infer hours from SP."
       },
-      "reviewHours": [
-        0,
-        0
-      ],
-      "labels": [
-        "Must",
-        "SP:1"
-      ],
+      "reviewHours": [0, 0],
+      "labels": ["Must", "SP:1"],
       "steps": [
         "Read the focused resources and do the starter exercise below; stop and ask for help if you cannot explain the result.",
         "Collect actual available hours from every member; subtract meetings/support/review and keep 20% uncommitted.",
@@ -4807,11 +3974,7 @@
           "focus": "Read the sprint goal, backlog, review and retrospective; retain the course-required individual summaries."
         }
       ],
-      "tools": [
-        "Markdown",
-        "shared board",
-        "GitHub"
-      ],
+      "tools": ["Markdown", "shared board", "GitHub"],
       "starterExercise": "Have each member state available hours before selecting cards.",
       "snippet": {
         "language": "illustrative contract / pseudocode",
@@ -4837,9 +4000,7 @@
       "owner": "W2",
       "title": "Polish spacing and small-screen presentation",
       "sp": 1,
-      "depends": [
-        "S5-W2-01"
-      ],
+      "depends": ["S5-W2-01"],
       "unlocks": [],
       "objective": "A small cosmetic improvement with unchanged behavior.",
       "priority": "Could",
@@ -4848,10 +4009,7 @@
       "reviewer": "W1",
       "pair": {
         "member": null,
-        "hours": [
-          0,
-          0
-        ],
+        "hours": [0, 0],
         "mode": "Independent work with review",
         "plan": "Try the starter first. Ask the named reviewer for a focused check of the stated acceptance evidence; escalate a blocker rather than silently enlarging this task."
       },
@@ -4860,14 +4018,8 @@
         "high": 2,
         "basis": "Provisional focused owner hours, including learning, task documentation, checks and owner-side pairing. Track actual time; do not infer hours from SP."
       },
-      "reviewHours": [
-        0.25,
-        0.5
-      ],
-      "labels": [
-        "Could",
-        "SP:1"
-      ],
+      "reviewHours": [0.25, 0.5],
+      "labels": ["Could", "SP:1"],
       "steps": [
         "Read the focused resources and do the starter exercise below; stop and ask for help if you cannot explain the result.",
         "Choose at most three cosmetic fixes after acceptance passes.",
@@ -4890,7 +4042,7 @@
       ],
       "tools": [
         "HTML/CSS",
-        "Django templates",
+        "Express-served EJS templates",
         "plain JavaScript",
         "browser",
         "Git"
@@ -4920,9 +4072,7 @@
       "owner": "W3",
       "title": "Add a synthetic CSV example download",
       "sp": 1,
-      "depends": [
-        "S5-W3-01"
-      ],
+      "depends": ["S5-W3-01"],
       "unlocks": [],
       "objective": "A convenience download; the core already ships the example in the repository.",
       "priority": "Should",
@@ -4931,10 +4081,7 @@
       "reviewer": "W1",
       "pair": {
         "member": null,
-        "hours": [
-          0,
-          0
-        ],
+        "hours": [0, 0],
         "mode": "Independent work with review",
         "plan": "Try the starter first. Ask the named reviewer for a focused check of the stated acceptance evidence; escalate a blocker rather than silently enlarging this task."
       },
@@ -4943,14 +4090,8 @@
         "high": 2,
         "basis": "Provisional focused owner hours, including learning, task documentation, checks and owner-side pairing. Track actual time; do not infer hours from SP."
       },
-      "reviewHours": [
-        0.25,
-        0.5
-      ],
-      "labels": [
-        "Should",
-        "SP:1"
-      ],
+      "reviewHours": [0.25, 0.5],
+      "labels": ["Should", "SP:1"],
       "steps": [
         "Read the focused resources and do the starter exercise below; stop and ask for help if you cannot explain the result.",
         "Serve the approved synthetic example as a static download.",
@@ -4972,9 +4113,9 @@
         }
       ],
       "tools": [
-        "Django ORM",
+        "SQLite + JavaScript bound queries",
         "SQLite",
-        "Python csv",
+        "JavaScript CSV parser",
         "Git"
       ],
       "starterExercise": "Show the proposed change with one synthetic example.",
@@ -5002,9 +4143,7 @@
       "owner": "ST",
       "title": "Add a glossary of model terms to Help",
       "sp": 1,
-      "depends": [
-        "S5-ST-01"
-      ],
+      "depends": ["S5-ST-01"],
       "unlocks": [],
       "objective": "Optional plain-language explanations beyond required metric definitions.",
       "priority": "Could",
@@ -5013,10 +4152,7 @@
       "reviewer": "AI",
       "pair": {
         "member": null,
-        "hours": [
-          0,
-          0
-        ],
+        "hours": [0, 0],
         "mode": "Independent work with review",
         "plan": "Try the starter first. Ask the named reviewer for a focused check of the stated acceptance evidence; escalate a blocker rather than silently enlarging this task."
       },
@@ -5025,14 +4161,8 @@
         "high": 2,
         "basis": "Provisional focused owner hours, including learning, task documentation, checks and owner-side pairing. Track actual time; do not infer hours from SP."
       },
-      "reviewHours": [
-        0.25,
-        0.5
-      ],
-      "labels": [
-        "Could",
-        "SP:1"
-      ],
+      "reviewHours": [0.25, 0.5],
+      "labels": ["Could", "SP:1"],
       "steps": [
         "Read the focused resources and do the starter exercise below; stop and ask for help if you cannot explain the result.",
         "Choose five terms users found confusing.",
@@ -5084,13 +4214,8 @@
       "owner": "AI",
       "title": "Complete ML documentation and reproduce frozen inference",
       "sp": 3,
-      "depends": [
-        "S5-PLAN",
-        "S4-AI-01"
-      ],
-      "unlocks": [
-        "S5-W1-01"
-      ],
+      "depends": ["S5-PLAN", "S4-AI-01"],
+      "unlocks": ["S5-W1-01"],
       "objective": "Final ML technical section, model card and inference reproduction evidence.",
       "priority": "Must",
       "kind": "Delivery",
@@ -5098,10 +4223,7 @@
       "reviewer": "ST",
       "pair": {
         "member": null,
-        "hours": [
-          0,
-          0
-        ],
+        "hours": [0, 0],
         "mode": "Independent work with review",
         "plan": "Try the starter first. Ask the named reviewer for a focused check of the stated acceptance evidence; escalate a blocker rather than silently enlarging this task."
       },
@@ -5110,14 +4232,8 @@
         "high": 8,
         "basis": "Provisional focused owner hours, including learning, task documentation, checks and owner-side pairing. Track actual time; do not infer hours from SP."
       },
-      "reviewHours": [
-        0.25,
-        0.5
-      ],
-      "labels": [
-        "Must",
-        "SP:3"
-      ],
+      "reviewHours": [0.25, 0.5],
+      "labels": ["Must", "SP:3"],
       "steps": [
         "Read the focused resources and do the starter exercise below; stop and ask for help if you cannot explain the result.",
         "Finish model card and training instructions: source hash, approved inputs, target, splits, preprocessing, candidates, selection and fixed threshold.",
@@ -5184,14 +4300,8 @@
       "owner": "ST",
       "title": "Complete the results report and professor scope/evidence checklist",
       "sp": 3,
-      "depends": [
-        "S5-PLAN",
-        "S4-ST-01"
-      ],
-      "unlocks": [
-        "OPT-04",
-        "S5-W1-01"
-      ],
+      "depends": ["S5-PLAN", "S4-ST-01"],
+      "unlocks": ["OPT-04", "S5-W1-01"],
       "objective": "Coherent results report and final course-compliance inventory.",
       "priority": "Must",
       "kind": "Delivery",
@@ -5199,10 +4309,7 @@
       "reviewer": "AI",
       "pair": {
         "member": null,
-        "hours": [
-          0,
-          0
-        ],
+        "hours": [0, 0],
         "mode": "Independent work with review",
         "plan": "Try the starter first. Ask the named reviewer for a focused check of the stated acceptance evidence; escalate a blocker rather than silently enlarging this task."
       },
@@ -5211,14 +4318,8 @@
         "high": 7,
         "basis": "Provisional focused owner hours, including learning, task documentation, checks and owner-side pairing. Track actual time; do not infer hours from SP."
       },
-      "reviewHours": [
-        0.25,
-        0.5
-      ],
-      "labels": [
-        "Must",
-        "SP:3"
-      ],
+      "reviewHours": [0.25, 0.5],
+      "labels": ["Must", "SP:3"],
       "steps": [
         "Read the focused resources and do the starter exercise below; stop and ask for help if you cannot explain the result.",
         "Finish the concise research report: question, data, procedure, validation comparison, frozen choice, held-out results and limitations.",
@@ -5349,10 +4450,7 @@
       "reviewer": "W2",
       "pair": {
         "member": null,
-        "hours": [
-          0,
-          0
-        ],
+        "hours": [0, 0],
         "mode": "Independent work with review",
         "plan": "Try the starter first. Ask the named reviewer for a focused check of the stated acceptance evidence; escalate a blocker rather than silently enlarging this task."
       },
@@ -5361,14 +4459,8 @@
         "high": 8,
         "basis": "Provisional focused owner hours, including learning, task documentation, checks and owner-side pairing. Track actual time; do not infer hours from SP."
       },
-      "reviewHours": [
-        0.25,
-        0.5
-      ],
-      "labels": [
-        "Must",
-        "SP:3"
-      ],
+      "reviewHours": [0.25, 0.5],
+      "labels": ["Must", "SP:3"],
       "steps": [
         "Read the focused resources and do the starter exercise below; stop and ask for help if you cannot explain the result.",
         "Consolidate the small architecture, route contracts, setup commands and known limitations using W3/AI/ST contributions; do not rewrite their sections yourself.",
@@ -5388,9 +4480,9 @@
       "learn": "Explain the entire app in two minutes without hiding other members’ contributions.",
       "resources": [
         {
-          "label": "Django tutorial",
-          "url": "https://docs.djangoproject.com/en/5.2/intro/tutorial01/",
-          "focus": "Follow the local project and request-routing example; stop before unrelated features."
+          "label": "Express guide",
+          "url": "https://expressjs.com/en/guide/routing.html",
+          "focus": "JavaScript handlers, middleware, server-rendered templates and form validation."
         },
         {
           "label": "GitHub Hello World",
@@ -5404,8 +4496,8 @@
         }
       ],
       "tools": [
-        "Python virtual environment",
-        "Django",
+        "Node.js/npm (AI provides Python interpreter for CLI calls)",
+        "Node.js / Express",
         "Git",
         "browser"
       ],
@@ -5434,14 +4526,8 @@
       "owner": "W2",
       "title": "Finish the user manual and demonstrate a fresh setup",
       "sp": 3,
-      "depends": [
-        "S5-PLAN",
-        "S4-W2-01"
-      ],
-      "unlocks": [
-        "OPT-02",
-        "S5-W1-01"
-      ],
+      "depends": ["S5-PLAN", "S4-W2-01"],
+      "unlocks": ["OPT-02", "S5-W1-01"],
       "objective": "Tested user manual and independent release walkthrough evidence.",
       "priority": "Must",
       "kind": "Delivery",
@@ -5449,10 +4535,7 @@
       "reviewer": "W3",
       "pair": {
         "member": null,
-        "hours": [
-          0,
-          0
-        ],
+        "hours": [0, 0],
         "mode": "Independent work with review",
         "plan": "Try the starter first. Ask the named reviewer for a focused check of the stated acceptance evidence; escalate a blocker rather than silently enlarging this task."
       },
@@ -5461,14 +4544,8 @@
         "high": 7,
         "basis": "Provisional focused owner hours, including learning, task documentation, checks and owner-side pairing. Track actual time; do not infer hours from SP."
       },
-      "reviewHours": [
-        0.25,
-        0.5
-      ],
-      "labels": [
-        "Must",
-        "SP:3"
-      ],
+      "reviewHours": [0.25, 0.5],
+      "labels": ["Must", "SP:3"],
       "steps": [
         "Read the focused resources and do the starter exercise below; stop and ask for help if you cannot explain the result.",
         "Follow the setup guide from a clean environment with a disposable database and record actual command outputs; ask W1 to fix gaps.",
@@ -5500,7 +4577,7 @@
       ],
       "tools": [
         "HTML/CSS",
-        "Django templates",
+        "Express-served EJS templates",
         "plain JavaScript",
         "browser",
         "Git"
@@ -5530,14 +4607,8 @@
       "owner": "W3",
       "title": "Finalize the schema, data appendix and database demo evidence",
       "sp": 3,
-      "depends": [
-        "S5-PLAN",
-        "S4-W3-01"
-      ],
-      "unlocks": [
-        "OPT-03",
-        "S5-W1-01"
-      ],
+      "depends": ["S5-PLAN", "S4-W3-01"],
+      "unlocks": ["OPT-03", "S5-W1-01"],
       "objective": "Accurate final database/data documentation with reproducible evidence.",
       "priority": "Must",
       "kind": "Delivery",
@@ -5545,10 +4616,7 @@
       "reviewer": "W1",
       "pair": {
         "member": null,
-        "hours": [
-          0,
-          0
-        ],
+        "hours": [0, 0],
         "mode": "Independent work with review",
         "plan": "Try the starter first. Ask the named reviewer for a focused check of the stated acceptance evidence; escalate a blocker rather than silently enlarging this task."
       },
@@ -5557,14 +4625,8 @@
         "high": 7,
         "basis": "Provisional focused owner hours, including learning, task documentation, checks and owner-side pairing. Track actual time; do not infer hours from SP."
       },
-      "reviewHours": [
-        0.25,
-        0.5
-      ],
-      "labels": [
-        "Must",
-        "SP:3"
-      ],
+      "reviewHours": [0.25, 0.5],
+      "labels": ["Must", "SP:3"],
       "steps": [
         "Read the focused resources and do the starter exercise below; stop and ask for help if you cannot explain the result.",
         "Compare the diagram/data dictionary against the actual migrations; correct names, constraints and service-enforced invariants.",
@@ -5584,14 +4646,14 @@
       "learn": "Explain why no preview, audit or model-registry tables are needed.",
       "resources": [
         {
-          "label": "Django models",
-          "url": "https://docs.djangoproject.com/en/5.2/topics/db/models/",
-          "focus": "Read foreign keys, constraints and model migrations alongside the small schema."
+          "label": "SQLite transactions",
+          "url": "https://www.sqlite.org/lang_transaction.html",
+          "focus": "Use explicit transactions on one connection, bound parameters and enabled foreign keys."
         },
         {
-          "label": "Database transactions",
-          "url": "https://docs.djangoproject.com/en/5.2/topics/db/transactions/",
-          "focus": "Study transaction.atomic and the effect of an exception on grouped writes."
+          "label": "SQLite transactions",
+          "url": "https://www.sqlite.org/lang_transaction.html",
+          "focus": "Use explicit transactions on one connection, bound parameters and enabled foreign keys."
         },
         {
           "label": "DBML syntax",
@@ -5600,9 +4662,9 @@
         }
       ],
       "tools": [
-        "Django ORM",
+        "SQLite + JavaScript bound queries",
         "SQLite",
-        "Python csv",
+        "JavaScript CSV parser",
         "Git"
       ],
       "starterExercise": "Compare one field and uniqueness rule between model and diagram.",
@@ -5630,13 +4692,8 @@
       "owner": "AI",
       "title": "Sprint 5: write AI’s individual summary",
       "sp": 1,
-      "depends": [
-        "S5-PLAN"
-      ],
-      "unlocks": [
-        "S5-W1-01",
-        "S5-REVIEW"
-      ],
+      "depends": ["S5-PLAN"],
+      "unlocks": ["S5-W1-01", "S5-REVIEW"],
       "objective": "One truthful individual summary for AI, Sprint 5.",
       "priority": "Must",
       "kind": "Scrum",
@@ -5644,10 +4701,7 @@
       "reviewer": "W2",
       "pair": {
         "member": null,
-        "hours": [
-          0,
-          0
-        ],
+        "hours": [0, 0],
         "mode": "Independent work with review",
         "plan": "Try the starter first. Ask the named reviewer for a focused check of the stated acceptance evidence; escalate a blocker rather than silently enlarging this task."
       },
@@ -5656,14 +4710,8 @@
         "high": 0.75,
         "basis": "Provisional focused owner hours, including learning, task documentation, checks and owner-side pairing. Track actual time; do not infer hours from SP."
       },
-      "reviewHours": [
-        0,
-        0
-      ],
-      "labels": [
-        "Must",
-        "SP:1"
-      ],
+      "reviewHours": [0, 0],
+      "labels": ["Must", "SP:1"],
       "steps": [
         "Read the focused resources and do the starter exercise below; stop and ask for help if you cannot explain the result.",
         "List committed tasks, actual progress and evidence links; unfinished work stays unfinished.",
@@ -5685,11 +4733,7 @@
           "focus": "Read the sprint goal, backlog, review and retrospective; retain the course-required individual summaries."
         }
       ],
-      "tools": [
-        "Markdown",
-        "shared board",
-        "GitHub"
-      ],
+      "tools": ["Markdown", "shared board", "GitHub"],
       "starterExercise": "Write three bullets: built, learned, blocked.",
       "snippet": {
         "language": "illustrative contract / pseudocode",
@@ -5715,13 +4759,8 @@
       "owner": "ST",
       "title": "Sprint 5: write ST’s individual summary",
       "sp": 1,
-      "depends": [
-        "S5-PLAN"
-      ],
-      "unlocks": [
-        "S5-W1-01",
-        "S5-REVIEW"
-      ],
+      "depends": ["S5-PLAN"],
+      "unlocks": ["S5-W1-01", "S5-REVIEW"],
       "objective": "One truthful individual summary for ST, Sprint 5.",
       "priority": "Must",
       "kind": "Scrum",
@@ -5729,10 +4768,7 @@
       "reviewer": "W2",
       "pair": {
         "member": null,
-        "hours": [
-          0,
-          0
-        ],
+        "hours": [0, 0],
         "mode": "Independent work with review",
         "plan": "Try the starter first. Ask the named reviewer for a focused check of the stated acceptance evidence; escalate a blocker rather than silently enlarging this task."
       },
@@ -5741,14 +4777,8 @@
         "high": 0.75,
         "basis": "Provisional focused owner hours, including learning, task documentation, checks and owner-side pairing. Track actual time; do not infer hours from SP."
       },
-      "reviewHours": [
-        0,
-        0
-      ],
-      "labels": [
-        "Must",
-        "SP:1"
-      ],
+      "reviewHours": [0, 0],
+      "labels": ["Must", "SP:1"],
       "steps": [
         "Read the focused resources and do the starter exercise below; stop and ask for help if you cannot explain the result.",
         "List committed tasks, actual progress and evidence links; unfinished work stays unfinished.",
@@ -5770,11 +4800,7 @@
           "focus": "Read the sprint goal, backlog, review and retrospective; retain the course-required individual summaries."
         }
       ],
-      "tools": [
-        "Markdown",
-        "shared board",
-        "GitHub"
-      ],
+      "tools": ["Markdown", "shared board", "GitHub"],
       "starterExercise": "Write three bullets: built, learned, blocked.",
       "snippet": {
         "language": "illustrative contract / pseudocode",
@@ -5800,13 +4826,8 @@
       "owner": "W1",
       "title": "Sprint 5: write W1’s individual summary",
       "sp": 1,
-      "depends": [
-        "S5-PLAN"
-      ],
-      "unlocks": [
-        "S5-W1-01",
-        "S5-REVIEW"
-      ],
+      "depends": ["S5-PLAN"],
+      "unlocks": ["S5-W1-01", "S5-REVIEW"],
       "objective": "One truthful individual summary for W1, Sprint 5.",
       "priority": "Must",
       "kind": "Scrum",
@@ -5814,10 +4835,7 @@
       "reviewer": "W2",
       "pair": {
         "member": null,
-        "hours": [
-          0,
-          0
-        ],
+        "hours": [0, 0],
         "mode": "Independent work with review",
         "plan": "Try the starter first. Ask the named reviewer for a focused check of the stated acceptance evidence; escalate a blocker rather than silently enlarging this task."
       },
@@ -5826,14 +4844,8 @@
         "high": 0.75,
         "basis": "Provisional focused owner hours, including learning, task documentation, checks and owner-side pairing. Track actual time; do not infer hours from SP."
       },
-      "reviewHours": [
-        0,
-        0
-      ],
-      "labels": [
-        "Must",
-        "SP:1"
-      ],
+      "reviewHours": [0, 0],
+      "labels": ["Must", "SP:1"],
       "steps": [
         "Read the focused resources and do the starter exercise below; stop and ask for help if you cannot explain the result.",
         "List committed tasks, actual progress and evidence links; unfinished work stays unfinished.",
@@ -5855,11 +4867,7 @@
           "focus": "Read the sprint goal, backlog, review and retrospective; retain the course-required individual summaries."
         }
       ],
-      "tools": [
-        "Markdown",
-        "shared board",
-        "GitHub"
-      ],
+      "tools": ["Markdown", "shared board", "GitHub"],
       "starterExercise": "Write three bullets: built, learned, blocked.",
       "snippet": {
         "language": "illustrative contract / pseudocode",
@@ -5885,13 +4893,8 @@
       "owner": "W2",
       "title": "Sprint 5: write W2’s individual summary",
       "sp": 1,
-      "depends": [
-        "S5-PLAN"
-      ],
-      "unlocks": [
-        "S5-W1-01",
-        "S5-REVIEW"
-      ],
+      "depends": ["S5-PLAN"],
+      "unlocks": ["S5-W1-01", "S5-REVIEW"],
       "objective": "One truthful individual summary for W2, Sprint 5.",
       "priority": "Must",
       "kind": "Scrum",
@@ -5899,10 +4902,7 @@
       "reviewer": "ST",
       "pair": {
         "member": null,
-        "hours": [
-          0,
-          0
-        ],
+        "hours": [0, 0],
         "mode": "Independent work with review",
         "plan": "Try the starter first. Ask the named reviewer for a focused check of the stated acceptance evidence; escalate a blocker rather than silently enlarging this task."
       },
@@ -5911,14 +4911,8 @@
         "high": 0.75,
         "basis": "Provisional focused owner hours, including learning, task documentation, checks and owner-side pairing. Track actual time; do not infer hours from SP."
       },
-      "reviewHours": [
-        0,
-        0
-      ],
-      "labels": [
-        "Must",
-        "SP:1"
-      ],
+      "reviewHours": [0, 0],
+      "labels": ["Must", "SP:1"],
       "steps": [
         "Read the focused resources and do the starter exercise below; stop and ask for help if you cannot explain the result.",
         "List committed tasks, actual progress and evidence links; unfinished work stays unfinished.",
@@ -5940,11 +4934,7 @@
           "focus": "Read the sprint goal, backlog, review and retrospective; retain the course-required individual summaries."
         }
       ],
-      "tools": [
-        "Markdown",
-        "shared board",
-        "GitHub"
-      ],
+      "tools": ["Markdown", "shared board", "GitHub"],
       "starterExercise": "Write three bullets: built, learned, blocked.",
       "snippet": {
         "language": "illustrative contract / pseudocode",
@@ -5970,13 +4960,8 @@
       "owner": "W3",
       "title": "Sprint 5: write W3’s individual summary",
       "sp": 1,
-      "depends": [
-        "S5-PLAN"
-      ],
-      "unlocks": [
-        "S5-W1-01",
-        "S5-REVIEW"
-      ],
+      "depends": ["S5-PLAN"],
+      "unlocks": ["S5-W1-01", "S5-REVIEW"],
       "objective": "One truthful individual summary for W3, Sprint 5.",
       "priority": "Must",
       "kind": "Scrum",
@@ -5984,10 +4969,7 @@
       "reviewer": "W2",
       "pair": {
         "member": null,
-        "hours": [
-          0,
-          0
-        ],
+        "hours": [0, 0],
         "mode": "Independent work with review",
         "plan": "Try the starter first. Ask the named reviewer for a focused check of the stated acceptance evidence; escalate a blocker rather than silently enlarging this task."
       },
@@ -5996,14 +4978,8 @@
         "high": 0.75,
         "basis": "Provisional focused owner hours, including learning, task documentation, checks and owner-side pairing. Track actual time; do not infer hours from SP."
       },
-      "reviewHours": [
-        0,
-        0
-      ],
-      "labels": [
-        "Must",
-        "SP:1"
-      ],
+      "reviewHours": [0, 0],
+      "labels": ["Must", "SP:1"],
       "steps": [
         "Read the focused resources and do the starter exercise below; stop and ask for help if you cannot explain the result.",
         "List committed tasks, actual progress and evidence links; unfinished work stays unfinished.",
@@ -6025,11 +5001,7 @@
           "focus": "Read the sprint goal, backlog, review and retrospective; retain the course-required individual summaries."
         }
       ],
-      "tools": [
-        "Markdown",
-        "shared board",
-        "GitHub"
-      ],
+      "tools": ["Markdown", "shared board", "GitHub"],
       "starterExercise": "Write three bullets: built, learned, blocked.",
       "snippet": {
         "language": "illustrative contract / pseudocode",
@@ -6063,9 +5035,7 @@
         "S5-AI-SUMMARY",
         "S5-ST-SUMMARY"
       ],
-      "unlocks": [
-        "S5-W1-01"
-      ],
+      "unlocks": ["S5-W1-01"],
       "objective": "One Sprint 5 review/retrospective record with actual feedback and follow-up.",
       "priority": "Must",
       "kind": "Scrum",
@@ -6073,10 +5043,7 @@
       "reviewer": "ST",
       "pair": {
         "member": null,
-        "hours": [
-          0,
-          0
-        ],
+        "hours": [0, 0],
         "mode": "Independent work with review",
         "plan": "Try the starter first. Ask the named reviewer for a focused check of the stated acceptance evidence; escalate a blocker rather than silently enlarging this task."
       },
@@ -6085,14 +5052,8 @@
         "high": 0.75,
         "basis": "Provisional focused owner hours, including learning, task documentation, checks and owner-side pairing. Track actual time; do not infer hours from SP."
       },
-      "reviewHours": [
-        0,
-        0
-      ],
-      "labels": [
-        "Must",
-        "SP:1"
-      ],
+      "reviewHours": [0, 0],
+      "labels": ["Must", "SP:1"],
       "steps": [
         "Read the focused resources and do the starter exercise below; stop and ask for help if you cannot explain the result.",
         "Demo actual working behavior to the professor/team at the two-week checkpoint; show known gaps honestly.",
@@ -6114,11 +5075,7 @@
           "focus": "Read the sprint goal, backlog, review and retrospective; retain the course-required individual summaries."
         }
       ],
-      "tools": [
-        "Markdown",
-        "shared board",
-        "GitHub"
-      ],
+      "tools": ["Markdown", "shared board", "GitHub"],
       "starterExercise": "Show one working action and one limitation.",
       "snippet": {
         "language": "illustrative contract / pseudocode",
@@ -6153,10 +5110,7 @@
       "reviewer": "W1",
       "pair": {
         "member": null,
-        "hours": [
-          0,
-          0
-        ],
+        "hours": [0, 0],
         "mode": "Unscheduled scope idea",
         "plan": "No pairing is reserved. Select and estimate support only after a new scope decision."
       },
@@ -6165,14 +5119,8 @@
         "high": 4,
         "basis": "Rough future estimate only; excluded from the five-sprint capacity forecast while sprint is 0."
       },
-      "reviewHours": [
-        0,
-        0
-      ],
-      "labels": [
-        "Could",
-        "SP:2"
-      ],
+      "reviewHours": [0, 0],
+      "labels": ["Could", "SP:2"],
       "steps": [
         "Confirm that every scheduled Must and Should feature has accepted evidence and that the team still has capacity.",
         "Add a labelled search field and clear button to the dataset list.",
@@ -6189,13 +5137,13 @@
       "learn": "Explain the user value, added complexity and why the current release remains complete without it.",
       "resources": [
         {
-          "label": "Django QuerySet API",
-          "url": "https://docs.djangoproject.com/en/5.2/ref/models/querysets/",
-          "focus": "Review a small owner-filtered contains query only if the card is selected."
+          "label": "Express guide",
+          "url": "https://expressjs.com/en/guide/routing.html",
+          "focus": "JavaScript handlers, middleware, server-rendered templates and form validation."
         }
       ],
       "tools": [
-        "Django ORM",
+        "SQLite + JavaScript bound queries",
         "HTML form",
         "plain JavaScript"
       ],
@@ -6233,10 +5181,7 @@
       "reviewer": "ST",
       "pair": {
         "member": null,
-        "hours": [
-          0,
-          0
-        ],
+        "hours": [0, 0],
         "mode": "Unscheduled scope idea",
         "plan": "No pairing is reserved. Select and estimate support only after a new scope decision."
       },
@@ -6245,14 +5190,8 @@
         "high": 4,
         "basis": "Rough future estimate only; excluded from the five-sprint capacity forecast while sprint is 0."
       },
-      "reviewHours": [
-        0,
-        0
-      ],
-      "labels": [
-        "Could",
-        "SP:2"
-      ],
+      "reviewHours": [0, 0],
+      "labels": ["Could", "SP:2"],
       "steps": [
         "Confirm that every scheduled Must and Should feature has accepted evidence and that the team still has capacity.",
         "Add All, Flagged and Not flagged controls with accessible active state.",
@@ -6269,14 +5208,14 @@
       "learn": "Explain the user value, added complexity and why the current release remains complete without it.",
       "resources": [
         {
-          "label": "Django pagination",
-          "url": "https://docs.djangoproject.com/en/5.2/topics/pagination/",
-          "focus": "Reset/clamp pages when an optional result filter changes."
+          "label": "Express guide",
+          "url": "https://expressjs.com/en/guide/routing.html",
+          "focus": "JavaScript handlers, middleware, server-rendered templates and form validation."
         }
       ],
       "tools": [
-        "Django ORM",
-        "Django templates",
+        "SQLite + JavaScript bound queries",
+        "Express-served EJS templates",
         "HTML buttons"
       ],
       "starterExercise": "Sketch the smallest useful example and compare its value with the remaining core defects and documentation work.",
@@ -6313,10 +5252,7 @@
       "reviewer": "ST",
       "pair": {
         "member": null,
-        "hours": [
-          0,
-          0
-        ],
+        "hours": [0, 0],
         "mode": "Unscheduled scope idea",
         "plan": "No pairing is reserved. Select and estimate support only after a new scope decision."
       },
@@ -6325,14 +5261,8 @@
         "high": 6,
         "basis": "Rough future estimate only; excluded from the five-sprint capacity forecast while sprint is 0."
       },
-      "reviewHours": [
-        0,
-        0
-      ],
-      "labels": [
-        "Could",
-        "SP:3"
-      ],
+      "reviewHours": [0, 0],
+      "labels": ["Could", "SP:3"],
       "steps": [
         "Confirm that every scheduled Must and Should feature has accepted evidence and that the team still has capacity.",
         "Require two owned complete runs and define which metadata may be compared.",
@@ -6349,14 +5279,14 @@
       "learn": "Explain the user value, added complexity and why the current release remains complete without it.",
       "resources": [
         {
-          "label": "Django authentication",
-          "url": "https://docs.djangoproject.com/en/5.2/topics/auth/default/",
-          "focus": "Apply the existing ownership rule to both selected run IDs."
+          "label": "Express session middleware",
+          "url": "https://expressjs.com/en/resources/middleware/session/",
+          "focus": "Session store, cookie settings, regeneration and destruction; add CSRF and ownership checks."
         }
       ],
       "tools": [
-        "Django views",
-        "Django ORM",
+        "Express views",
+        "SQLite + JavaScript bound queries",
         "HTML table"
       ],
       "starterExercise": "Sketch the smallest useful example and compare its value with the remaining core defects and documentation work.",
@@ -6393,10 +5323,7 @@
       "reviewer": "W3",
       "pair": {
         "member": null,
-        "hours": [
-          0,
-          0
-        ],
+        "hours": [0, 0],
         "mode": "Unscheduled scope idea",
         "plan": "No pairing is reserved. Select and estimate support only after a new scope decision."
       },
@@ -6405,14 +5332,8 @@
         "high": 3,
         "basis": "Rough future estimate only; excluded from the five-sprint capacity forecast while sprint is 0."
       },
-      "reviewHours": [
-        0,
-        0
-      ],
-      "labels": [
-        "Could",
-        "SP:1"
-      ],
+      "reviewHours": [0, 0],
+      "labels": ["Could", "SP:1"],
       "steps": [
         "Confirm that every scheduled Must and Should feature has accepted evidence and that the team still has capacity.",
         "Reuse the importer contract instead of copying an inconsistent schema.",
@@ -6434,11 +5355,7 @@
           "focus": "Use a native disclosure if this convenience is selected."
         }
       ],
-      "tools": [
-        "HTML",
-        "CSS",
-        "Django template"
-      ],
+      "tools": ["HTML", "CSS", "Express template"],
       "starterExercise": "Sketch the smallest useful example and compare its value with the remaining core defects and documentation work.",
       "snippet": {
         "language": "scope decision",
@@ -6473,10 +5390,7 @@
       "reviewer": "AI",
       "pair": {
         "member": null,
-        "hours": [
-          0,
-          0
-        ],
+        "hours": [0, 0],
         "mode": "Independent work with review",
         "plan": "Try the starter first. Ask the named reviewer for a focused check of the stated acceptance evidence; escalate a blocker rather than silently enlarging this task."
       },
@@ -6485,23 +5399,15 @@
         "high": 0,
         "basis": "Provisional focused owner hours, including learning, task documentation, checks and owner-side pairing. Track actual time; do not infer hours from SP."
       },
-      "reviewHours": [
-        0,
-        0
-      ],
-      "labels": [
-        "Won’t",
-        "SP:1"
-      ],
+      "reviewHours": [0, 0],
+      "labels": ["Won’t", "SP:1"],
       "steps": [
         "Read the focused resources and do the starter exercise below; stop and ask for help if you cannot explain the result.",
         "Explain the excluded feature and the smaller alternative.",
         "Record a new explicit scope/capacity decision before ever scheduling it.",
         "Attach the changed file/report, exact input and actual check result to this card. Record actual hours and request the named review before marking Done."
       ],
-      "accept": [
-        "This is recorded as out of scope, not falsely implemented."
-      ],
+      "accept": ["This is recorded as out of scope, not falsely implemented."],
       "outcome": "One ordinary app user; each user sees only owned data.",
       "avoid": "Do not move an excluded card to In Progress.",
       "learn": "Explain the scope trade-off.",
@@ -6512,11 +5418,7 @@
           "focus": "Read the sprint goal, backlog, review and retrospective; retain the course-required individual summaries."
         }
       ],
-      "tools": [
-        "Markdown",
-        "shared board",
-        "GitHub"
-      ],
+      "tools": ["Markdown", "shared board", "GitHub"],
       "starterExercise": "Read the alternative and confirm the core still works.",
       "snippet": {
         "language": "illustrative contract / pseudocode",
@@ -6551,10 +5453,7 @@
       "reviewer": "W1",
       "pair": {
         "member": null,
-        "hours": [
-          0,
-          0
-        ],
+        "hours": [0, 0],
         "mode": "Independent work with review",
         "plan": "Try the starter first. Ask the named reviewer for a focused check of the stated acceptance evidence; escalate a blocker rather than silently enlarging this task."
       },
@@ -6563,23 +5462,15 @@
         "high": 0,
         "basis": "Provisional focused owner hours, including learning, task documentation, checks and owner-side pairing. Track actual time; do not infer hours from SP."
       },
-      "reviewHours": [
-        0,
-        0
-      ],
-      "labels": [
-        "Won’t",
-        "SP:1"
-      ],
+      "reviewHours": [0, 0],
+      "labels": ["Won’t", "SP:1"],
       "steps": [
         "Read the focused resources and do the starter exercise below; stop and ask for help if you cannot explain the result.",
         "Explain the excluded feature and the smaller alternative.",
         "Record a new explicit scope/capacity decision before ever scheduling it.",
         "Attach the changed file/report, exact input and actual check result to this card. Record actual hours and request the named review before marking Done."
       ],
-      "accept": [
-        "This is recorded as out of scope, not falsely implemented."
-      ],
+      "accept": ["This is recorded as out of scope, not falsely implemented."],
       "outcome": "Read a plain paged table; no report, CSV or PDF export.",
       "avoid": "Do not move an excluded card to In Progress.",
       "learn": "Explain the scope trade-off.",
@@ -6590,11 +5481,7 @@
           "focus": "Read the sprint goal, backlog, review and retrospective; retain the course-required individual summaries."
         }
       ],
-      "tools": [
-        "Markdown",
-        "shared board",
-        "GitHub"
-      ],
+      "tools": ["Markdown", "shared board", "GitHub"],
       "starterExercise": "Read the alternative and confirm the core still works.",
       "snippet": {
         "language": "illustrative contract / pseudocode",
@@ -6629,10 +5516,7 @@
       "reviewer": "W1",
       "pair": {
         "member": null,
-        "hours": [
-          0,
-          0
-        ],
+        "hours": [0, 0],
         "mode": "Independent work with review",
         "plan": "Try the starter first. Ask the named reviewer for a focused check of the stated acceptance evidence; escalate a blocker rather than silently enlarging this task."
       },
@@ -6641,23 +5525,15 @@
         "high": 0,
         "basis": "Provisional focused owner hours, including learning, task documentation, checks and owner-side pairing. Track actual time; do not infer hours from SP."
       },
-      "reviewHours": [
-        0,
-        0
-      ],
-      "labels": [
-        "Won’t",
-        "SP:1"
-      ],
+      "reviewHours": [0, 0],
+      "labels": ["Won’t", "SP:1"],
       "steps": [
         "Read the focused resources and do the starter exercise below; stop and ask for help if you cannot explain the result.",
         "Explain the excluded feature and the smaller alternative.",
         "Record a new explicit scope/capacity decision before ever scheduling it.",
         "Attach the changed file/report, exact input and actual check result to this card. Record actual hours and request the named review before marking Done."
       ],
-      "accept": [
-        "This is recorded as out of scope, not falsely implemented."
-      ],
+      "accept": ["This is recorded as out of scope, not falsely implemented."],
       "outcome": "One-step validated atomic import; intentional repeat uploads make new datasets.",
       "avoid": "Do not move an excluded card to In Progress.",
       "learn": "Explain the scope trade-off.",
@@ -6668,11 +5544,7 @@
           "focus": "Read the sprint goal, backlog, review and retrospective; retain the course-required individual summaries."
         }
       ],
-      "tools": [
-        "Markdown",
-        "shared board",
-        "GitHub"
-      ],
+      "tools": ["Markdown", "shared board", "GitHub"],
       "starterExercise": "Read the alternative and confirm the core still works.",
       "snippet": {
         "language": "illustrative contract / pseudocode",
@@ -6700,17 +5572,14 @@
       "sp": 1,
       "depends": [],
       "unlocks": [],
-      "objective": "Load the saved pipeline inside the single backend for capped synchronous predictions.",
+      "objective": "Express awaits the ML-owned Python CLI for capped predictions; no Python web service.",
       "priority": "Won’t",
       "kind": "Deferred",
       "status": "Backlog",
       "reviewer": "AI",
       "pair": {
         "member": null,
-        "hours": [
-          0,
-          0
-        ],
+        "hours": [0, 0],
         "mode": "Independent work with review",
         "plan": "Try the starter first. Ask the named reviewer for a focused check of the stated acceptance evidence; escalate a blocker rather than silently enlarging this task."
       },
@@ -6719,24 +5588,16 @@
         "high": 0,
         "basis": "Provisional focused owner hours, including learning, task documentation, checks and owner-side pairing. Track actual time; do not infer hours from SP."
       },
-      "reviewHours": [
-        0,
-        0
-      ],
-      "labels": [
-        "Won’t",
-        "SP:1"
-      ],
+      "reviewHours": [0, 0],
+      "labels": ["Won’t", "SP:1"],
       "steps": [
         "Read the focused resources and do the starter exercise below; stop and ask for help if you cannot explain the result.",
         "Explain the excluded feature and the smaller alternative.",
         "Record a new explicit scope/capacity decision before ever scheduling it.",
         "Attach the changed file/report, exact input and actual check result to this card. Record actual hours and request the named review before marking Done."
       ],
-      "accept": [
-        "This is recorded as out of scope, not falsely implemented."
-      ],
-      "outcome": "Load the saved pipeline inside the single backend for capped synchronous predictions.",
+      "accept": ["This is recorded as out of scope, not falsely implemented."],
+      "outcome": "Express awaits the ML-owned Python CLI for capped predictions; no Python web service.",
       "avoid": "Do not move an excluded card to In Progress.",
       "learn": "Explain the scope trade-off.",
       "resources": [
@@ -6746,15 +5607,11 @@
           "focus": "Read the sprint goal, backlog, review and retrospective; retain the course-required individual summaries."
         }
       ],
-      "tools": [
-        "Markdown",
-        "shared board",
-        "GitHub"
-      ],
+      "tools": ["Markdown", "shared board", "GitHub"],
       "starterExercise": "Read the alternative and confirm the core still works.",
       "snippet": {
         "language": "illustrative contract / pseudocode",
-        "code": "Won’t this release\nAlternative: Load the saved pipeline inside the single backend for capped synchronous predictions.",
+        "code": "Won’t this release\nAlternative: Express awaits the ML-owned Python CLI for capped predictions; no Python web service.",
         "note": "Starting pattern only; adapt to the agreed schema. This is not completed application code or measured results."
       },
       "troubleshooting": "Reduce the failing case to the starter fixture, compare expected and actual output, then ask the named reviewer with the input and error. Do not change several layers at once.",
@@ -6785,10 +5642,7 @@
       "reviewer": "W1",
       "pair": {
         "member": null,
-        "hours": [
-          0,
-          0
-        ],
+        "hours": [0, 0],
         "mode": "Independent work with review",
         "plan": "Try the starter first. Ask the named reviewer for a focused check of the stated acceptance evidence; escalate a blocker rather than silently enlarging this task."
       },
@@ -6797,23 +5651,15 @@
         "high": 0,
         "basis": "Provisional focused owner hours, including learning, task documentation, checks and owner-side pairing. Track actual time; do not infer hours from SP."
       },
-      "reviewHours": [
-        0,
-        0
-      ],
-      "labels": [
-        "Won’t",
-        "SP:1"
-      ],
+      "reviewHours": [0, 0],
+      "labels": ["Won’t", "SP:1"],
       "steps": [
         "Read the focused resources and do the starter exercise below; stop and ask for help if you cannot explain the result.",
         "Explain the excluded feature and the smaller alternative.",
         "Record a new explicit scope/capacity decision before ever scheduling it.",
         "Attach the changed file/report, exact input and actual check result to this card. Record actual hours and request the named review before marking Done."
       ],
-      "accept": [
-        "This is recorded as out of scope, not falsely implemented."
-      ],
+      "accept": ["This is recorded as out of scope, not falsely implemented."],
       "outcome": "Keep approved inputs and complete results; use only disposable synthetic demo reset outside the UI.",
       "avoid": "Do not move an excluded card to In Progress.",
       "learn": "Explain the scope trade-off.",
@@ -6824,11 +5670,7 @@
           "focus": "Read the sprint goal, backlog, review and retrospective; retain the course-required individual summaries."
         }
       ],
-      "tools": [
-        "Markdown",
-        "shared board",
-        "GitHub"
-      ],
+      "tools": ["Markdown", "shared board", "GitHub"],
       "starterExercise": "Read the alternative and confirm the core still works.",
       "snippet": {
         "language": "illustrative contract / pseudocode",
@@ -6863,10 +5705,7 @@
       "reviewer": "AI",
       "pair": {
         "member": null,
-        "hours": [
-          0,
-          0
-        ],
+        "hours": [0, 0],
         "mode": "Independent work with review",
         "plan": "Try the starter first. Ask the named reviewer for a focused check of the stated acceptance evidence; escalate a blocker rather than silently enlarging this task."
       },
@@ -6875,23 +5714,15 @@
         "high": 0,
         "basis": "Provisional focused owner hours, including learning, task documentation, checks and owner-side pairing. Track actual time; do not infer hours from SP."
       },
-      "reviewHours": [
-        0,
-        0
-      ],
-      "labels": [
-        "Won’t",
-        "SP:1"
-      ],
+      "reviewHours": [0, 0],
+      "labels": ["Won’t", "SP:1"],
       "steps": [
         "Read the focused resources and do the starter exercise below; stop and ask for help if you cannot explain the result.",
         "Explain the excluded feature and the smaller alternative.",
         "Record a new explicit scope/capacity decision before ever scheduling it.",
         "Attach the changed file/report, exact input and actual check result to this card. Record actual hours and request the named review before marking Done."
       ],
-      "accept": [
-        "This is recorded as out of scope, not falsely implemented."
-      ],
+      "accept": ["This is recorded as out of scope, not falsely implemented."],
       "outcome": "Use a reproducible local demonstration; confirm hosting expectations with the professor.",
       "avoid": "Do not move an excluded card to In Progress.",
       "learn": "Explain the scope trade-off.",
@@ -6902,11 +5733,7 @@
           "focus": "Read the sprint goal, backlog, review and retrospective; retain the course-required individual summaries."
         }
       ],
-      "tools": [
-        "Markdown",
-        "shared board",
-        "GitHub"
-      ],
+      "tools": ["Markdown", "shared board", "GitHub"],
       "starterExercise": "Read the alternative and confirm the core still works.",
       "snippet": {
         "language": "illustrative contract / pseudocode",
@@ -6941,10 +5768,7 @@
       "reviewer": "ST",
       "pair": {
         "member": null,
-        "hours": [
-          0,
-          0
-        ],
+        "hours": [0, 0],
         "mode": "Independent work with review",
         "plan": "Try the starter first. Ask the named reviewer for a focused check of the stated acceptance evidence; escalate a blocker rather than silently enlarging this task."
       },
@@ -6953,23 +5777,15 @@
         "high": 0,
         "basis": "Provisional focused owner hours, including learning, task documentation, checks and owner-side pairing. Track actual time; do not infer hours from SP."
       },
-      "reviewHours": [
-        0,
-        0
-      ],
-      "labels": [
-        "Won’t",
-        "SP:1"
-      ],
+      "reviewHours": [0, 0],
+      "labels": ["Won’t", "SP:1"],
       "steps": [
         "Read the focused resources and do the starter exercise below; stop and ask for help if you cannot explain the result.",
         "Explain the excluded feature and the smaller alternative.",
         "Record a new explicit scope/capacity decision before ever scheduling it.",
         "Attach the changed file/report, exact input and actual check result to this card. Record actual hours and request the named review before marking Done."
       ],
-      "accept": [
-        "This is recorded as out of scope, not falsely implemented."
-      ],
+      "accept": ["This is recorded as out of scope, not falsely implemented."],
       "outcome": "Compare a baseline, logistic and one fixed forest; freeze one artifact.",
       "avoid": "Do not move an excluded card to In Progress.",
       "learn": "Explain the scope trade-off.",
@@ -6980,11 +5796,7 @@
           "focus": "Read the sprint goal, backlog, review and retrospective; retain the course-required individual summaries."
         }
       ],
-      "tools": [
-        "Markdown",
-        "shared board",
-        "GitHub"
-      ],
+      "tools": ["Markdown", "shared board", "GitHub"],
       "starterExercise": "Read the alternative and confirm the core still works.",
       "snippet": {
         "language": "illustrative contract / pseudocode",
@@ -7019,10 +5831,7 @@
       "reviewer": "AI",
       "pair": {
         "member": null,
-        "hours": [
-          0,
-          0
-        ],
+        "hours": [0, 0],
         "mode": "Independent work with review",
         "plan": "Try the starter first. Ask the named reviewer for a focused check of the stated acceptance evidence; escalate a blocker rather than silently enlarging this task."
       },
@@ -7031,23 +5840,15 @@
         "high": 0,
         "basis": "Provisional focused owner hours, including learning, task documentation, checks and owner-side pairing. Track actual time; do not infer hours from SP."
       },
-      "reviewHours": [
-        0,
-        0
-      ],
-      "labels": [
-        "Won’t",
-        "SP:1"
-      ],
+      "reviewHours": [0, 0],
+      "labels": ["Won’t", "SP:1"],
       "steps": [
         "Read the focused resources and do the starter exercise below; stop and ask for help if you cannot explain the result.",
         "Explain the excluded feature and the smaller alternative.",
         "Record a new explicit scope/capacity decision before ever scheduling it.",
         "Attach the changed file/report, exact input and actual check result to this card. Record actual hours and request the named review before marking Done."
       ],
-      "accept": [
-        "This is recorded as out of scope, not falsely implemented."
-      ],
+      "accept": ["This is recorded as out of scope, not falsely implemented."],
       "outcome": "One predictive question with independent metrics, sample counts and transparent limitations.",
       "avoid": "Do not move an excluded card to In Progress.",
       "learn": "Explain the scope trade-off.",
@@ -7058,11 +5859,7 @@
           "focus": "Read the sprint goal, backlog, review and retrospective; retain the course-required individual summaries."
         }
       ],
-      "tools": [
-        "Markdown",
-        "shared board",
-        "GitHub"
-      ],
+      "tools": ["Markdown", "shared board", "GitHub"],
       "starterExercise": "Read the alternative and confirm the core still works.",
       "snippet": {
         "language": "illustrative contract / pseudocode",
@@ -7097,10 +5894,7 @@
       "reviewer": "AI",
       "pair": {
         "member": null,
-        "hours": [
-          0,
-          0
-        ],
+        "hours": [0, 0],
         "mode": "Unscheduled scope idea",
         "plan": "No pairing is reserved. Select and estimate support only after a new scope decision."
       },
@@ -7109,14 +5903,8 @@
         "high": 0,
         "basis": "Rough future estimate only; excluded from the five-sprint capacity forecast while sprint is 0."
       },
-      "reviewHours": [
-        0,
-        0
-      ],
-      "labels": [
-        "Won’t",
-        "SP:1"
-      ],
+      "reviewHours": [0, 0],
+      "labels": ["Won’t", "SP:1"],
       "steps": [
         "Confirm that every scheduled Must and Should feature has accepted evidence and that the team still has capacity.",
         "Explain why real records would require institutional permission, privacy rules and a different risk review.",
@@ -7136,10 +5924,7 @@
           "focus": "Use the cited research source for offline modelling and invented rows for the web demo."
         }
       ],
-      "tools": [
-        "Scope register",
-        "data documentation"
-      ],
+      "tools": ["Scope register", "data documentation"],
       "starterExercise": "Sketch the smallest useful example and compare its value with the remaining core defects and documentation work.",
       "snippet": {
         "language": "scope decision",
@@ -7174,10 +5959,7 @@
       "reviewer": "W1",
       "pair": {
         "member": null,
-        "hours": [
-          0,
-          0
-        ],
+        "hours": [0, 0],
         "mode": "Unscheduled scope idea",
         "plan": "No pairing is reserved. Select and estimate support only after a new scope decision."
       },
@@ -7186,14 +5968,8 @@
         "high": 0,
         "basis": "Rough future estimate only; excluded from the five-sprint capacity forecast while sprint is 0."
       },
-      "reviewHours": [
-        0,
-        0
-      ],
-      "labels": [
-        "Won’t",
-        "SP:1"
-      ],
+      "reviewHours": [0, 0],
+      "labels": ["Won’t", "SP:1"],
       "steps": [
         "Confirm that every scheduled Must and Should feature has accepted evidence and that the team still has capacity.",
         "Explain how arbitrary deserialization and incompatible schemas would enlarge the security and validation scope.",
@@ -7213,10 +5989,7 @@
           "focus": "Review artifact trust and version compatibility."
         }
       ],
-      "tools": [
-        "Model card",
-        "scope register"
-      ],
+      "tools": ["Model card", "scope register"],
       "starterExercise": "Sketch the smallest useful example and compare its value with the remaining core defects and documentation work.",
       "snippet": {
         "language": "scope decision",
@@ -7244,17 +6017,14 @@
       "sp": 1,
       "depends": [],
       "unlocks": [],
-      "objective": "Use local username/password registration; synthetic-account recovery follows documented framework development commands.",
+      "objective": "Use local username/password registration; synthetic-account recovery follows a documented synthetic-demo account reset procedure.",
       "priority": "Won’t",
       "kind": "Deferred",
       "status": "Backlog",
       "reviewer": "W2",
       "pair": {
         "member": null,
-        "hours": [
-          0,
-          0
-        ],
+        "hours": [0, 0],
         "mode": "Unscheduled scope idea",
         "plan": "No pairing is reserved. Select and estimate support only after a new scope decision."
       },
@@ -7263,14 +6033,8 @@
         "high": 0,
         "basis": "Rough future estimate only; excluded from the five-sprint capacity forecast while sprint is 0."
       },
-      "reviewHours": [
-        0,
-        0
-      ],
-      "labels": [
-        "Won’t",
-        "SP:1"
-      ],
+      "reviewHours": [0, 0],
+      "labels": ["Won’t", "SP:1"],
       "steps": [
         "Confirm that every scheduled Must and Should feature has accepted evidence and that the team still has capacity.",
         "Explain the added email provider, token, expiry, delivery and privacy work required for a real reset flow.",
@@ -7280,20 +6044,17 @@
         "Core registration/login/logout works locally.",
         "No nonfunctional reset link or email promise is displayed."
       ],
-      "outcome": "Use local username/password registration; synthetic-account recovery follows documented framework development commands.",
+      "outcome": "Use local username/password registration; synthetic-account recovery follows a documented synthetic-demo account reset procedure.",
       "avoid": "Do not implement this feature merely to increase the feature count or consume the team's reserve.",
       "learn": "Explain the user value, added complexity and why the current release remains complete without it.",
       "resources": [
         {
-          "label": "Django authentication",
-          "url": "https://docs.djangoproject.com/en/5.2/topics/auth/default/",
-          "focus": "Use framework account handling without adding an email-delivery project."
+          "label": "Express session middleware",
+          "url": "https://expressjs.com/en/resources/middleware/session/",
+          "focus": "Session store, cookie settings, regeneration and destruction; add CSRF and ownership checks."
         }
       ],
-      "tools": [
-        "Django authentication",
-        "scope register"
-      ],
+      "tools": ["Express authentication", "scope register"],
       "starterExercise": "Sketch the smallest useful example and compare its value with the remaining core defects and documentation work.",
       "snippet": {
         "language": "scope decision",
@@ -7314,7 +6075,7 @@
       "readiness": "Outside the current sprint forecast; visible for MoSCoW assessment and future scope discussion."
     }
   ],
-  "revision": "Smaller application, guided learning, intact ML evaluation and mandatory course evidence; professor-facing feature register added",
+  "revision": "Smaller application, guided learning, intact ML evaluation and mandatory course evidence; professor-facing feature register added · Express/JavaScript web backend; ML-owned Python CLI",
   "skillsCheck": {
     "duration": "45–60 minutes at the start of Sprint 1; not completed by this generated plan.",
     "scale": [
@@ -7324,22 +6085,19 @@
       "Can lead and explain"
     ],
     "areas": {
-      "frontend": "Render a labelled Django-template form and its error message.",
-      "api": "Trace a Django request through view, service and template.",
+      "frontend": "Render a labelled EJS form and its server validation error.",
+      "api": "Trace an Express request through middleware, handler, service and template.",
       "database": "Draw a foreign key and explain all-or-none inserts.",
       "security": "Explain why a hidden button is not authorization and demonstrate a denied cross-owner request.",
       "testing": "Write a failing test, repair the defect and explain what the test proves.",
       "ml": "Run a tiny classifier and explain train, validation and test.",
       "statistics": "Calculate precision and recall from four confusion-matrix counts."
     },
-    "decision": "Record actual skills and availability, including AI/ST Python ability. The degree title is not an assessment. W1 tries a Django auth exercise before committing to this stack; if blocked, ask for focused course support or re-estimate one alternative. Do not add a second backend."
+    "decision": "Record actual skills/availability. W1 is a JavaScript web developer; Python is not assumed. W1 and AI exchange JSON through a toy Python CLI in Sprint 1 before model integration. AI owns Python code/environment; W3 practices SQL in JavaScript. If blocked, re-estimate the boundary together without adding a second web service."
   },
   "capacityPolicy": {
     "reserve": 0.2,
-    "meetingHours": [
-      3,
-      5
-    ],
+    "meetingHours": [3, 5],
     "note": "Estimates include learning, implementation, task documentation and owner-side pairing. Add helper time, independent review and 3–5 meeting/coordination hours per member per sprint; add one skills-check hour in Sprint 1. Reserve 20% of actual availability. Estimates are provisional, not measured savings or converted story points."
   }
 }
